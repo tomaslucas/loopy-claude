@@ -3,23 +3,6 @@
 Generated: 2026-01-24
 Specs analyzed: 1 (feature-designer-skill.md)
 
-## Phase 2: Core Skill File
-
-- [ ] Create SKILL.md with YAML frontmatter and 4-phase workflow
-      Done when:
-        - SKILL.md exists with correct YAML metadata (name, description, tools)
-        - Contains Phase 0-3 workflow sections
-        - Contains Guardrails section with numbered rules
-        - Tool restrictions enforced: Read, Write, Grep, Glob, AskUserQuestion only
-      Verify:
-        - grep -q "^name: Feature Designer" .claude/skills/feature-designer/SKILL.md
-        - grep -q "tools:" .claude/skills/feature-designer/SKILL.md
-        - grep -q "AskUserQuestion" .claude/skills/feature-designer/SKILL.md
-        - grep -q "Phase 0:" .claude/skills/feature-designer/SKILL.md
-        - grep -q "Phase 3:" .claude/skills/feature-designer/SKILL.md
-        - grep -q "Guardrails" .claude/skills/feature-designer/SKILL.md
-      (cite: specs/feature-designer-skill.md Section 5 - Metadata Structure, Section 6 - Workflow, Section 8 - SKILL.md Content)
-
 ## Phase 3: Resource Files
 
 - [ ] Create resources/spec-template.md with template structure (NO implementation checklists)
