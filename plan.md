@@ -2,186 +2,106 @@
 
 Generated: 2026-01-24
 Specs analyzed: 1 (export-loopy-system.md)
+Action: fresh (plan.md was empty)
 
-## Phase 1: Core Script Structure
+---
 
-- [ ] Create export-loopy.sh with argument parsing and validation
+## Phase 1: Export Script Implementation
+
+### Task 1: Foundation & Infrastructure
+
+- [ ] Create export-loopy.sh with argument parsing, source validation, dependency checks, and destination prompt
       Done when:
-        - File exists at /home/tlucas/code/loopy-claude/export-loopy.sh
-        - Shebang (#!/usr/bin/env bash) and set -euo pipefail present
-        - Parses preset argument (full required, others future)
-        - Parses --source PATH flag (optional)
-        - Parses --dry-run flag (optional)
-        - Shows usage/help on invalid arguments
-        - Exit code 1 on invalid arguments
+        - File export-loopy.sh exists in root with shebang and set -euo pipefail
+        - Usage message displays for --help or invalid args
+        - Parses preset (full required), --source PATH, --dry-run flags
+        - validate_source() verifies loopy-claude structure (loop.sh, prompts/ exist)
+        - check_dependencies() warns if claude CLI not found (non-fatal)
+        - prompt_destination() interactively asks for path with confirmation
+        - PRESET_FULL array defines all files to export
       Verify:
-        - grep -q "#!/usr/bin/env bash" export-loopy.sh
-        - grep -q "set -euo pipefail" export-loopy.sh
-        - ./export-loopy.sh invalid 2>&1 | grep -q "Usage"
-        - ./export-loopy.sh full --dry-run --source . 2>&1 | head -1
-      (cite: specs/export-loopy-system.md Section 4 - CLI Interface, Section 7 - Implementation Hints)
+        - chmod +x export-loopy.sh && ./export-loopy.sh --help
+        - ./export-loopy.sh invalid-preset 2>&1 | grep -q "Usage"
+        - ./export-loopy.sh full --dry-run (should prompt for destination)
+      (cite: specs/export-loopy-system.md sections 3.1, 4)
+      [Grouped: Sequential dependencies - args must parse before validation, validation before destination prompt. ~150 lines, same file]
 
-- [ ] Implement source validation function
+### Task 2: Core Operations
+
+- [ ] Implement conflict resolution, file copying, gitignore merging, and permission handling
       Done when:
-        - validate_source() function checks loopy-claude directory structure
-        - Verifies loop.sh exists
-        - Verifies prompts/ directory exists
-        - Returns exit code 2 on validation failure
-        - --source flag sets source path (defaults to pwd)
-      Verify:
-        - grep -q "validate_source" export-loopy.sh
-        - ./export-loopy.sh full --source /nonexistent 2>&1 | grep -iq "source\|valid\|not found"
-      (cite: specs/export-loopy-system.md Section 2 - Flow: Validate source, Section 4 - Exit Codes)
-
-- [ ] Implement dependency check for claude CLI
-      Done when:
-        - check_dependencies() function verifies claude CLI is installed
-        - Uses `command -v claude` or similar check
-        - Warns user if missing (does not block, just warns)
-        - Exit code 3 only if --strict mode (future, for now just warn)
-      Verify:
-        - grep -q "check_dependencies\|command -v claude" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 2 - Dependencies, Section 4 - Exit Codes)
-
-## Phase 2: Interactive Destination & Preset Definition
-
-- [ ] Implement interactive destination prompt
-      Done when:
-        - prompt_destination() function asks user for destination path
-        - Accepts absolute or relative paths
-        - Creates directory if it doesn't exist (with confirmation)
-        - Validates writable permissions
-        - Shows confirmation before proceeding
-        - Exit code 4 on destination errors
-      Verify:
-        - grep -q "prompt_destination\|Enter destination" export-loopy.sh
-        - grep -q "mkdir\|Proceed" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 4 - Interactive Prompts: Destination prompt)
-
-- [ ] Define PRESET_FULL array and file list
-      Done when:
-        - PRESET_FULL bash array defined with all component files
-        - Includes: loop.sh, analyze-session.sh, prompts/plan.md, prompts/build.md, prompts/reverse.md, .claude/skills/feature-designer/, .gitignore
-        - Function to get preset files by name
-      Verify:
-        - grep -q "PRESET_FULL" export-loopy.sh
-        - grep -q "loop.sh" export-loopy.sh && grep -q "prompts/" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 3.1 - Preset Definitions)
-
-## Phase 3: Conflict Resolution & File Operations
-
-- [ ] Implement conflict detection and resolution
-      Done when:
-        - resolve_conflicts() scans destination for existing files matching preset
-        - Prompts user per conflict: (o)verwrite / (s)kip / (r)ename / (a)bort
-        - Rename creates backup with timestamp: file.backup.YYYYMMDD-HHMMSS
-        - Stores user choices for batch processing
-        - Abort exits with code 1
-      Verify:
-        - grep -q "resolve_conflicts\|Overwrite\|Skip\|Rename\|Abort" export-loopy.sh
-        - grep -q "backup.*[0-9]" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 3.3 - Conflict Resolution Strategy)
-
-- [ ] Implement file copy operations
-      Done when:
+        - resolve_conflicts() detects existing files at destination
+        - Per-conflict prompt offers: (o)verwrite, (s)kip, (r)ename, (a)bort
+        - Rename creates .backup.YYYYMMDD-HHMMSS suffix
         - copy_files() copies preset files respecting conflict resolutions
-        - Maintains directory structure (creates parent dirs as needed)
-        - Handles both files and directories (feature-designer/)
-        - Sets executable permissions for .sh files (chmod +x)
-        - Skips files marked as skip in conflict resolution
+        - Directories created as needed (mkdir -p)
+        - merge_gitignore() appends entries if .gitignore exists, copies if not
+        - set_permissions() makes all .sh files executable (chmod +x)
+        - All operations respect --dry-run (print what would happen, no actual changes)
       Verify:
-        - grep -q "copy_files\|cp " export-loopy.sh
-        - grep -q "chmod +x\|chmod.*x" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 2 - File operations, Section 3.3)
+        - mkdir /tmp/test-conflict && touch /tmp/test-conflict/loop.sh
+        - ./export-loopy.sh full (enter /tmp/test-conflict, test conflict prompt)
+        - Verify backup created when choosing (r)ename
+        - rm -rf /tmp/test-conflict
+      (cite: specs/export-loopy-system.md sections 3.3, 3.4)
+      [Grouped: All file operation logic, depends on Task 1 functions. ~150 lines, same file]
 
-- [ ] Implement .gitignore merging logic
+### Task 3: Output & Finalization
+
+- [ ] Implement template generation, summary report, and main orchestration flow
       Done when:
-        - If destination has .gitignore, append loopy entries with separator comment
-        - If no .gitignore exists, copy entire file
-        - Separator: "# Loopy-Claude entries (added YYYY-MM-DD)"
-        - Does not duplicate entries already present
+        - generate_templates() creates specs/README.md with empty PIN structure
+        - generate_templates() creates plan.md with header comment only
+        - generate_templates() creates README-LOOPY.md with quick start guide
+        - Templates use heredocs with variable substitution ({date}, {source})
+        - print_summary() lists all exported files and shows next steps
+        - Main script flow orchestrates: validate → deps → destination → conflicts → copy → templates → gitignore → permissions → summary
+        - Exit codes: 0=success, 1=abort/invalid, 2=source fail, 3=deps fail, 4=dest fail
+        - End-to-end test passes: fresh export creates working loopy-claude copy
       Verify:
-        - grep -q "gitignore\|Loopy-Claude entries" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 3.4 - .gitignore Merging)
+        - mkdir /tmp/test-export
+        - ./export-loopy.sh full (enter /tmp/test-export, no conflicts)
+        - [ -x /tmp/test-export/loop.sh ] && echo "✅ loop.sh executable"
+        - [ -f /tmp/test-export/prompts/plan.md ] && echo "✅ prompts copied"
+        - [ -f /tmp/test-export/specs/README.md ] && echo "✅ specs template"
+        - [ -f /tmp/test-export/README-LOOPY.md ] && echo "✅ quick start"
+        - cat /tmp/test-export/README-LOOPY.md | grep -q "Quick Start"
+        - rm -rf /tmp/test-export
+      (cite: specs/export-loopy-system.md sections 3.2, 6)
+      [Grouped: All output generation, depends on Tasks 1-2. ~65 lines + main flow, same file]
 
-## Phase 4: Template Generation
+---
 
-- [ ] Implement specs/README.md template generation
-      Done when:
-        - Creates specs/ directory if not exists
-        - Generates specs/README.md with empty PIN structure
-        - Includes date placeholder filled with current date
-        - Detects project name from git or destination directory name
-      Verify:
-        - grep -q "specs/README.md\|Lookup table" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 3.2 - Template Generation: specs/README.md)
+## Context Budget Summary
 
-- [ ] Implement plan.md template generation
-      Done when:
-        - Creates plan.md with comment header only
-        - Comments explain this is generated by loop.sh
-        - Points to README-LOOPY.md for first-time usage
-      Verify:
-        - grep -q "plan.md\|Generated by loop.sh" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 3.2 - Template Generation: plan.md)
+| Task | Estimated Lines | Files | Context Load |
+|------|-----------------|-------|--------------|
+| Task 1 | ~150 | 1 (export-loopy.sh) | ✅ Small |
+| Task 2 | ~150 | 1 (export-loopy.sh) | ✅ Small |
+| Task 3 | ~65 + main | 1 (export-loopy.sh) | ✅ Small |
+| **Total** | ~365 | **1 file** | ✅ Under 500 threshold |
 
-- [ ] Implement README-LOOPY.md quick-start generation
-      Done when:
-        - Creates README-LOOPY.md with quick-start instructions
-        - Lists exported components
-        - Includes export timestamp and source path
-        - Documents prerequisites, first steps, modes
-        - Self-contained guide (no external links required)
-      Verify:
-        - grep -q "README-LOOPY.md\|Quick Start" export-loopy.sh
-        - grep -q "Prerequisites\|First Steps" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 3.2 - Template Generation: README-LOOPY.md)
+**Grouping rationale:** Single file implementation (~365 lines) warrants MAX 3 tasks per guidelines. Tasks split by logical subsystem with clear sequential dependencies (foundation → operations → output).
 
-## Phase 5: Dry-Run Mode & Summary
+---
 
-- [ ] Implement dry-run mode
-      Done when:
-        - --dry-run flag skips all file operations
-        - Shows what files WOULD be copied
-        - Shows what templates WOULD be created
-        - Shows what conflicts WOULD need resolution
-        - No filesystem changes occur
-      Verify:
-        - ./export-loopy.sh full --dry-run --source . 2>&1 | grep -iq "would\|dry"
-      (cite: specs/export-loopy-system.md Section 4 - Examples, Section 7 - Verification: Test 3)
+## Acceptance Criteria Mapping
 
-- [ ] Implement summary report
-      Done when:
-        - print_summary() lists all exported files
-        - Shows destination path
-        - Displays next steps instructions
-        - Shows count of files copied, skipped, renamed
-      Verify:
-        - grep -q "print_summary\|Summary\|exported" export-loopy.sh
-      (cite: specs/export-loopy-system.md Section 2 - Summary report)
+All 14 acceptance criteria from spec Section 6 covered:
 
-## Phase 6: Documentation & Testing
-
-- [ ] Add header documentation to export-loopy.sh
-      Done when:
-        - Script header includes usage examples
-        - Documents all presets (full for now, future presets noted)
-        - Documents all flags: --source, --dry-run
-        - Documents exit codes: 0, 1, 2, 3, 4
-      Verify:
-        - head -30 export-loopy.sh | grep -q "Usage"
-        - head -50 export-loopy.sh | grep -q "Exit code"
-      (cite: specs/export-loopy-system.md Section 7 - Documentation)
-
-- [ ] Manual testing and verification
-      Done when:
-        - Test 1 passes: Fresh export to empty directory
-        - Test 2 passes: Export with conflicts (test all resolution options)
-        - Test 3 passes: Dry-run mode (no files created)
-        - Test 4 passes: Custom source path
-        - Test 5 passes: .gitignore merging
-        - All 14 acceptance criteria from spec verified
-      Verify:
-        - mkdir -p /tmp/test-export-fresh && ./export-loopy.sh full --source . 2>&1 || true
-        - [ -x /tmp/test-export-fresh/loop.sh ] && echo "executable preserved"
-      (cite: specs/export-loopy-system.md Section 5 - Testing Strategy, Section 6 - Acceptance Criteria)
+| # | Criteria | Task |
+|---|----------|------|
+| 1 | Export "full" preset to writable directory | 1, 2 |
+| 2 | Validate source is loopy-claude directory | 1 |
+| 3 | Verify claude CLI installed (warn if missing) | 1 |
+| 4 | Interactive destination selection with confirmation | 1 |
+| 5 | Conflict prompt with 4 options (o/s/r/a) | 2 |
+| 6 | Renamed files include timestamp | 2 |
+| 7 | Templates created empty with comments | 3 |
+| 8 | .gitignore merged or copied | 2 |
+| 9 | Executable permissions preserved | 2 |
+| 10 | README-LOOPY.md generated | 3 |
+| 11 | Summary report with next steps | 3 |
+| 12 | --dry-run preview mode | 1, 2 |
+| 13 | --source flag for custom location | 1 |
+| 14 | Correct exit codes | 3 |
