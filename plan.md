@@ -6,35 +6,7 @@ Action: regenerated (previous plan 100% complete, see git log)
 
 ---
 
-## Phase 1: Validate Mode Prompt
-
-- [ ] Create prompts/validate.md with complete validation workflow
-      Done when:
-        - File exists at prompts/validate.md (~350 lines)
-        - Contains Phase 0 (Orient) with pending-validations.md reading
-        - Contains Subagent Strategy section
-        - Contains Parallel Verification section with Task 1 (sonnet/checklist) and Task 2 (opus/inference)
-        - Contains Result Processing section with deduplication logic
-        - Contains Attempt Tracking logic (max 3, escalation)
-        - Contains Corrective Task Generation format
-        - Contains Guardrails with numbered 9s system
-        - Contains Completion Signals (SPEC_VALIDATED, CORRECTIONS_NEEDED, ESCALATE, COMPLETE)
-      Verify:
-        - test -f prompts/validate.md
-        - grep -q "Phase 0" prompts/validate.md
-        - grep -q "pending-validations.md" prompts/validate.md
-        - grep -q "Task 1.*sonnet\|sonnet.*Task 1" prompts/validate.md
-        - grep -q "Task 2.*opus\|opus.*Task 2" prompts/validate.md
-        - grep -q "SPEC_VALIDATED" prompts/validate.md
-        - grep -q "CORRECTIONS_NEEDED" prompts/validate.md
-        - grep -q "ESCALATE" prompts/validate.md
-        - grep -q "attempt.*3\|3.*attempt" prompts/validate.md
-      (cite: specs/prompt-validate-system.md sections 2-6)
-      [Context estimate: ~400 lines - reference build.md/reverse.md patterns]
-
----
-
-## Phase 2: Loop.sh Integration
+## Phase 1: Loop.sh Integration
 
 - [ ] Update loop.sh to support validate mode with stop condition
       Done when:
