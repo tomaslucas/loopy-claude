@@ -452,6 +452,14 @@ generate_templates() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 
+    # Create logs/ directory
+    if [[ "$DRY_RUN" == true ]]; then
+        echo "[DRY RUN] Would create logs/ directory"
+    else
+        mkdir -p "$dest/logs"
+        echo "✓ Created logs/ directory"
+    fi
+
     # Create specs/README.md
     if [[ "$DRY_RUN" == true ]]; then
         echo "[DRY RUN] Would create specs/README.md"
@@ -584,6 +592,9 @@ print_summary() {
     done
     echo ""
     echo "Generated templates:"
+    if [[ -d "$dest/logs" ]]; then
+        echo "  ✓ logs/"
+    fi
     if [[ -f "$dest/specs/README.md" ]]; then
         echo "  ✓ specs/README.md"
     fi
