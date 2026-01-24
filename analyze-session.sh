@@ -39,15 +39,40 @@ fi
 
 FILENAME=$(basename "$TARGET")
 
-# Extract metadata from log
+# Check for jq
+if ! command -v jq >/dev/null 2>&1; then
+    echo -e "${RED}Error: jq is required but not installed${NC}"
+    echo "Install with: sudo apt install jq  # or brew install jq"
+    exit 1
+fi
+
+# Extract metadata from log header
 MODE=$(grep "^Mode:" "$TARGET" | head -1 | awk '{print $2}' || echo "unknown")
 MODEL=$(grep "^Model:" "$TARGET" | head -1 | awk '{print $2}' || echo "unknown")
 BRANCH=$(grep "^Branch:" "$TARGET" | head -1 | awk '{print $2}' || echo "unknown")
 MAX_ITER=$(grep "^Max:" "$TARGET" | head -1 | awk '{print $2}' || echo "unknown")
 
-# Count iterations
+# Count iterations from text logs
 ITERATIONS_STARTED=$(grep -c "^Starting iteration" "$TARGET" || echo "0")
 ITERATIONS_COMPLETED=$(grep -c "^Iteration .* complete" "$TARGET" || echo "0")
+
+# Extract JSON result entry
+RESULT_JSON=$(grep '"type":"result"' "$TARGET" | tail -1)
+
+if [ -z "$RESULT_JSON" ]; then
+    echo -e "${YELLOW}Warning: No result entry found in log${NC}"
+    echo "This may be an incomplete or malformed log file"
+    echo ""
+fi
+
+# Parse result data
+IS_ERROR=$(echo "$RESULT_JSON" | jq -r '.is_error // false' 2>/dev/null || echo "false")
+TOTAL_COST=$(echo "$RESULT_JSON" | jq -r '.total_cost_usd // 0' 2>/dev/null || echo "0")
+DURATION_MS=$(echo "$RESULT_JSON" | jq -r '.duration_ms // 0' 2>/dev/null || echo "0")
+NUM_TURNS=$(echo "$RESULT_JSON" | jq -r '.num_turns // 0' 2>/dev/null || echo "0")
+
+# Convert duration to human readable
+DURATION_SEC=$(echo "scale=1; $DURATION_MS / 1000" | bc 2>/dev/null || echo "0")
 
 # Detect stop condition
 STOP_CONDITION="unknown"
@@ -59,121 +84,104 @@ elif grep -q "Rate limit detected" "$TARGET"; then
     STOP_CONDITION="rate_limit"
 elif grep -q "Agent signaled completion" "$TARGET"; then
     STOP_CONDITION="completion_signal"
-elif grep -q "Error: Claude execution failed" "$TARGET"; then
+elif [ "$IS_ERROR" = "true" ]; then
     STOP_CONDITION="execution_error"
 fi
 
-# Check for errors
-ERROR_COUNT=$(grep -ic "error" "$TARGET" || echo "0")
-FAILED_COUNT=$(grep -ic "failed" "$TARGET" || echo "0")
-
-# Check git pushes
-PUSH_COUNT=$(grep -c "^Pushing changes" "$TARGET" || echo "0")
-PUSH_ERRORS=$(grep -c "fatal.*push\|error.*push" "$TARGET" || echo "0")
-
-# Detect warnings
-WARNING_COUNT=$(grep -ic "warning\|warn" "$TARGET" || echo "0")
-
-# Print report
+# Print report header
 echo "═══════════════════════════════════════════════════════════════"
 echo "Session Analysis: $FILENAME"
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
+
+# Configuration
 echo "Configuration:"
 echo "  Mode:        $MODE"
 echo "  Model:       $MODEL"
 echo "  Branch:      $BRANCH"
 echo "  Max iter:    $MAX_ITER"
 echo ""
+
+# Execution summary
 echo "Execution:"
 echo "  Iterations started:   $ITERATIONS_STARTED"
 echo "  Iterations completed: $ITERATIONS_COMPLETED"
+echo "  Duration:             ${DURATION_SEC}s"
+echo "  Turns:                $NUM_TURNS"
 echo "  Stop condition:       $STOP_CONDITION"
 echo ""
 
-# Git activity
-if [ "$PUSH_COUNT" -gt 0 ]; then
-    echo "Git Activity:"
-    echo "  Pushes:        $PUSH_COUNT"
-    if [ "$PUSH_ERRORS" -gt 0 ]; then
-        echo -e "  Push errors:   ${RED}$PUSH_ERRORS${NC}"
-    else
-        echo -e "  Push errors:   ${GREEN}0${NC}"
+# Cost Analysis
+if [ -n "$RESULT_JSON" ] && [ "$TOTAL_COST" != "0" ]; then
+    echo "Cost Analysis:"
+    # Use LC_NUMERIC=C to ensure consistent decimal formatting
+    LC_NUMERIC=C printf "  Total Cost: \$%.4f\n" "$TOTAL_COST"
+    echo ""
+
+    # Per-model breakdown
+    echo "  Model Breakdown:"
+    echo "$RESULT_JSON" | jq -r '.modelUsage // {} | to_entries[] |
+        "    " + .key + ": $" + (.value.costUSD | tostring) + "\n" +
+        "      Input:  " + (.value.inputTokens | tostring) + " tokens" +
+        (if .value.cacheReadInputTokens > 0 then " (" + (.value.cacheReadInputTokens | tostring) + " cache read)" else "" end) +
+        (if .value.cacheCreationInputTokens > 0 then " (" + (.value.cacheCreationInputTokens | tostring) + " cache creation)" else "" end) + "\n" +
+        "      Output: " + (.value.outputTokens | tostring) + " tokens"
+    ' 2>/dev/null || echo "    (parsing error)"
+    echo ""
+
+    # Token efficiency
+    TOTAL_INPUT=$(echo "$RESULT_JSON" | jq -r '.usage.input_tokens // 0' 2>/dev/null || echo "0")
+    TOTAL_CACHE_READ=$(echo "$RESULT_JSON" | jq -r '.usage.cache_read_input_tokens // 0' 2>/dev/null || echo "0")
+    TOTAL_CACHE_CREATION=$(echo "$RESULT_JSON" | jq -r '.usage.cache_creation_input_tokens // 0' 2>/dev/null || echo "0")
+    TOTAL_OUTPUT=$(echo "$RESULT_JSON" | jq -r '.usage.output_tokens // 0' 2>/dev/null || echo "0")
+
+    TOTAL_INPUT_WITH_CACHE=$((TOTAL_INPUT + TOTAL_CACHE_CREATION + TOTAL_CACHE_READ))
+
+    if [ "$TOTAL_INPUT_WITH_CACHE" -gt 0 ]; then
+        CACHE_HIT_RATE=$(echo "scale=1; 100 * $TOTAL_CACHE_READ / $TOTAL_INPUT_WITH_CACHE" | bc 2>/dev/null || echo "0")
+        echo "  Token Efficiency:"
+        echo "    Total input:  $TOTAL_INPUT_WITH_CACHE tokens ($TOTAL_INPUT regular, $TOTAL_CACHE_CREATION cache creation, $TOTAL_CACHE_READ cache read)"
+        echo "    Total output: $TOTAL_OUTPUT tokens"
+        echo "    Cache hit rate: ${CACHE_HIT_RATE}%"
+        echo ""
     fi
+fi
+
+# Error detection - only real errors
+if [ "$IS_ERROR" = "true" ]; then
+    echo -e "${RED}Errors:${NC}"
+    echo "  ⚠ Execution failed"
+
+    # Extract error details
+    ERROR_SUBTYPE=$(echo "$RESULT_JSON" | jq -r '.subtype // "unknown"' 2>/dev/null || echo "unknown")
+    ERROR_RESULT=$(echo "$RESULT_JSON" | jq -r '.result // ""' 2>/dev/null || echo "")
+
+    if [ "$ERROR_SUBTYPE" != "unknown" ] && [ "$ERROR_SUBTYPE" != "null" ]; then
+        echo "  Type: $ERROR_SUBTYPE"
+    fi
+
+    if [ -n "$ERROR_RESULT" ] && [ "$ERROR_RESULT" != "null" ]; then
+        echo "  Reason: $ERROR_RESULT" | head -c 200
+        [ ${#ERROR_RESULT} -gt 200 ] && echo "..."
+    fi
+
     echo ""
 fi
 
-# Issues
-ISSUES=false
-
-if [ "$ERROR_COUNT" -gt 0 ] || [ "$FAILED_COUNT" -gt 0 ]; then
-    ISSUES=true
-    echo -e "${RED}Issues Detected:${NC}"
-    [ "$ERROR_COUNT" -gt 0 ] && echo "  ⚠ Errors: $ERROR_COUNT occurrences"
-    [ "$FAILED_COUNT" -gt 0 ] && echo "  ⚠ Failures: $FAILED_COUNT occurrences"
-    echo ""
-fi
-
-if [ "$WARNING_COUNT" -gt 0 ]; then
-    ISSUES=true
-    echo -e "${YELLOW}Warnings: $WARNING_COUNT occurrences${NC}"
-    echo ""
-fi
-
+# Rate limit warning
 if [ "$STOP_CONDITION" = "rate_limit" ]; then
-    ISSUES=true
     echo -e "${RED}⚠ Rate Limit Hit${NC}"
     echo "  API quota exhausted. Wait before retrying."
     echo ""
 fi
 
-if [ "$STOP_CONDITION" = "execution_error" ]; then
-    ISSUES=true
-    echo -e "${RED}⚠ Execution Error${NC}"
-    echo "  Claude CLI failed. Check log for details."
-    echo ""
-fi
-
-# Summary
-if [ "$ISSUES" = false ]; then
+# Success indicator
+if [ "$IS_ERROR" = "false" ] && [ "$STOP_CONDITION" != "rate_limit" ]; then
     echo -e "Status: ${GREEN}✓ Clean execution${NC}"
     echo ""
 fi
 
-# Recommendations
-echo "Recommendations:"
-
-if [ "$STOP_CONDITION" = "max_iterations" ] && [ "$MODE" = "build" ]; then
-    echo "  • Max iterations reached but tasks may remain"
-    echo "    Check plan.md and continue with: ./loop.sh build N"
-fi
-
-if [ "$STOP_CONDITION" = "rate_limit" ]; then
-    echo "  • Wait 10-15 minutes before retrying"
-    echo "  • Consider using --model haiku for cheaper runs"
-fi
-
-if [ "$ERROR_COUNT" -gt 5 ]; then
-    echo "  • High error count ($ERROR_COUNT)"
-    echo "    Review log for recurring issues: grep -i error $TARGET"
-fi
-
-if [ "$WARNING_COUNT" -gt 10 ]; then
-    echo "  • Many warnings ($WARNING_COUNT)"
-    echo "    Review: grep -i warn $TARGET"
-fi
-
-if [ "$PUSH_ERRORS" -gt 0 ]; then
-    echo "  • Git push failed"
-    echo "    Check branch permissions and upstream configuration"
-fi
-
-if [ "$ITERATIONS_COMPLETED" -eq 0 ] && [ "$ITERATIONS_STARTED" -gt 0 ]; then
-    echo "  • No iterations completed despite starting"
-    echo "    Possible early termination or crash"
-fi
-
-echo ""
+# Footer
 echo "───────────────────────────────────────────────────────────────"
 echo "Full log: $TARGET"
 echo "───────────────────────────────────────────────────────────────"
