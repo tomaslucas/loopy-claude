@@ -116,7 +116,7 @@ while true; do
 
     # Stop 2: Empty plan (build mode only)
     if [ "$MODE" = "build" ]; then
-        if ! grep -q '- \[ \]' plan.md 2>/dev/null; then
+        if ! grep -q -- '- \[ \]' plan.md 2>/dev/null; then
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             log "No pending tasks in plan.md"
             log "All work complete!"
