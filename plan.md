@@ -5,17 +5,6 @@ Specs analyzed: 1 (feature-designer-skill.md)
 
 ## Phase 3: Resource Files
 
-- [ ] Create resources/spec-template.md with template structure (NO implementation checklists)
-      Done when:
-        - Template contains all 8 sections from spec
-        - Section 7 is "Implementation Guidance" with NO [ ] checkboxes
-        - Contains placeholder markers for feature name, purpose, goals, etc.
-      Verify:
-        - grep -q "## 1. Overview" .claude/skills/feature-designer/resources/spec-template.md
-        - grep -q "## 7. Implementation Guidance" .claude/skills/feature-designer/resources/spec-template.md
-        - ! grep -q "^- \[ \]" .claude/skills/feature-designer/resources/spec-template.md || echo "FAIL: Found implementation checklist"
-      (cite: specs/feature-designer-skill.md Section 7 - Spec Template Structure)
-
 - [ ] Create resources/phase0-research.md with mandatory research checklist
       Done when:
         - Contains 5-step research checklist
