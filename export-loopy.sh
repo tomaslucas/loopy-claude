@@ -160,11 +160,11 @@ check_dependencies() {
 prompt_destination() {
     local dest=""
 
-    echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Destination Directory Selection"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
+    echo "" >&2
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo "Destination Directory Selection" >&2
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo "" >&2
 
     while true; do
         read -rp "Enter destination directory (absolute or relative path): " dest
@@ -173,73 +173,272 @@ prompt_destination() {
         dest="${dest/#\~/$HOME}"
 
         if [[ -z "$dest" ]]; then
-            echo "Error: Destination cannot be empty"
+            echo "Error: Destination cannot be empty" >&2
             continue
         fi
 
         # Check if directory exists
         if [[ -d "$dest" ]]; then
-            echo ""
-            echo "Destination: $dest"
-            echo "  Directory exists: yes"
+            echo "" >&2
+            echo "Destination: $dest" >&2
+            echo "  Directory exists: yes" >&2
 
             # Check if writable
             if [[ -w "$dest" ]]; then
-                echo "  Writable: yes"
+                echo "  Writable: yes" >&2
             else
-                echo "  Writable: no"
-                echo "Error: Destination is not writable"
+                echo "  Writable: no" >&2
+                echo "Error: Destination is not writable" >&2
                 continue
             fi
         else
-            echo ""
-            echo "Destination: $dest"
-            echo "  Directory exists: no (will be created)"
+            echo "" >&2
+            echo "Destination: $dest" >&2
+            echo "  Directory exists: no (will be created)" >&2
 
             # Check if parent directory exists and is writable
             local parent=$(dirname "$dest")
             if [[ ! -d "$parent" ]]; then
-                echo "Error: Parent directory does not exist: $parent"
+                echo "Error: Parent directory does not exist: $parent" >&2
                 continue
             fi
             if [[ ! -w "$parent" ]]; then
-                echo "Error: Parent directory is not writable: $parent"
+                echo "Error: Parent directory is not writable: $parent" >&2
                 continue
             fi
 
-            echo "  Parent writable: yes"
+            echo "  Parent writable: yes" >&2
         fi
 
-        echo ""
+        echo "" >&2
         read -rp "Proceed with this destination? [y/n]: " confirm
 
         if [[ "$confirm" =~ ^[Yy]$ ]]; then
             # Create destination if it doesn't exist
             if [[ ! -d "$dest" ]]; then
                 if [[ "$DRY_RUN" == true ]]; then
-                    echo "[DRY RUN] Would create directory: $dest"
+                    echo "[DRY RUN] Would create directory: $dest" >&2
                 else
                     mkdir -p "$dest" || {
-                        echo "Error: Failed to create destination directory"
+                        echo "Error: Failed to create destination directory" >&2
                         exit 4
                     }
-                    echo "✓ Created destination directory"
+                    echo "✓ Created destination directory" >&2
                 fi
             fi
 
-            # Return absolute path
+            # Return absolute path to stdout (only this gets captured)
             if [[ "$dest" = /* ]]; then
                 echo "$dest"
             else
-                echo "$(cd "$dest" 2>/dev/null && pwd)" || echo "$dest"
+                # Make path absolute (works even if dir doesn't exist yet in dry-run)
+                if [[ -d "$dest" ]]; then
+                    echo "$(cd "$dest" && pwd)"
+                else
+                    echo "$(cd "$(dirname "$dest")" && pwd)/$(basename "$dest")"
+                fi
             fi
             return 0
         fi
 
+        echo "" >&2
+        echo "Let's try again..." >&2
+        echo "" >&2
+    done
+}
+
+# Resolve conflicts for files that already exist in destination
+# Returns: Associative array where key=file, value=action (overwrite|skip|rename)
+resolve_conflicts() {
+    local src="$1"
+    local dest="$2"
+    shift 2
+    local files=("$@")
+
+    local conflicts=()
+    declare -g -A conflict_resolutions
+
+    # Detect conflicts (exclude .gitignore - handled separately)
+    for file in "${files[@]}"; do
+        if [[ "$file" != ".gitignore" ]] && [[ -e "$dest/$file" ]]; then
+            conflicts+=("$file")
+        fi
+    done
+
+    # No conflicts
+    if [[ ${#conflicts[@]} -eq 0 ]]; then
+        return 0
+    fi
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Conflicts Detected"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "The following files already exist in the destination:"
+    echo ""
+
+    # Prompt for each conflict
+    for file in "${conflicts[@]}"; do
+        echo "File exists: $file"
+        echo "  (o) Overwrite"
+        echo "  (s) Skip this file"
+        echo "  (r) Rename existing to $file.backup.$(date +%Y%m%d-%H%M%S)"
+        echo "  (a) Abort export"
         echo ""
-        echo "Let's try again..."
+
+        while true; do
+            read -rp "Choice [o/s/r/a]: " choice
+            case "$choice" in
+                o|O)
+                    conflict_resolutions["$file"]="overwrite"
+                    break
+                    ;;
+                s|S)
+                    conflict_resolutions["$file"]="skip"
+                    break
+                    ;;
+                r|R)
+                    conflict_resolutions["$file"]="rename"
+                    break
+                    ;;
+                a|A)
+                    echo ""
+                    echo "Export aborted by user"
+                    exit 1
+                    ;;
+                *)
+                    echo "Invalid choice. Please enter o, s, r, or a."
+                    ;;
+            esac
+        done
         echo ""
     done
+}
+
+# Copy files from source to destination respecting conflict resolutions
+copy_files() {
+    local src="$1"
+    local dest="$2"
+    shift 2
+    local files=("$@")
+
+    local timestamp=$(date +%Y%m%d-%H%M%S)
+
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "Copying Files"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+
+    for file in "${files[@]}"; do
+        local src_path="$src/$file"
+        local dest_path="$dest/$file"
+
+        # Skip .gitignore (handled separately by merge_gitignore)
+        if [[ "$file" == ".gitignore" ]]; then
+            continue
+        fi
+
+        # Skip if doesn't exist in source
+        if [[ ! -e "$src_path" ]]; then
+            echo "⚠ Skipping $file (not found in source)"
+            continue
+        fi
+
+        # Check for conflict resolution
+        local resolution="${conflict_resolutions[$file]:-}"
+
+        if [[ "$resolution" == "skip" ]]; then
+            echo "⊘ Skipping $file (user chose to skip)"
+            continue
+        fi
+
+        # Create parent directory if needed
+        local dest_dir=$(dirname "$dest_path")
+        if [[ ! -d "$dest_dir" ]]; then
+            if [[ "$DRY_RUN" == true ]]; then
+                echo "[DRY RUN] Would create directory: $dest_dir"
+            else
+                mkdir -p "$dest_dir"
+            fi
+        fi
+
+        # Handle rename
+        if [[ "$resolution" == "rename" ]]; then
+            local backup_path="$dest_path.backup.$timestamp"
+            if [[ "$DRY_RUN" == true ]]; then
+                echo "[DRY RUN] Would rename: $file → $file.backup.$timestamp"
+            else
+                mv "$dest_path" "$backup_path"
+                echo "↻ Renamed existing: $file → $file.backup.$timestamp"
+            fi
+        fi
+
+        # Copy file or directory
+        if [[ "$DRY_RUN" == true ]]; then
+            echo "[DRY RUN] Would copy: $file"
+        else
+            if [[ -d "$src_path" ]]; then
+                cp -r "$src_path" "$dest_path"
+                echo "✓ Copied directory: $file"
+            else
+                cp "$src_path" "$dest_path"
+                echo "✓ Copied file: $file"
+            fi
+        fi
+    done
+}
+
+# Merge .gitignore entries with existing file or copy if doesn't exist
+merge_gitignore() {
+    local src="$1"
+    local dest="$2"
+
+    local src_gitignore="$src/.gitignore"
+    local dest_gitignore="$dest/.gitignore"
+
+    # Skip if .gitignore not in source
+    if [[ ! -f "$src_gitignore" ]]; then
+        return 0
+    fi
+
+    echo ""
+
+    if [[ -f "$dest_gitignore" ]]; then
+        # Merge with existing
+        if [[ "$DRY_RUN" == true ]]; then
+            echo "[DRY RUN] Would append loopy-claude entries to .gitignore"
+        else
+            echo "" >> "$dest_gitignore"
+            echo "# Loopy-Claude entries (added $(date +%Y-%m-%d))" >> "$dest_gitignore"
+            grep -v "^#" "$src_gitignore" | grep -v "^$" >> "$dest_gitignore"
+            echo "✓ Merged .gitignore entries"
+        fi
+    else
+        # Copy entire file
+        if [[ "$DRY_RUN" == true ]]; then
+            echo "[DRY RUN] Would copy .gitignore"
+        else
+            cp "$src_gitignore" "$dest_gitignore"
+            echo "✓ Copied .gitignore"
+        fi
+    fi
+}
+
+# Set executable permissions on shell scripts
+set_permissions() {
+    local dest="$1"
+
+    echo ""
+
+    if [[ "$DRY_RUN" == true ]]; then
+        echo "[DRY RUN] Would set executable permissions on .sh files"
+    else
+        # Find all .sh files and make them executable
+        find "$dest" -type f -name "*.sh" -exec chmod +x {} \;
+        echo "✓ Set executable permissions on .sh files"
+    fi
 }
 
 # Main script execution
@@ -265,39 +464,39 @@ main() {
     # Step 3: Get destination
     local destination=$(prompt_destination)
 
+    # Step 4: Resolve conflicts
+    declare -g -A conflict_resolutions
+    resolve_conflicts "$SOURCE_PATH" "$destination" "${PRESET_FULL[@]}"
+
+    # Step 5: Copy files
+    copy_files "$SOURCE_PATH" "$destination" "${PRESET_FULL[@]}"
+
+    # Step 6: Merge .gitignore
+    merge_gitignore "$SOURCE_PATH" "$destination"
+
+    # Step 7: Set permissions
+    set_permissions "$destination"
+
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "Export Summary"
+    echo "Export Complete"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "Ready to export $PRESET preset"
-    echo "  From: $SOURCE_PATH"
-    echo "  To:   $destination"
-    if [[ "$DRY_RUN" == true ]]; then
-        echo ""
-        echo "[DRY RUN] No files will be copied"
-    fi
+    echo "Loopy-Claude components exported successfully!"
     echo ""
-    echo "Files to export:"
+    echo "Destination: $destination"
+    echo ""
+    echo "Exported files:"
     for file in "${PRESET_FULL[@]}"; do
-        echo "  - $file"
+        if [[ -e "$destination/$file" ]]; then
+            echo "  ✓ $file"
+        fi
     done
     echo ""
-    echo "Generated templates:"
-    echo "  - specs/README.md (empty PIN structure)"
-    echo "  - plan.md (empty with comment)"
-    echo "  - logs/ (directory)"
-    echo "  - README-LOOPY.md (quick start guide)"
-    echo ""
-
-    if [[ "$DRY_RUN" == true ]]; then
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "Dry run complete. No files were modified."
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        exit 0
-    fi
-
-    echo "TODO: File copying will be implemented in Task 2"
+    echo "Next steps:"
+    echo "  1. cd $destination"
+    echo "  2. Review exported files"
+    echo "  3. See README-LOOPY.md for quick start guide"
     echo ""
 }
 
