@@ -20,6 +20,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 | [prompt-build-system.md](prompt-build-system.md)           | ✅ prompts/build.md   | **Mandatory verification workflow**, 6-step execution, self-verify before complete, **in-session fix loop** (up to 3 attempts), delete completed tasks, complete implementation (no TODOs/placeholders), executable and semantic verification, git discipline                                                                  |
 | [prompt-reverse-system.md](prompt-reverse-system.md)       | ✅ prompts/reverse.md | **Legacy code analysis**, READ-ONLY guarantee, **3-phase workflow** (Discovery → Analysis → Spec Generation), batch processing for context efficiency, JSON intermediates, uncertainty detection, reconstruction checklists, JTBD inference from behavior                                                                      |
 | [feature-designer-skill.md](feature-designer-skill.md)     | ✅ .claude/skills     | **Interactive spec creation**, **continuous AskUserQuestion loop**, critical thinking framework, 4-phase workflow (Research → Iteration → Coherence → Crystallization), **specs without checklists**, tool restrictions (Read/Write/Grep/Glob/AskUserQuestion), YAGNI and simplicity emphasis, cross-spec coherence validation |
+| [export-loopy-system.md](export-loopy-system.md)           | 📋 export-loopy.sh    | **Component export script**, **preset configurations** (full/minimal/design/devtools), interactive destination selection, conflict resolution (ask per file), dependency verification (claude CLI), template generation (specs/README.md, plan.md), .gitignore merging, dry-run mode, flexible source location, permissions preservation |
 
 ---
 
@@ -30,7 +31,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 - ⏳ **In Progress** - Under active development
 - 📋 **Planned** - Specification complete, not yet implemented
 
-**Current Status:** All core specs implemented and ready.
+**Current Status:** 5 implemented, 1 planned (export-loopy-system).
 
 ---
 
@@ -112,6 +113,12 @@ These are documented in specs but highlighted here for agent awareness:
 - feature design, interactive, AskUserQuestion
 - critical thinking, YAGNI, simplicity, trade-offs
 - coherence validation, spec creation, crystallization
+
+**Export & Installation:**
+- export, install, bootstrap, setup, template
+- preset, conflict resolution, dry-run
+- component sharing, project initialization
+- dependency verification, quick start
 
 ---
 
