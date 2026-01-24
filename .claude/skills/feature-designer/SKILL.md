@@ -119,36 +119,237 @@ For each design aspect, reason about:
 
 **Before generating any specs, validate coherence with existing specs.**
 
-1. Confirm scope with user
-2. Identify related specs (search PIN)
-3. Extract critical decisions from new design
-4. Read related specs COMPLETELY
-5. Detect conflicts (language version, libraries, APIs, data models)
-6. **Use AskUserQuestion** to present conflicts and get user decision:
+This phase ensures 100% alignment across all specifications to prevent implementation failures, integration breakage, and wasted effort.
 
+### Critical Decisions to Extract
+
+From the new design, systematically identify:
+
+**1. Language/Runtime:**
+- Version requirements (Python 3.11+, Node 18+, Go 1.21+)
+- Compatibility constraints
+- Runtime-specific features required
+
+**2. Key Libraries/Frameworks:**
+- Core dependencies (Pydantic, FastAPI, Django, React)
+- Version requirements
+- Conflicting alternatives (e.g., can't use both Express and Fastify)
+
+**3. Data Storage:**
+- Database type (PostgreSQL, MongoDB, Redis, SQLite)
+- Schema format (SQL, NoSQL document structure)
+- Migration requirements
+
+**4. API Contracts:**
+- Format (REST, GraphQL, gRPC)
+- Serialization (JSON, XML, Protobuf)
+- Authentication mechanism (JWT, OAuth, API keys)
+
+**5. External Services:**
+- Third-party APIs
+- Cloud services (AWS, GCP, Azure)
+- Required credentials/configuration
+
+### Search Strategy
+
+**Step 1: Identify Related Specs**
 ```
-Question: Detected conflict - how to resolve?
+grep -r "keyword1\|keyword2\|keyword3" specs/ | grep -v README
+```
 
-Conflict: New design uses PostgreSQL, existing auth-system uses SQLite
+Search for:
+- Technology names (PostgreSQL, Redis, FastAPI)
+- Domain concepts (auth, user, payment)
+- Integration points (API, webhook, event)
+
+**Step 2: Read Completely**
+- Read each related spec from top to bottom
+- Don't skim - conflicts hide in details
+- Pay attention to "Implementation Details" and "Dependencies" sections
+
+**Step 3: Extract Their Decisions**
+- What language/version do they use?
+- What libraries do they depend on?
+- What data formats do they expect?
+- What APIs do they expose/consume?
+
+### Validation Report Template
+
+Present findings to user in structured format:
+
+```markdown
+🔍 Cross-Spec Coherence Validation
+
+Analyzing: {list new spec topics}
+Related specs found: {list existing spec names}
+
+Critical Decisions (New Design):
+- Language/Runtime: {e.g., Python 3.11+}
+- Libraries: {e.g., Pydantic v2, FastAPI}
+- Data Storage: {e.g., PostgreSQL}
+- API Format: {e.g., REST with JSON}
+- External Services: {e.g., Stripe API, AWS S3}
+
+┌─────────────────────────────────────────────────────────┐
+│ CONFLICTS DETECTED                                      │
+└─────────────────────────────────────────────────────────┘
+
+⚠️ CONFLICT 1: Python Version Mismatch
+- New design: Python 3.11+ (requires modern type hints)
+- Existing (auth-system.md): Python 3.8+
+- Impact: Type hint syntax incompatible, CI may fail
+- Resolution options:
+  a) Update auth-system to require Python 3.11+ (Recommended)
+     Pro: Modern syntax, better type safety
+     Con: Requires Python upgrade in deployment
+  b) Downgrade new design to Python 3.8+
+     Pro: No infrastructure changes
+     Con: Cannot use modern features
+  c) Document split - allow both versions
+     Pro: No immediate changes
+     Con: Inconsistent codebase, future confusion
+
+⚠️ CONFLICT 2: Data Validation Library
+- New design: Pydantic v2
+- Existing (user-system.md): Manual dict validation
+- Impact: Different validation patterns, harder to maintain
+- Resolution options:
+  a) Migrate user-system to Pydantic v2 (Recommended)
+     Pro: Consistent validation, better type safety
+     Con: Requires refactoring existing code
+  b) Keep manual validation for existing, Pydantic for new
+     Pro: No changes to existing code
+     Con: Two validation patterns to maintain
+  c) Use manual validation for new design
+     Pro: Consistency with existing
+     Con: More verbose, error-prone
+
+┌─────────────────────────────────────────────────────────┐
+│ NO CONFLICTS DETECTED                                   │
+└─────────────────────────────────────────────────────────┘
+
+✅ API Format: REST with JSON
+- New: REST/JSON
+- Existing: Compatible or absent
+- No action needed
+
+✅ Database: PostgreSQL
+- New: PostgreSQL
+- Existing specs: No database specified
+- No conflict, new dependency
+```
+
+### Conflict Categories
+
+**Direct Conflict:**
+- Two incompatible choices made
+- Example: New uses PostgreSQL, existing uses SQLite
+- Example: New uses Python 3.11+, existing uses Python 3.8+
+
+**Implicit Conflict:**
+- New design requires something existing doesn't specify
+- Example: New uses Pydantic, existing has no validation
+- Example: New uses async/await, existing is synchronous
+
+**Integration Mismatch:**
+- Components expect different contracts
+- Example: New outputs JSON, existing expects XML
+- Example: New uses async API, existing uses blocking calls
+
+**Version Conflict:**
+- Same library, different incompatible versions
+- Example: New uses Pydantic v2, existing uses Pydantic v1
+- Example: New uses React 18+, existing uses React 16
+
+### Blocking Workflow
+
+**Step 1-5:** Extract and detect (as above)
+
+**Step 6:** 🛑 **BLOCK UNTIL USER DECIDES**
+
+Use AskUserQuestion to present ALL conflicts. Do NOT proceed without explicit resolution.
+
+Example:
+```
+Question: Conflict 1 - How to resolve Python version mismatch?
+
+New design requires Python 3.11+, existing auth-system uses Python 3.8+
 
 Options:
-○ Update auth-system to use PostgreSQL (Recommended)
-  Pro: Consistent data layer
-  Con: Migration effort for existing data
+○ Update auth-system to Python 3.11+ (Recommended)
+  Pro: Modern syntax, consistent codebase
+  Con: Requires Python upgrade in deployment
 
-○ Keep both (SQLite for auth, PostgreSQL for new)
-  Pro: No migration needed
-  Con: Two databases to maintain
+○ Downgrade new design to Python 3.8+
+  Pro: No infrastructure changes
+  Con: Cannot use modern type hints
 
-○ Change new design to use SQLite
-  Pro: No new dependencies
-  Con: May not meet performance needs
+○ Document as migration - allow both versions temporarily
+  Pro: No immediate code changes
+  Con: Inconsistent, technical debt
 
-○ Other (specify)
+○ Other (specify custom approach)
 ```
 
-7. Apply user's chosen resolution
-8. Confirm all conflicts resolved
+**Step 7:** Apply approved resolution
+
+For each conflict:
+- If user chose to update existing specs → batch edit them
+- If user chose to adjust new design → note for crystallization
+- If user chose to document → prepare migration notes
+
+**Step 8:** Add migration notes if needed
+
+When updating existing specs, add to their "Notes" section:
+
+```markdown
+## Migration Notes
+- **2026-01-24**: Updated to require Python 3.11+ (was Python 3.8+)
+  - Reason: Consistency with notification-system, modern type hints
+  - Impact: Deployments must upgrade Python version
+  - Related: notification-system.md
+```
+
+**Step 9:** Confirm all conflicts resolved
+
+Present summary:
+```
+✅ Coherence Validation Complete
+
+Conflicts resolved: 2
+- Python version → Updated to 3.11+ across all specs
+- Validation library → Migrated to Pydantic v2
+
+Specs updated: 2
+- auth-system.md (Python version, added migration notes)
+- user-system.md (Validation approach, added Pydantic)
+
+Ready to proceed to Phase 3: Crystallization
+```
+
+**Step 10:** 🛑 **DO NOT CRYSTALLIZE UNTIL USER CONFIRMS**
+
+Wait for explicit trigger: "proceed", "crystallize", "generate specs"
+
+### Why This Matters
+
+**Without coherence validation:**
+- Day 1: Create conflicting specs ✅
+- Day 2: Plan mode generates implementation ⚙️
+- Day 3: Integration fails 💥
+- Day 4: Debug and find conflict 🔍
+- Day 5: Update specs ♻️
+- Day 6: Regenerate plan 🔧
+- Day 7: Finally working ✅
+- **Cost: 7 days**
+
+**With coherence validation:**
+- Day 1: Create specs, validate, resolve conflicts ✅
+- Day 2: Plan mode generates correct implementation ⚙️
+- Day 3: Integration works ✅
+- **Cost: 3 days**
+
+**Validation saves time, money, and frustration.**
 
 ---
 
