@@ -440,11 +440,38 @@ set_permissions() {
     fi
 }
 
+# Get project name from git or prompt user
+get_project_name() {
+    local dest="$1"
+    local project_name=""
+
+    # Try to get project name from git config in destination
+    if [[ -d "$dest/.git" ]]; then
+        project_name=$(cd "$dest" && git config --get remote.origin.url 2>/dev/null | sed -E 's#.*/([^/]+)(\.git)?$#\1#')
+    fi
+
+    # If not found, try to get from directory name
+    if [[ -z "$project_name" ]]; then
+        project_name=$(basename "$dest")
+    fi
+
+    # If still empty or seems generic, prompt user
+    if [[ -z "$project_name" ]] || [[ "$project_name" =~ ^(tmp|test|project)$ ]]; then
+        read -rp "Enter project name for specs/README.md [default: $project_name]: " user_input
+        if [[ -n "$user_input" ]]; then
+            project_name="$user_input"
+        fi
+    fi
+
+    echo "$project_name"
+}
+
 # Generate template files for new installation
 generate_templates() {
     local dest="$1"
     local src="$2"
     local current_date=$(date +%Y-%m-%d)
+    local project_name=$(get_project_name "$dest")
 
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -465,14 +492,14 @@ generate_templates() {
         echo "[DRY RUN] Would create specs/README.md"
     else
         mkdir -p "$dest/specs"
-        cat > "$dest/specs/README.md" <<'EOF'
+        cat > "$dest/specs/README.md" <<EOF
 # Project Specifications
 
 Lookup table for specifications.
 
 ## How to Use
 
-1. **AI agents:** Study `specs/README.md` before any spec work
+1. **AI agents:** Study \`specs/README.md\` before any spec work
 2. **Search here** to find relevant existing specs by keyword
 3. **When creating new spec:** Add entry here with semantic keywords
 
@@ -486,8 +513,8 @@ Lookup table for specifications.
 
 ---
 
-**Last Updated:** (update when adding specs)
-**Project:** (your project name)
+**Last Updated:** $current_date
+**Project:** $project_name
 EOF
         echo "✓ Created specs/README.md"
     fi
