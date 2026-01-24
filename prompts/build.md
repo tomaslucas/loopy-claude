@@ -75,7 +75,7 @@ Understand all aspects:
 - **Verify**: Executable command or semantic check
 - **Citations**: Referenced spec for full context
 
-### Step 2: Pre-Implementation Research
+### Step 2: Pre-Implementation Research (MANDATORY)
 
 **Before making any changes:**
 
@@ -83,9 +83,12 @@ Understand all aspects:
    - Use Grep to find related code
    - Check if partially implemented already
 
-2. **Read cited spec**: Get full requirement context
-   - Understand the "why" behind the task
-   - Check non-goals (what NOT to do)
+2. **Read the FULL cited spec** (DO NOT SKIP):
+   - Read the **entire** specification file cited in the task
+   - Understand all requirements related to this task
+   - Check non-goals (what NOT to implement)
+   - Note architecture constraints and integration points
+   - **Do NOT proceed to Step 3 until you understand the spec**
 
 3. **Identify affected files**: Based on task description and search
    - List all files needing changes
@@ -167,6 +170,16 @@ Use "Done when" as checklist and add basic sanity checks:
    - Bash: `bash -n script.sh`
 4. Run tests if applicable: `npm test`, `pytest`, etc.
 
+#### Quick Quality Scan (always check):
+
+Before completing, verify NO introduction of:
+- ❌ Hardcoded secrets, passwords, or API keys
+- ❌ SQL string concatenation (use parameterized queries)
+- ❌ eval() or exec() with external input
+- ❌ Infinite loops without exit conditions
+- ❌ Unsanitized file paths (path traversal risk)
+- ❌ Ignoring error return values
+
 ### Step 5: If Verification FAILS
 
 **DO NOT output TASK_COMPLETE yet!**
@@ -233,25 +246,35 @@ You have full context. Fix it now:
 
 ## Guardrails
 
-99999. **Capture the why**: Comments explain non-obvious decisions, tests document expected behavior
+### Process (highest priority)
 
-999999. **Single sources of truth**: If you find duplication, consolidate it
+99999999999999. **Verification is non-negotiable**: Step 4 is MANDATORY. Never skip it.
 
-9999999. **When build/tests pass**: Consider creating git tag for version milestones (v0.1.0 → v0.2.0)
+9999999999999. **Read spec before implementing**: Step 2 requires reading the FULL cited spec. No shortcuts.
 
-99999999. **Add logging when debugging**: Helps future troubleshooting, but don't overdo it
+999999999999. **DELETE completed tasks**: Remove finished tasks from plan.md to keep it clean.
 
-999999999. **Update plan.md as you learn**: If task reveals new work, add tasks to plan.md
-
-9999999999. **Fix unrelated bugs you find**: Don't ignore broken windows - fix or document them
+### Implementation Quality
 
 99999999999. **Implement completely**: No placeholders, no stubs, no TODOs. Finish what you start.
 
-999999999999. **DELETE completed tasks**: Remove finished tasks from plan.md to keep it clean
+9999999999. **Quality scan is mandatory**: Check for security issues (secrets, injection, path traversal).
 
-9999999999999. **Fix spec inconsistencies**: If you discover spec errors, note them (don't silently work around)
+999999999. **Single sources of truth**: If you find duplication, consolidate it.
 
-99999999999999. **Verification is non-negotiable**: Step 4 above is MANDATORY. Never skip it.
+### Codebase Hygiene
+
+99999999. **Fix unrelated bugs you find**: Don't ignore broken windows - fix or document them.
+
+9999999. **Fix spec inconsistencies**: If you discover spec errors, note them (don't silently work around).
+
+999999. **Update plan.md as you learn**: If task reveals new work, add tasks to plan.md.
+
+### Documentation
+
+99999. **Capture the why**: Comments explain non-obvious decisions, tests document expected behavior.
+
+9999. **When build/tests pass**: Consider creating git tag for version milestones (v0.1.0 → v0.2.0).
 
 ---
 

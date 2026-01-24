@@ -39,12 +39,13 @@ Execute ONE task from plan.md completely, verify it works correctly, commit chan
 ```
 Step 1: Read Task Completely
     ↓ (understand Done when, Verify, citations)
-Step 2: Pre-Implementation Research
-    ↓ (search codebase, read spec)
+Step 2: Pre-Implementation Research (MANDATORY)
+    ↓ (search codebase, read FULL spec - no shortcuts)
 Step 3: Implement
     ↓ (complete, no placeholders)
 Step 4: Self-Verify (MANDATORY)
     ↓ (execute command OR check semantic criteria)
+    ↓ (+ quick quality scan: secrets, injection, paths)
     If FAILS → Step 5
     If PASSES → Step 6
 Step 5: Fix and Re-verify
@@ -74,7 +75,23 @@ Task has "Verify:" field?
 
 ## 3. Key Features
 
-### 3.1 Mandatory Verification
+### 3.1 Mandatory Spec Reading
+
+**Problem:** Agents skip reading the spec and implement based on task description only.
+
+**Solution:** Step 2 requires reading the FULL cited spec before implementing.
+
+**Enforcement:**
+- Step 2 marked (MANDATORY) with explicit "DO NOT proceed to Step 3"
+- Guardrail 9999999999999 (second highest priority)
+- Checklist includes: requirements, non-goals, architecture constraints
+
+**Benefits:**
+- Agent understands the "why" behind the task
+- Catches implicit requirements not in task description
+- Prevents drift from spec intent
+
+### 3.2 Mandatory Verification
 
 **Problem:** Agents claim task complete but code has errors.
 
@@ -105,7 +122,26 @@ Task has "Verify:" field?
    + Basic sanity checks (syntax, file existence, tests)
    ```
 
-### 3.2 In-Session Fix Loop
+### 3.3 Quick Quality Scan
+
+**Problem:** Common security/quality issues slip through functional verification.
+
+**Solution:** Mandatory checklist in Step 4 before completing.
+
+**Checks:**
+- ❌ Hardcoded secrets, passwords, or API keys
+- ❌ SQL string concatenation (use parameterized queries)
+- ❌ eval() or exec() with external input
+- ❌ Infinite loops without exit conditions
+- ❌ Unsanitized file paths (path traversal risk)
+- ❌ Ignoring error return values
+
+**Benefits:**
+- Zero-overhead (checklist, not subagent)
+- Catches 80% of common security issues
+- Reinforces good habits
+
+### 3.4 In-Session Fix Loop
 
 **Problem:** Agent marks complete despite failures.
 
@@ -132,7 +168,7 @@ If still failing after 3 attempts:
 
 After 3 failures → something wrong, better to stop and reassess.
 
-### 3.3 DELETE Completed Tasks
+### 3.5 DELETE Completed Tasks
 
 **Problem:** Plan.md grows with [x] noise.
 
@@ -152,7 +188,7 @@ After 3 failures → something wrong, better to stop and reassess.
 - Clear progress (what's LEFT)
 - History in git commits
 
-### 3.4 Subagent Strategy
+### 3.6 Subagent Strategy
 
 **Inline guidance (no AGENTS.md):**
 
@@ -167,7 +203,7 @@ After 3 failures → something wrong, better to stop and reassess.
 - ❌ One subagent per known file
 - ❌ Subagents for simple operations
 
-### 3.5 Complete Implementation
+### 3.7 Complete Implementation
 
 **Guardrail 999999999999:**
 
@@ -232,9 +268,11 @@ Tasks pre-prioritized by plan generator.
 
 ### Section 5: Guardrails
 
-Numbered 9s system:
-- 99999 through 99999999999999
-- Key: verification mandatory, implement completely, delete tasks
+Numbered 9s system organized by category:
+- **Process** (highest): verification, spec reading, task deletion
+- **Implementation Quality**: complete implementation, quality scan, DRY
+- **Codebase Hygiene**: fix bugs, fix spec inconsistencies, update plan
+- **Documentation** (lowest): capture why, version tags
 
 ### Section 6: Completion Signals
 
@@ -365,7 +403,7 @@ Implemented at: `prompts/build.md`
 
 ### Total Size
 
-~280 lines markdown
+~320 lines markdown
 
 ### Model Requirement
 
