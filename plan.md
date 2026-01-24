@@ -8,44 +8,6 @@ Action: fresh (plan.md was empty)
 
 ## Phase 1: Export Script Implementation
 
-### Task 1: Foundation & Infrastructure
-
-- [ ] Create export-loopy.sh with argument parsing, source validation, dependency checks, and destination prompt
-      Done when:
-        - File export-loopy.sh exists in root with shebang and set -euo pipefail
-        - Usage message displays for --help or invalid args
-        - Parses preset (full required), --source PATH, --dry-run flags
-        - validate_source() verifies loopy-claude structure (loop.sh, prompts/ exist)
-        - check_dependencies() warns if claude CLI not found (non-fatal)
-        - prompt_destination() interactively asks for path with confirmation
-        - PRESET_FULL array defines all files to export
-      Verify:
-        - chmod +x export-loopy.sh && ./export-loopy.sh --help
-        - ./export-loopy.sh invalid-preset 2>&1 | grep -q "Usage"
-        - ./export-loopy.sh full --dry-run (should prompt for destination)
-      (cite: specs/export-loopy-system.md sections 3.1, 4)
-      [Grouped: Sequential dependencies - args must parse before validation, validation before destination prompt. ~150 lines, same file]
-
-### Task 2: Core Operations
-
-- [ ] Implement conflict resolution, file copying, gitignore merging, and permission handling
-      Done when:
-        - resolve_conflicts() detects existing files at destination
-        - Per-conflict prompt offers: (o)verwrite, (s)kip, (r)ename, (a)bort
-        - Rename creates .backup.YYYYMMDD-HHMMSS suffix
-        - copy_files() copies preset files respecting conflict resolutions
-        - Directories created as needed (mkdir -p)
-        - merge_gitignore() appends entries if .gitignore exists, copies if not
-        - set_permissions() makes all .sh files executable (chmod +x)
-        - All operations respect --dry-run (print what would happen, no actual changes)
-      Verify:
-        - mkdir /tmp/test-conflict && touch /tmp/test-conflict/loop.sh
-        - ./export-loopy.sh full (enter /tmp/test-conflict, test conflict prompt)
-        - Verify backup created when choosing (r)ename
-        - rm -rf /tmp/test-conflict
-      (cite: specs/export-loopy-system.md sections 3.3, 3.4)
-      [Grouped: All file operation logic, depends on Task 1 functions. ~150 lines, same file]
-
 ### Task 3: Output & Finalization
 
 - [ ] Implement template generation, summary report, and main orchestration flow
