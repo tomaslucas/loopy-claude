@@ -339,7 +339,34 @@ For each divergence, create a task in plan.md:
 - [ ] specs/user-system.md (attempt: 3/3 - ESCALATE)
 ```
 
-### Step 8: Output Completion Signal
+### Step 8: Update specs/README.md
+
+**Only when validation PASSED (`SPEC_VALIDATED`):**
+
+Update the spec's status in `specs/README.md` table:
+- Change ⏳ (In Progress) → ✅ (Implemented)
+- Or change 📋 (Planned) → ✅ (Implemented) if it skipped the ⏳ state
+- Update "Current Status" counts if needed
+
+**Example:**
+
+Before:
+```markdown
+| [export-loopy-system.md](export-loopy-system.md) | ⏳ export-loopy.sh | ...
+
+Current Status: 4 implemented, 1 in progress, 2 planned
+```
+
+After:
+```markdown
+| [export-loopy-system.md](export-loopy-system.md) | ✅ export-loopy.sh | ...
+
+Current Status: 5 implemented, 0 in progress, 2 planned
+```
+
+**If divergences found or escalation:** Do NOT update README (status stays as-is).
+
+### Step 9: Output Completion Signal
 
 Output the appropriate signal:
 
@@ -405,7 +432,9 @@ or (if pending-validations.md is now empty):
 
 99. **Clean removal on success**: Delete validated spec from pending-validations.md completely.
 
-9. **Preserve escalations**: Keep escalated specs in pending for human review.
+9. **Update README on success**: Change ⏳→✅ (or 📋→✅) in specs/README.md only after validation passes.
+
+8. **Preserve escalations**: Keep escalated specs in pending for human review.
 
 ---
 

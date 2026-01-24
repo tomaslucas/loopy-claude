@@ -56,17 +56,26 @@ cat plan.md
 ```
 Design (optional)
     ↓ via feature-designer skill
-specs/*.md created
+specs/*.md created (📋 Planned)
     ↓
 ./loop.sh plan
     ↓ reads specs, analyzes gaps, creates tasks
+    ↓ updates specs/README.md (📋→⏳)
 plan.md generated
     ↓
 ./loop.sh build
     ↓ executes tasks, verifies, commits
+    ↓ adds completed specs to pending-validations.md
 Code implemented
     ↓
-Git commits + push
+./loop.sh validate
+    ↓ compares implementation vs spec
+    ↓ if divergences → creates corrective tasks in plan.md
+    ↓ if passes → updates specs/README.md (⏳→✅)
+    ↓
+    ├─→ PASS: spec validated, removed from pending-validations
+    │
+    └─→ FAIL: back to plan → build → validate (max 3 attempts)
 ```
 
 ### Core Components
@@ -74,13 +83,14 @@ Git commits + push
 **1. Prompts** (`prompts/`)
 - `plan.md` - Intelligent plan generator (5 phases, extended thinking)
 - `build.md` - Task executor with mandatory verification
+- `validate.md` - Post-implementation validator (spec vs code)
 - `reverse.md` - Legacy code analyzer (generates specs from code)
 
 **2. Orchestrator** (`loop.sh`)
 - Simple bash loop
-- 4 stop conditions (max iterations, empty plan, rate limit, completion signal)
+- 5 stop conditions (max iterations, empty plan, empty pending-validations, rate limit, completion signal)
 - Session logging to `logs/`
-- Model selection (opus for plan/reverse, sonnet for build)
+- Model selection (opus for plan/reverse/validate, sonnet for build)
 
 **3. Analyzer** (`analyze-session.sh`)
 - Post-mortem analysis of sessions
@@ -228,18 +238,20 @@ No task marked complete with failing verification.
 
 ### Stop Conditions
 
-**4 types:**
+**5 types:**
 1. **Max iterations** - Safety limit
 2. **Empty plan** - No `[ ]` tasks (build mode)
-3. **Rate limit** - API quota exhausted
-4. **Completion signal** - `<promise>COMPLETE</promise>`
+3. **Empty pending-validations** - No specs to validate (validate mode)
+4. **Rate limit** - API quota exhausted
+5. **Completion signal** - `<promise>COMPLETE</promise>`
 
 ### Model Selection
 
 ```bash
-plan    → opus     # extended_thinking needed
-reverse → opus     # JTBD inference + grouping
-build   → sonnet   # straightforward execution
+plan     → opus     # extended_thinking needed
+reverse  → opus     # JTBD inference + grouping
+validate → opus     # semantic inference pass
+build    → sonnet   # straightforward execution
 ```
 
 Override: `./loop.sh <mode> <max> --model <model>`
@@ -255,7 +267,9 @@ loopy-claude/
 ├── prompts/
 │   ├── plan.md             # 5-phase plan generator
 │   ├── build.md            # Verification workflow
+│   ├── validate.md         # Post-implementation validator
 │   └── reverse.md          # Legacy analyzer
+├── pending-validations.md  # Queue of specs awaiting validation
 ├── specs/
 │   ├── README.md           # PIN (lookup table)
 │   └── *.md                # Specifications

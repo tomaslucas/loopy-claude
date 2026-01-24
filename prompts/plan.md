@@ -365,10 +365,32 @@ Before finalizing:
 - ✅ **Grouping check**: If >3 tasks touch same file, justify each split
 - ✅ **Summary table**: Include context budget table at end of plan
 
-### Step 4: Commit
+### Step 4: Update specs/README.md
+
+For each spec that has NEW tasks generated in this plan:
+- If status is 📋 (Planned) → change to ⏳ (In Progress)
+- Update "Current Status" line if counts changed
+
+**Example:**
+
+Before:
+```markdown
+| [export-loopy-system.md](export-loopy-system.md) | 📋 export-loopy.sh | ...
+```
+
+After:
+```markdown
+| [export-loopy-system.md](export-loopy-system.md) | ⏳ export-loopy.sh | ...
+```
+
+**Do NOT change:**
+- ✅ (already implemented)
+- ⏳ (already in progress, no change needed)
+
+### Step 5: Commit
 
 ```bash
-git add plan.md
+git add plan.md specs/README.md
 git commit -m "plan: Generated from {N} specs ({action})"
 git push
 ```
@@ -396,6 +418,8 @@ Where {action} is: "fresh", "updated", "cleaned", or "regenerated"
 999999999999. **Empty result is valid.** If all specs implemented, create plan.md with "All specifications implemented ✅"
 
 9999999999999. **Grouping is MANDATORY.** Same file + <500 lines = MAX 3 tasks. Justify every split with `[Split: reason]`. Default is GROUP, not split.
+
+99999999999999. **Update README status.** Change 📋→⏳ in specs/README.md for specs with new tasks. Never skip this step.
 
 ---
 
