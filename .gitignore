@@ -1,0 +1,52 @@
+# Session logs
+logs/
+*.log
+
+# Generated plans (mutable, regenerated)
+plan.md.completed-*
+
+# Reverse engineering outputs
+reverse-analysis/
+specs-reverse/
+
+# Claude Code project cache
+.claude/projects/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+
+# API Keys & Tokens
+*_api_key*
+*_secret*
+*_token*
+secrets/
+credentials/
+
+# Temp files
+*.swp
+*.swo
+*~
+
+# Test scripts
+test-*.sh
+
