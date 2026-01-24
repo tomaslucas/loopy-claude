@@ -195,11 +195,13 @@ fi
 
 **Stop 3: Rate Limit Detection**
 ```bash
-if echo "$OUTPUT" | grep -qiE 'rate_limit|quota.*exhausted|limit.*reached'; then
+if echo "$OUTPUT" | jq -e 'select(.error.type == "rate_limit_error" or .error.type == "overloaded_error" or (.error.message // "" | test("rate.?limit|quota.*exhausted"; "i")))' >/dev/null 2>&1; then
     log "Rate limit detected"
     break
 fi
 ```
+
+Checks JSON error messages from API to avoid false positives when Claude reads files containing rate limit keywords.
 
 **Stop 4: Completion Signal**
 ```bash
@@ -316,6 +318,7 @@ All POSIX-compliant:
 - ✅ `grep -q`, `grep -qiE` (POSIX)
 - ✅ `cat`, `echo` (POSIX)
 - ✅ `$(( ))` arithmetic (POSIX)
+- ✅ `jq` (JSON parsing, widely available)
 
 ### Avoided Problematic Commands
 
@@ -362,13 +365,13 @@ Non-fatal (continues loop).
 ### Rate Limit
 
 ```bash
-if echo "$OUTPUT" | grep -qiE 'rate_limit...'; then
+if echo "$OUTPUT" | jq -e 'select(.error.type == "rate_limit_error" or .error.type == "overloaded_error" or (.error.message // "" | test("rate.?limit|quota.*exhausted"; "i")))' >/dev/null 2>&1; then
     log "Rate limit detected"
     break  # Graceful stop
 fi
 ```
 
-Detects and stops gracefully (no error exit).
+Parses JSON error messages from API to detect rate limit errors. Uses jq to avoid false positives when Claude reads files containing rate limit keywords in their content. Stops gracefully (no error exit).
 
 ---
 
