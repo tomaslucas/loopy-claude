@@ -75,6 +75,9 @@ plan.md
     ├─ Specific, verifiable tasks
     ├─ Citations preserved
     └─ Only pending [ ] tasks
+    ↓
+pending-validations.md
+    └─ List of specs to validate after build
 ```
 
 ---
@@ -248,12 +251,17 @@ Step 2: Write plan.md
     - Citations
     - [Grouped] notes if applicable
 
-Step 3: Validate plan
+Step 3: Generate pending-validations.md
+  → List all specs included in this plan
+  → Format: - [ ] specs/spec-name.md
+  → One entry per spec (no duplicates)
+
+Step 4: Validate plan
   → No [x] tasks
   → All citations present
   → Phases ordered
 
-Step 4: Commit
+Step 5: Commit
 ```
 
 Output generation with validation.

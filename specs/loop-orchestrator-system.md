@@ -15,8 +15,8 @@ Provide a minimal, transparent loop that feeds prompts to Claude Code, manages i
 ### Goals
 
 - Ultra-simple implementation (~150 lines bash)
-- Support multiple modes (plan, build, reverse)
-- Intelligent stop conditions (4 types)
+- Support multiple modes (plan, build, reverse, validate)
+- Intelligent stop conditions (5 types)
 - Session logging (stdout + file simultaneously)
 - Cross-platform compatibility (macOS + Linux, bash + zsh)
 - Model selection based on mode
@@ -42,7 +42,7 @@ User invokes loop.sh
     ↓
 Parse arguments (mode, max_iterations)
     ↓
-Select model (opus for plan, sonnet otherwise)
+Select model (opus for plan/reverse, sonnet for build/validate)
     ↓
 Setup logging (logs/log-{mode}-{timestamp}.txt)
     ↓
@@ -73,9 +73,10 @@ loop.sh (main script)
 ├── Argument parsing
 ├── Model selection
 ├── Logging setup
-├── Stop conditions (4)
+├── Stop conditions (5)
 │   ├── Max iterations
 │   ├── Empty plan (build mode)
+│   ├── Empty pending-validations (validate mode)
 │   ├── Rate limit detection
 │   └── Completion signal
 ├── Claude execution
@@ -85,7 +86,8 @@ loop.sh (main script)
 prompts/ (external)
 ├── plan.md
 ├── build.md
-└── reverse.md
+├── reverse.md
+└── validate.md
 
 logs/ (output)
 └── log-{mode}-{timestamp}.txt
@@ -173,7 +175,7 @@ logs/log-build-2026-01-23-15-30-45.txt
 logs/log-plan-2026-01-23-16-20-10.txt
 ```
 
-### 3.5 Stop Conditions (4 Types)
+### 3.5 Stop Conditions (5 Types)
 
 **Stop 1: Max Iterations**
 ```bash
@@ -193,15 +195,27 @@ if [ "$MODE" = "build" ]; then
 fi
 ```
 
-**Stop 3: Rate Limit Detection**
+**Stop 3: Empty Pending Validations (Validate Mode Only)**
 ```bash
-if echo "$OUTPUT" | grep -qiE 'rate_limit|quota.*exhausted|limit.*reached'; then
+if [ "$MODE" = "validate" ]; then
+    if ! grep -q '- \[ \]' pending-validations.md 2>/dev/null; then
+        log "No pending validations"
+        break
+    fi
+fi
+```
+
+**Stop 4: Rate Limit Detection**
+```bash
+if echo "$OUTPUT" | jq -e 'select(.error.type == "rate_limit_error" or .error.type == "overloaded_error" or (.error.message // "" | test("rate.?limit|quota.*exhausted"; "i")))' >/dev/null 2>&1; then
     log "Rate limit detected"
     break
 fi
 ```
 
-**Stop 4: Completion Signal**
+Checks JSON error messages from API to avoid false positives when Claude reads files containing rate limit keywords.
+
+**Stop 5: Completion Signal**
 ```bash
 if echo "$OUTPUT" | grep -q '<promise>COMPLETE</promise>'; then
     log "Agent signaled completion"
@@ -316,6 +330,7 @@ All POSIX-compliant:
 - ✅ `grep -q`, `grep -qiE` (POSIX)
 - ✅ `cat`, `echo` (POSIX)
 - ✅ `$(( ))` arithmetic (POSIX)
+- ✅ `jq` (JSON parsing, widely available)
 
 ### Avoided Problematic Commands
 
@@ -362,13 +377,13 @@ Non-fatal (continues loop).
 ### Rate Limit
 
 ```bash
-if echo "$OUTPUT" | grep -qiE 'rate_limit...'; then
+if echo "$OUTPUT" | jq -e 'select(.error.type == "rate_limit_error" or .error.type == "overloaded_error" or (.error.message // "" | test("rate.?limit|quota.*exhausted"; "i")))' >/dev/null 2>&1; then
     log "Rate limit detected"
     break  # Graceful stop
 fi
 ```
 
-Detects and stops gracefully (no error exit).
+Parses JSON error messages from API to detect rate limit errors. Uses jq to avoid false positives when Claude reads files containing rate limit keywords in their content. Stops gracefully (no error exit).
 
 ---
 

@@ -2,6 +2,15 @@
 
 Generate an optimized implementation plan from specifications through intelligent analysis, context awareness, and strategic task grouping.
 
+## Execution Context
+
+This plan will be executed by an LLM agent with these constraints:
+- **~20K token overhead per task switch** (context reload, orientation)
+- **Context window refreshes between tasks** (no memory of previous tasks)
+- **Agent cannot remember previous tasks** (each task must be self-contained)
+
+**Implication:** Fewer, larger, well-grouped tasks beat many small tasks. Default is GROUP. Burden of proof is on SPLITTING.
+
 ---
 
 ## Phase 0: Orient
@@ -168,17 +177,47 @@ Estimate context required per task:
 
 ### 4.3 Smart Task Grouping (Context-Aware)
 
-**Group tasks ONLY when:**
-- ✅ Same file AND combined < 500 lines
+**⚠️ GROUPING IS MANDATORY, NOT OPTIONAL.**
+
+Default behavior: GROUP tasks together. You must justify every SPLIT.
+
+**MUST group when:**
+- ✅ Same file AND combined < 500 lines → **MAX 3 tasks per file**
 - ✅ Related files AND combined < 1500 lines
 - ✅ Similar verification pattern
 - ✅ Sequential dependencies (A must happen before B)
 
-**Do NOT group if:**
+**May split ONLY when:**
 - ❌ Would require reading > 3 files
 - ❌ Files are > 500 lines each
 - ❌ Complex interdependencies
 - ❌ Different verification strategies
+
+**When splitting, MUST add justification:**
+```
+[Split: Files exceed 500 lines each, different verification strategies]
+```
+
+**Anti-pattern (DO NOT DO THIS):**
+```markdown
+# ❌ BAD: 14 tasks for 1 file of ~350 lines
+- [ ] Implement arg parsing
+- [ ] Implement validate_source()
+- [ ] Implement check_dependencies()
+- [ ] Implement prompt_destination()
+...10 more tasks for same file...
+```
+
+**Correct approach:**
+```markdown
+# ✅ GOOD: 3-4 tasks for 1 file of ~350 lines
+- [ ] Foundation: arg parsing + validation + dependency check
+      [Grouped: same file, ~80 lines, sequential deps]
+- [ ] Core logic: destination + preset + conflicts + copy
+      [Grouped: same file, ~150 lines, sequential flow]
+- [ ] Output: templates + dry-run + summary
+      [Grouped: same file, ~120 lines, output subsystem]
+```
 
 **Decision Matrix:**
 
@@ -323,6 +362,8 @@ Before finalizing:
 - ✅ Phases logically ordered
 - ✅ Tasks have "Done when" and "Verify"
 - ✅ Context estimates reasonable
+- ✅ **Grouping check**: If >3 tasks touch same file, justify each split
+- ✅ **Summary table**: Include context budget table at end of plan
 
 ### Step 4: Commit
 
@@ -353,6 +394,8 @@ Where {action} is: "fresh", "updated", "cleaned", or "regenerated"
 99999999999. **Plan lifecycle is explicit.** Follow the 0% / 1-79% / 80-100% rules without exception.
 
 999999999999. **Empty result is valid.** If all specs implemented, create plan.md with "All specifications implemented ✅"
+
+9999999999999. **Grouping is MANDATORY.** Same file + <500 lines = MAX 3 tasks. Justify every split with `[Split: reason]`. Default is GROUP, not split.
 
 ---
 

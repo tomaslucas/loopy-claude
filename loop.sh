@@ -141,8 +141,8 @@ while true; do
         exit 1
     }
 
-    # Stop 3: Rate limit detected
-    if echo "$OUTPUT" | grep -qiE 'rate_limit|quota.*exhausted|limit.*reached'; then
+    # Stop 3: Rate limit detected (check JSON error messages only)
+    if echo "$OUTPUT" | jq -e 'select(.error.type == "rate_limit_error" or .error.type == "overloaded_error" or (.error.message // "" | test("rate.?limit|quota.*exhausted"; "i")))' >/dev/null 2>&1; then
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         log "Rate limit detected"
         log "API quota exhausted. Try again later."
