@@ -141,16 +141,15 @@ validate_source() {
 check_dependencies() {
     if ! command -v claude &>/dev/null; then
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "⚠ WARNING: claude CLI not found"
+        echo "⚠ ERROR: claude CLI not found"
         echo ""
         echo "The exported loopy-claude system requires claude CLI to run."
         echo "Install it from: https://github.com/anthropics/claude-cli"
         echo ""
-        echo "Continuing export anyway..."
+        echo "Export aborted."
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo ""
-        # Warning only, non-fatal
-        return 0
+        exit 3
     else
         echo "✓ Dependency check passed: claude CLI found"
     fi
