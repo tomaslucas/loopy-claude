@@ -3,13 +3,6 @@
 Generated: 2026-01-24
 Specs analyzed: 1 (feature-designer-skill.md)
 
-## Phase 1: Directory Structure Setup
-
-- [ ] Create .claude/skills/feature-designer/ directory structure
-      Done when: Directory .claude/skills/feature-designer/resources/ exists
-      Verify: test -d .claude/skills/feature-designer/resources && echo "SUCCESS"
-      (cite: specs/feature-designer-skill.md Section 8 - Skill Structure)
-
 ## Phase 2: Core Skill File
 
 - [ ] Create SKILL.md with YAML frontmatter and 4-phase workflow
