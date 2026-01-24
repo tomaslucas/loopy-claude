@@ -58,7 +58,7 @@ log() {
 # Validate mode
 if [[ ! -f "$PROMPT_FILE" ]]; then
     log "Error: prompts/${MODE}.md not found"
-    log "Available modes: plan, build, reverse"
+    log "Available modes: plan, build, reverse, validate"
     exit 1
 fi
 
@@ -79,6 +79,9 @@ case "$MODE" in
         ;;
     reverse)
         MODEL="opus"        # JTBD inference + grouping needs reasoning
+        ;;
+    validate)
+        MODEL="sonnet"      # Straightforward checklist + orchestration
         ;;
     *)
         MODEL="sonnet"      # Build is straightforward
@@ -120,6 +123,17 @@ while true; do
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             log "No pending tasks in plan.md"
             log "All work complete!"
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            break
+        fi
+    fi
+
+    # Stop 2b: Empty pending validations (validate mode only)
+    if [ "$MODE" = "validate" ]; then
+        if ! grep -q -- '- \[ \]' pending-validations.md 2>/dev/null; then
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            log "No pending validations in pending-validations.md"
+            log "All specs validated!"
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             break
         fi
