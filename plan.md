@@ -19,8 +19,4 @@ Grouping rationale: Spec has two distinct deliverables (new prompt file, shell s
 
 ## Validation Corrections
 
-- [ ] Fix: Auto-populate date and project name in specs/README.md template
-      Done when: specs/README.md template uses $current_date variable and auto-detects project name from git or prompts user
-      Verify: grep -q "\*\*Last Updated:\*\* $current_date" export-loopy.sh && grep -q "git.*config.*--get" export-loopy.sh
-      (cite: specs/export-loopy-system.md section 3.2 - Template Generation)
-      [Validation correction - attempt 1]
+(No pending validation corrections)
