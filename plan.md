@@ -5,17 +5,6 @@ Specs analyzed: 1 (feature-designer-skill.md)
 
 ## Phase 3: Resource Files
 
-- [ ] Create resources/guardrails.md with critical rules
-      Done when:
-        - Contains all guardrail categories from spec
-        - Includes tool restrictions (Read/Write/Grep/Glob/AskUserQuestion ONLY)
-        - Has emoji markers for visibility
-      Verify:
-        - grep -q "Tool Restrictions" .claude/skills/feature-designer/resources/guardrails.md
-        - grep -q "AskUserQuestion" .claude/skills/feature-designer/resources/guardrails.md
-        - grep -q "Coherence is Mandatory" .claude/skills/feature-designer/resources/guardrails.md
-      (cite: specs/feature-designer-skill.md Section 8 - resources/guardrails.md)
-
 - [ ] Create resources/examples.md with usage examples
       Done when:
         - Contains at least 2 usage examples
