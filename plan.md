@@ -5,16 +5,6 @@ Specs analyzed: 1 (feature-designer-skill.md)
 
 ## Phase 3: Resource Files
 
-- [ ] Create resources/phase0-research.md with mandatory research checklist
-      Done when:
-        - Contains 5-step research checklist
-        - Contains red flags section
-        - References specs/README.md (PIN)
-      Verify:
-        - grep -q "specs/README.md" .claude/skills/feature-designer/resources/phase0-research.md
-        - grep -q "Red flags" .claude/skills/feature-designer/resources/phase0-research.md
-      (cite: specs/feature-designer-skill.md Section 8 - resources/phase0-research.md)
-
 - [ ] Create resources/guardrails.md with critical rules
       Done when:
         - Contains all guardrail categories from spec
