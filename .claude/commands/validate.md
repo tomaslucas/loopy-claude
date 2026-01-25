@@ -115,81 +115,30 @@ Identify implemented code without making assumptions:
 
 **CRITICAL:** Launch BOTH tasks in parallel. Do NOT run sequentially.
 
-**Task 1: Mechanical Checklist (sonnet)**
+**Task 1: Mechanical Checklist**
 
-Prompt:
-```
-You are validating implementation against specification.
+1. Read `.claude/agents/spec-checker.md` completely
+2. Use its instructions as the Task prompt
+3. Append context block:
+   ```
+   --- CONTEXT ---
+   SPEC_PATH: {spec_path}
+   SPEC_TEXT: {full spec content}
+   EVIDENCE:
+     RELEVANT_FILES: {discovered files}
+     FILE_EXCERPTS: {key code sections with file:line}
+     GREP_RESULTS: {pattern search results}
+   ```
+4. Task description: "Run subagent spec-checker (explicit). Verify acceptance criteria mechanically."
+5. Model: sonnet
 
-SPEC: {spec_path}
+**Task 2: Semantic Inference**
 
-Your job: Extract ALL acceptance criteria from the spec and verify each in the codebase.
-
-For each criterion:
-1. Identify what should exist (function, class, config, test, etc.)
-2. Search codebase to verify it exists
-3. Check if implementation matches spec requirements
-4. Output: PASS or FAIL with evidence
-
-Return a list formatted as:
-
-CHECKLIST RESULTS:
-
-✅ PASS: {criterion description}
-   Evidence: {file:line or grep result}
-
-❌ FAIL: {criterion description}
-   Expected: {what spec requires}
-   Found: {what exists or "not found"}
-
-Do NOT infer or assume. Only verify observable facts.
-```
-
-Model: sonnet
-
-**Task 2: Semantic Inference (opus)**
-
-Prompt:
-```
-You are validating implementation behavior against specification intent.
-
-SPEC: {spec_path}
-
-Your job:
-1. Read ALL code implementing this spec
-2. Generate a "behavior summary" - what the code ACTUALLY does (not what spec says)
-3. Compare actual behavior against spec's:
-   - Purpose/Goals
-   - JTBD (jobs to be done)
-   - Architecture intent
-   - Key features
-4. Identify any divergences between actual behavior and spec intent
-
-Return a report formatted as:
-
-BEHAVIOR SUMMARY:
-
-What the code does:
-- {observed behavior 1}
-- {observed behavior 2}
-...
-
-DIVERGENCES:
-
-1. {description of divergence}
-   Spec requires: {requirement}
-   Code does: {actual behavior}
-   Impact: {severity}
-
-2. {next divergence}
-...
-
-If no divergences found, state: "No divergences detected. Implementation matches spec intent."
-
-Focus on WHAT the code does, not HOW. Infer intent from behavior.
-```
-
-Model: opus
+1. Read `.claude/agents/spec-inferencer.md` completely
+2. Use its instructions as the Task prompt
+3. Append same context block as Task 1
+4. Task description: "Run subagent spec-inferencer (explicit). Summarize behavior and compare to intent."
+5. Model: opus
 
 **Execute Tasks:**
 
