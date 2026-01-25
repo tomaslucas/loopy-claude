@@ -6,28 +6,6 @@ Action: regenerated (previous plan had no pending tasks)
 
 ---
 
-## Phase 3: loop.sh Modifications
-
-- [ ] Update loop.sh: frontmatter filter, path change, and work mode
-      Done when:
-        - filter_frontmatter() function exists and correctly removes YAML frontmatter
-        - PROMPT_FILE path changed to ".claude/commands/${MODE}.md"
-        - Error message updated to reference new path
-        - Claude invocation uses filter_frontmatter
-        - work mode case implemented with build/validate alternation
-        - work mode respects max_iterations and detects rate limits
-        - work mode terminates when no pending work in plan.md AND pending-validations.md
-      Verify:
-        - grep -q "filter_frontmatter" loop.sh && echo "✅ frontmatter function exists"
-        - grep -q '\.claude/commands/' loop.sh && echo "✅ path updated"
-        - grep -q 'case.*work' loop.sh && echo "✅ work mode case exists"
-        - grep -q 'CURRENT_MODE="build"' loop.sh && echo "✅ work mode alternation"
-        - ./loop.sh build 1 2>&1 | head -20  # Manual test: should still work
-      (cite: specs/structure-reorganization-system.md section 3.4)
-      [Grouped: Single file, all modifications interdependent, ~280 lines total after changes]
-
----
-
 ## Phase 4: validate.md Agent Integration
 
 - [ ] Update .claude/commands/validate.md to reference agent files instead of inline prompts
