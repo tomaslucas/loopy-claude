@@ -59,7 +59,7 @@ log() {
 filter_frontmatter() {
     local file="$1"
     # Remove lines between first --- and second ---
-    sed '1{/^---$/!q;};1,/^---$/d' "$file"
+    sed '/^---$/,/^---$/d' "$file"
 }
 
 # Validate mode
