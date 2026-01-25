@@ -6,25 +6,6 @@ Action: regenerated (previous plan had no pending tasks)
 
 ---
 
-## Phase 4: validate.md Agent Integration
-
-- [ ] Update .claude/commands/validate.md to reference agent files instead of inline prompts
-      Done when:
-        - Step 3 references .claude/agents/spec-checker.md by file path
-        - Step 3 references .claude/agents/spec-inferencer.md by file path
-        - Context injection format documented (SPEC_PATH, SPEC_TEXT, EVIDENCE)
-        - Task descriptions use explicit agent naming pattern
-        - Instructions to read agent file before using as Task prompt
-      Verify:
-        - grep -q "\.claude/agents/spec-checker\.md" .claude/commands/validate.md && echo "✅ checker referenced"
-        - grep -q "\.claude/agents/spec-inferencer\.md" .claude/commands/validate.md && echo "✅ inferencer referenced"
-        - grep -q "CONTEXT" .claude/commands/validate.md && echo "✅ context injection documented"
-        - grep -q "Read.*agent" .claude/commands/validate.md && echo "✅ read instruction present"
-      (cite: specs/structure-reorganization-system.md section 3.3)
-      [Single file modification, depends on Phase 2 agents existing]
-
----
-
 ## Phase 5: Cleanup, Backward Compatibility, and Documentation
 
 - [ ] Create backward compatibility symlinks and update documentation
