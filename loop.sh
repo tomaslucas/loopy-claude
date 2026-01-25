@@ -42,7 +42,7 @@ done
 # Apply defaults
 MODE="${MODE:-build}"
 MAX_ITERATIONS="${MAX_ITERATIONS:-1}"
-PROMPT_FILE="prompts/${MODE}.md"
+PROMPT_FILE=".claude/commands/${MODE}.md"
 
 # Setup logging
 LOGS_DIR="logs"
@@ -55,10 +55,17 @@ log() {
     echo "$@" | tee -a "$LOG_FILE"
 }
 
+# Filter YAML frontmatter from command files
+filter_frontmatter() {
+    local file="$1"
+    # Remove lines between first --- and second ---
+    sed '1{/^---$/!q;};1,/^---$/d' "$file"
+}
+
 # Validate mode
 if [[ ! -f "$PROMPT_FILE" ]]; then
-    log "Error: prompts/${MODE}.md not found"
-    log "Available modes: plan, build, reverse, validate"
+    log "Error: .claude/commands/${MODE}.md not found"
+    log "Available modes: plan, build, reverse, validate, work, prime, bug"
     exit 1
 fi
 
@@ -108,6 +115,94 @@ log ""
 
 ITERATION=0
 
+# Handle work mode specially (alternates build/validate automatically)
+if [ "$MODE" = "work" ]; then
+    log "Work mode: alternating build/validate until complete"
+    log ""
+
+    while [ "$ITERATION" -lt "$MAX_ITERATIONS" ]; do
+        # Priority 1: Pending tasks
+        if grep -q -- '- \[ \]' plan.md 2>/dev/null; then
+            log "Found pending tasks - running build..."
+            CURRENT_MODE="build"
+        # Priority 2: Pending validations
+        elif grep -q -- '- \[ \]' pending-validations.md 2>/dev/null; then
+            log "Found pending validations - running validate..."
+            CURRENT_MODE="validate"
+        else
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            log "No pending work - all complete!"
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            break
+        fi
+
+        # Set model for current mode
+        case "$CURRENT_MODE" in
+            build) CURRENT_MODEL="sonnet" ;;
+            validate) CURRENT_MODEL="sonnet" ;;
+        esac
+
+        # Apply model override if provided
+        if [ -n "$MODEL_OVERRIDE" ]; then
+            CURRENT_MODEL="$MODEL_OVERRIDE"
+        fi
+
+        # Execute single iteration
+        log "Starting work iteration $((ITERATION + 1))/$MAX_ITERATIONS (mode: $CURRENT_MODE, model: $CURRENT_MODEL)..."
+        log ""
+
+        CURRENT_PROMPT=".claude/commands/${CURRENT_MODE}.md"
+        OUTPUT=$(filter_frontmatter "$CURRENT_PROMPT" | claude -p \
+            --model "$CURRENT_MODEL" \
+            --dangerously-skip-permissions \
+            --output-format=stream-json \
+            --verbose 2>&1 | tee -a "$LOG_FILE") || {
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            log "Error: Claude execution failed"
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            exit 1
+        }
+
+        # Check for rate limit
+        if echo "$OUTPUT" | jq -e 'select(.error.type == "rate_limit_error" or .error.type == "overloaded_error" or (.error.message // "" | test("rate.?limit|quota.*exhausted"; "i")))' >/dev/null 2>&1; then
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            log "Rate limit detected"
+            log "API quota exhausted. Try again later."
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            break
+        fi
+
+        # Push changes if any
+        if git diff --quiet && git diff --cached --quiet; then
+            log "No changes to push"
+        else
+            log "Pushing changes..."
+            git push origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE" || \
+                git push -u origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE"
+        fi
+
+        ITERATION=$((ITERATION + 1))
+        log ""
+        log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        log "Work iteration $ITERATION complete (ran $CURRENT_MODE)"
+        log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        log ""
+    done
+
+    # Check if we hit max iterations
+    if [ "$ITERATION" -ge "$MAX_ITERATIONS" ]; then
+        log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        log "Max iterations reached: $MAX_ITERATIONS"
+        log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    fi
+
+    log ""
+    log "Loop finished after $ITERATION iteration(s)"
+    log "Full log saved to: $LOG_FILE"
+    exit 0
+fi
+
+# Standard mode execution loop
 while true; do
     # Stop 1: Max iterations reached
     if [ "$ITERATION" -ge "$MAX_ITERATIONS" ]; then
@@ -144,7 +239,7 @@ while true; do
     log ""
 
     # Run Claude (output to both screen and log, capture for checks)
-    OUTPUT=$(cat "$PROMPT_FILE" | claude -p \
+    OUTPUT=$(filter_frontmatter "$PROMPT_FILE" | claude -p \
         --model "$MODEL" \
         --dangerously-skip-permissions \
         --output-format=stream-json \

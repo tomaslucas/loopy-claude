@@ -80,24 +80,32 @@ Code implemented
 
 ### Core Components
 
-**1. Prompts** (`prompts/`)
+**1. Commands** (`.claude/commands/`)
 - `plan.md` - Intelligent plan generator (5 phases, extended thinking)
 - `build.md` - Task executor with mandatory verification
 - `validate.md` - Post-implementation validator (spec vs code)
 - `reverse.md` - Legacy code analyzer (generates specs from code)
+- `prime.md` - Repository orientation guide
+- `bug.md` - Bug analysis and corrective task creation
 
-**2. Orchestrator** (`loop.sh`)
+**2. Agents** (`.claude/agents/`)
+- `spec-checker.md` - Mechanical checklist verification
+- `spec-inferencer.md` - Semantic behavior inference
+- Used by validate command for parallel verification
+
+**3. Orchestrator** (`loop.sh`)
 - Simple bash loop
 - 5 stop conditions (max iterations, empty plan, empty pending-validations, rate limit, completion signal)
 - Session logging to `logs/`
-- Model selection (opus for plan/reverse/validate, sonnet for build)
+- Model selection (opus for plan/reverse, sonnet for build/validate)
+- Work mode: automated build→validate cycles
 
-**3. Analyzer** (`analyze-session.sh`)
+**4. Analyzer** (`analyze-session.sh`)
 - Post-mortem analysis of sessions
 - Detects errors, warnings, stop conditions
 - Contextual recommendations
 
-**4. Specs** (`specs/`)
+**5. Specs** (`specs/`)
 - Immutable design documents (WHAT to build)
 - No implementation checklists (plan generator creates tasks)
 - PIN (`specs/README.md`) for quick lookup
@@ -221,9 +229,9 @@ No task marked complete with failing verification.
 - History in git (where it belongs)
 - Stop condition trivial
 
-**3. Loop without metadata**
-- Prompts are plain markdown
-- No YAML parsing
+**3. Simple YAML frontmatter**
+- Commands have minimal frontmatter (name, description)
+- Filtered by loop.sh before execution
 - Easy to debug
 
 **4. No AGENTS.md dependency**
@@ -264,20 +272,31 @@ Override: `./loop.sh <mode> <max> --model <model>`
 loopy-claude/
 ├── loop.sh                  # Main orchestrator
 ├── analyze-session.sh       # Session analyzer
-├── prompts/
-│   ├── plan.md             # 5-phase plan generator
-│   ├── build.md            # Verification workflow
-│   ├── validate.md         # Post-implementation validator
-│   └── reverse.md          # Legacy analyzer
+├── .claude/
+│   ├── commands/            # Command prompts (main location)
+│   │   ├── plan.md         # 5-phase plan generator
+│   │   ├── build.md        # Verification workflow
+│   │   ├── validate.md     # Post-implementation validator
+│   │   ├── reverse.md      # Legacy analyzer
+│   │   ├── prime.md        # Repository orientation
+│   │   └── bug.md          # Bug analysis and task creation
+│   ├── agents/             # Reusable validation agents
+│   │   ├── spec-checker.md    # Mechanical checklist verification
+│   │   └── spec-inferencer.md # Semantic behavior inference
+│   └── skills/
+│       └── feature-designer/  # Interactive spec creator
+├── prompts/                 # Backward compatibility symlinks to .claude/commands/
+│   ├── plan.md → ../.claude/commands/plan.md
+│   ├── build.md → ../.claude/commands/build.md
+│   ├── validate.md → ../.claude/commands/validate.md
+│   ├── reverse.md → ../.claude/commands/reverse.md
+│   └── prime.md → ../.claude/commands/prime.md
 ├── pending-validations.md  # Queue of specs awaiting validation
 ├── specs/
 │   ├── README.md           # PIN (lookup table)
 │   └── *.md                # Specifications
 ├── plan.md                 # Generated plan (mutable)
 ├── logs/                   # Session logs (gitignored)
-├── .claude/
-│   └── skills/
-│       └── feature-designer/  # Interactive spec creator
 └── README.md               # This file
 ```
 
@@ -401,7 +420,7 @@ tail -100 logs/log-build-<timestamp>.txt
 ### Transparency
 
 - All logs saved (`logs/`)
-- All prompts readable (`prompts/`)
+- All commands readable (`.claude/commands/`)
 - All specs version-controlled (`specs/`)
 - Nothing hidden
 
@@ -437,7 +456,7 @@ tail -100 logs/log-build-<timestamp>.txt
 Loopy is designed to be forkable and hackable:
 
 1. **Fork the repo**
-2. **Modify prompts** (`prompts/*.md`) - they're just markdown
+2. **Modify commands** (`.claude/commands/*.md`) - they're just markdown with frontmatter
 3. **Test your changes** - run loop.sh locally
 4. **Share improvements** - PRs welcome
 
@@ -470,7 +489,7 @@ A: Plan generation needs `<extended_thinking>` for strategic analysis, task grou
 A: Yes. Skill is optional. Create specs manually using the template in `specs/`.
 
 **Q: How do I add a new mode?**
-A: 1) Create `prompts/newmode.md`, 2) Test with `./loop.sh newmode 1`, 3) Done. Loop is mode-agnostic.
+A: 1) Create `.claude/commands/newmode.md` with frontmatter, 2) Test with `./loop.sh newmode 1`, 3) Done. Loop is mode-agnostic.
 
 **Q: What if I want different stop conditions?**
 A: Edit `loop.sh` directly. It's simple bash, easy to customize.

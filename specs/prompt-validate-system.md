@@ -93,7 +93,38 @@ plan.md (output)
 
 ## 3. Key Features
 
-### 3.1 Two-Pass Verification
+### 3.1 Preflight Checks (Cost Optimization)
+
+**Problem:** Subagents cost ~20K tokens each (~40K total). Many validation failures are detectable with cheap deterministic checks.
+
+**Solution:** Run preflight checks before spawning subagents:
+
+**Step 2.1 - Extract verifiable items from spec:**
+- Enumerated sets (lists of files, commands, endpoints)
+- Literal patterns (exact sed/grep commands, code snippets)
+- Test snippets (runnable verification commands)
+
+**Step 2.2 - Run deterministic checks:**
+```bash
+# Enumerated sets - verify ALL items exist
+for cmd in plan build validate reverse prime bug; do
+  test -f .claude/commands/$cmd.md || echo "MISSING: $cmd.md"
+done
+
+# Literal patterns - exact match required
+grep -qF "sed '1{/^---$/!q;};1,/^---$/d'" loop.sh || echo "WRONG: sed pattern"
+
+# Test snippets - run spec's own tests
+# (copy test from spec section 6, run it, compare output)
+```
+
+**Step 2.3 - Preflight decision:**
+- If ANY check fails → skip subagents (saves ~40K tokens), create corrective tasks directly
+- If ALL checks pass → proceed to parallel verification
+
+**Rationale:** A 10-line bash preflight that catches 80% of failures saves significant cost on retries.
+
+### 3.2 Two-Pass Verification
 
 **Problem:** Single-pass verification either misses obvious issues (too shallow) or wastes tokens (too deep).
 
@@ -122,7 +153,7 @@ plan.md (output)
 - Deduplicates (same issue reported differently)
 - Merges into unified divergence list
 
-### 3.2 Parallel Task Execution
+### 3.3 Parallel Task Execution
 
 **Problem:** Sequential passes are slow.
 
@@ -154,7 +185,7 @@ Review both task outputs. Remove duplicate findings (same issue
 described differently). Merge into single divergence list.
 ```
 
-### 3.3 Attempt Tracking
+### 3.4 Attempt Tracking
 
 **Problem:** Validation-correction loop could cycle forever.
 
@@ -193,7 +224,7 @@ Recommendation: Human review required. Possible causes:
 - Spec needs updating (if implementation is correct)
 ```
 
-### 3.4 Corrective Task Generation
+### 3.5 Corrective Task Generation
 
 **Problem:** Divergences need actionable fixes.
 
@@ -219,7 +250,7 @@ Recommendation: Human review required. Possible causes:
 
 **Placement:** Tasks added to plan.md at the end (or in appropriate phase if structure exists).
 
-### 3.5 Clean Validation = Removal
+### 3.6 Clean Validation = Removal
 
 **Problem:** When is a spec truly validated?
 
