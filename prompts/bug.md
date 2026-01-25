@@ -1,0 +1,1 @@
+../.claude/commands/bug.md
