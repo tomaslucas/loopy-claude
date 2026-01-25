@@ -85,9 +85,72 @@ Check attempt count:
 - `(attempt: 2/3)` = second validation
 - `(attempt: 3/3 - ESCALATE)` = final attempt
 
-### Step 2: Code Discovery
+### Step 2: Code Discovery + Preflight Checks
 
-Identify implemented code without making assumptions:
+Identify implemented code AND run deterministic preflight checks before spawning expensive subagents.
+
+#### 2.1 Extract Verifiable Items from Spec
+
+Scan the spec for:
+- **Enumerated sets**: Lists of files, commands, endpoints, flags (e.g., "contains plan.md, build.md, ...")
+- **Literal patterns**: Exact commands, sed/grep patterns, code snippets
+- **Test snippets**: Runnable verification commands provided in spec
+
+#### 2.2 Preflight Checks (MANDATORY)
+
+**Before spawning subagents**, run cheap deterministic checks:
+
+**For enumerated sets:**
+```bash
+# Example: verify all 6 commands exist
+for cmd in plan build validate reverse prime bug; do
+  test -f .claude/commands/$cmd.md && echo "✓ $cmd.md" || echo "✗ $cmd.md MISSING"
+done
+
+# Example: verify symlinks exist
+for cmd in plan build validate reverse prime bug; do
+  test -L prompts/$cmd.md && echo "✓ symlink $cmd" || echo "✗ symlink $cmd MISSING"
+done
+```
+
+**For literal patterns:**
+```bash
+# Example: verify exact sed pattern
+grep -qF "sed '1{/^---$/!q;};1,/^---$/d'" loop.sh && echo "✓ sed OK" || echo "✗ sed WRONG"
+
+# Show what's actually there
+grep -n "filter_frontmatter" -A5 loop.sh
+```
+
+**For test snippets in spec:**
+```bash
+# Run the spec's own test if provided
+# Example from spec section 6:
+cat > /tmp/test.md << 'EOF'
+---
+name: test
+---
+# Content
+EOF
+sed '1{/^---$/!q;};1,/^---$/d' /tmp/test.md
+# Expected: only "# Content"
+```
+
+#### 2.3 Preflight Decision
+
+**If ANY preflight check fails:**
+- Document the failures clearly
+- You MAY skip subagents (saves ~40K tokens)
+- Create corrective tasks directly from preflight failures
+- Output `<promise>CORRECTIONS_NEEDED</promise>`
+
+**If ALL preflight checks pass:**
+- Continue to Step 3 (parallel verification)
+- Preflight evidence feeds into EVIDENCE block for subagents
+
+#### 2.4 Standard Discovery
+
+In addition to preflight, perform standard discovery:
 
 1. **Search for patterns from spec**:
    ```bash
@@ -110,6 +173,7 @@ Identify implemented code without making assumptions:
    - List files that implement this spec
    - Note missing files (if spec mentions them)
    - Identify test coverage
+   - Include preflight results in EVIDENCE
 
 ### Step 3: Parallel Verification (MANDATORY)
 
