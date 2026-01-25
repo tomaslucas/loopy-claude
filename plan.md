@@ -6,27 +6,6 @@ Action: regenerated (previous plan had no pending tasks)
 
 ---
 
-## Phase 1: Structure Foundation (Commands + Directories)
-
-- [ ] Create .claude/commands/ directory and move all commands with frontmatter
-      Done when:
-        - .claude/commands/ directory exists
-        - plan.md, build.md, validate.md, reverse.md, prime.md moved with YAML frontmatter
-        - bug.md created as new command with $ARGUMENTS workflow
-        - Each file starts with valid `---` YAML block (name, description)
-      Verify:
-        - test -d .claude/commands && echo "✅ commands dir exists"
-        - test -f .claude/commands/plan.md && head -1 .claude/commands/plan.md | grep -q "^---$" && echo "✅ plan.md with frontmatter"
-        - test -f .claude/commands/build.md && head -1 .claude/commands/build.md | grep -q "^---$" && echo "✅ build.md with frontmatter"
-        - test -f .claude/commands/validate.md && head -1 .claude/commands/validate.md | grep -q "^---$" && echo "✅ validate.md with frontmatter"
-        - test -f .claude/commands/reverse.md && head -1 .claude/commands/reverse.md | grep -q "^---$" && echo "✅ reverse.md with frontmatter"
-        - test -f .claude/commands/prime.md && head -1 .claude/commands/prime.md | grep -q "^---$" && echo "✅ prime.md with frontmatter"
-        - test -f .claude/commands/bug.md && grep -q "\$ARGUMENTS" .claude/commands/bug.md && echo "✅ bug.md with ARGUMENTS"
-      (cite: specs/structure-reorganization-system.md sections 3.1, 3.2, 4)
-      [Grouped: All command files, single destination, sequential operations, ~450 lines context]
-
----
-
 ## Phase 2: Agent Creation
 
 - [ ] Create .claude/agents/ directory with spec-checker.md and spec-inferencer.md
