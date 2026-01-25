@@ -551,8 +551,9 @@ Export date: $current_date
 
 1. Review exported files:
    - \`loop.sh\` - Main orchestrator
-   - \`prompts/*.md\` - Prompt templates
-   - \`.claude/skills/feature-designer/\` - Interactive spec creator
+   - \`.claude/commands/\` - Command prompts (plan, build, validate, reverse, prime, bug)
+   - \`.claude/agents/\` - Validation agents (spec-checker, spec-inferencer)
+   - \`.claude/skills/\` - Interactive skills (feature-designer)
 
 2. Create your first spec (optional):
    \`\`\`bash
@@ -575,13 +576,17 @@ Export date: $current_date
 
 ## Modes
 
-- \`plan\` - Generate tasks from specs
-- \`build\` - Execute tasks with verification
+- \`plan\` - Generate tasks from specs (5 phases, extended thinking)
+- \`build\` - Execute tasks with mandatory verification
+- \`validate\` - Post-implementation validator (spec vs code)
 - \`reverse\` - Analyze legacy code into specs
+- \`work\` - **Automated build→validate cycles** (recommended workflow)
+- \`prime\` - Repository orientation
+- \`bug\` - Bug analysis and corrective task creation
 
 ## Learn More
 
-See loop.sh comments and prompts/*.md for detailed documentation.
+See loop.sh comments and .claude/commands/ for detailed documentation.
 
 ---
 
