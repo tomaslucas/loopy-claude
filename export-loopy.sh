@@ -105,10 +105,8 @@ SOURCE_PATH="${SOURCE_PATH:-$(pwd)}"
 PRESET_FULL=(
     "loop.sh"
     "analyze-session.sh"
-    "prompts/plan.md"
-    "prompts/build.md"
-    "prompts/reverse.md"
-    ".claude/skills/feature-designer/"
+    "export-loopy.sh"
+    ".claude/"
     ".gitignore"
 )
 
