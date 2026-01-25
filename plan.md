@@ -6,25 +6,6 @@ Action: regenerated (previous plan had no pending tasks)
 
 ---
 
-## Phase 2: Agent Creation
-
-- [ ] Create .claude/agents/ directory with spec-checker.md and spec-inferencer.md
-      Done when:
-        - .claude/agents/ directory exists
-        - spec-checker.md has frontmatter (name, description, tools, model, color) and task definition
-        - spec-inferencer.md has frontmatter (name, description, tools, model, color) and task definition
-        - Agent output formats match expected schema (CHECKLIST RESULTS / BEHAVIOR SUMMARY + DIVERGENCES)
-      Verify:
-        - test -d .claude/agents && echo "✅ agents dir exists"
-        - test -f .claude/agents/spec-checker.md && head -5 .claude/agents/spec-checker.md | grep -q "model: sonnet" && echo "✅ spec-checker with sonnet"
-        - test -f .claude/agents/spec-inferencer.md && head -5 .claude/agents/spec-inferencer.md | grep -q "model: opus" && echo "✅ spec-inferencer with opus"
-        - grep -q "CHECKLIST RESULTS" .claude/agents/spec-checker.md && echo "✅ checker output format"
-        - grep -q "DIVERGENCES" .claude/agents/spec-inferencer.md && echo "✅ inferencer output format"
-      (cite: specs/structure-reorganization-system.md section 3.3)
-      [Grouped: Both agents same directory, ~180 lines total, same verification pattern]
-
----
-
 ## Phase 3: loop.sh Modifications
 
 - [ ] Update loop.sh: frontmatter filter, path change, and work mode
