@@ -2,7 +2,7 @@
 
 > Reorganize loopy-claude to align with Claude Code plugin conventions, extract validate agents, and add automated work mode
 
-## Status: Draft
+## Status: Validated
 
 ---
 
