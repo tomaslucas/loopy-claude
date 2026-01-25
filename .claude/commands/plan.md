@@ -359,7 +359,27 @@ Specs analyzed: {N}
 4. **Context-aware**: Tasks sized appropriately (< 2000 lines)
 5. **Logical phases**: Organized by subsystem, not by spec
 
-### Step 3: Validate Plan
+### Step 3: Generate pending-validations.md
+
+List all specs included in this plan for later validation:
+
+**Format:**
+
+```markdown
+# Pending Validations
+
+- [ ] specs/spec-name-1.md
+- [ ] specs/spec-name-2.md
+- [ ] specs/spec-name-3.md
+```
+
+**Requirements:**
+- One entry per spec that has tasks in plan.md
+- Format: `- [ ] specs/spec-name.md`
+- No duplicates
+- Alphabetically sorted for clarity
+
+### Step 4: Validate Plan
 
 Before finalizing:
 - ✅ No [x] tasks in plan
@@ -370,7 +390,7 @@ Before finalizing:
 - ✅ **Grouping check**: If >3 tasks touch same file, justify each split
 - ✅ **Summary table**: Include context budget table at end of plan
 
-### Step 4: Update specs/README.md
+### Step 5: Update specs/README.md
 
 For each spec that has NEW tasks generated in this plan:
 - If status is 📋 (Planned) → change to ⏳ (In Progress)
@@ -392,10 +412,10 @@ After:
 - ✅ (already implemented)
 - ⏳ (already in progress, no change needed)
 
-### Step 5: Commit
+### Step 6: Commit
 
 ```bash
-git add plan.md specs/README.md
+git add plan.md pending-validations.md specs/README.md
 git commit -m "plan: Generated from {N} specs ({action})"
 git push
 ```
