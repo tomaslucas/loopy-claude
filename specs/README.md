@@ -22,7 +22,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 | [prompt-reverse-system.md](prompt-reverse-system.md)       | ✅ prompts/reverse.md | **Legacy code analysis**, READ-ONLY guarantee, **3-phase workflow** (Discovery → Analysis → Spec Generation), batch processing for context efficiency, JSON intermediates, uncertainty detection, reconstruction checklists, JTBD inference from behavior                                                                      |
 | [feature-designer-skill.md](feature-designer-skill.md)     | ✅ .claude/skills     | **Interactive spec creation**, **continuous AskUserQuestion loop**, critical thinking framework, 4-phase workflow (Research → Iteration → Coherence → Crystallization), **specs without checklists**, tool restrictions (Read/Write/Grep/Glob/AskUserQuestion), YAGNI and simplicity emphasis, cross-spec coherence validation |
 | [export-loopy-system.md](export-loopy-system.md)           | ✅ export-loopy.sh    | **Component export script**, **preset configurations** (full/minimal/design/devtools), interactive destination selection, conflict resolution (ask per file), dependency verification (claude CLI), template generation (specs/README.md, plan.md), .gitignore merging, dry-run mode, flexible source location, permissions preservation |
-| [structure-reorganization-system.md](structure-reorganization-system.md) | ⏳ In Progress | **Claude Code alignment**, move prompts to `.claude/commands/`, extract validate agents to `.claude/agents/`, **work mode** (automated build→validate cycles), frontmatter support, backward compatibility, interactive command support |
+| [structure-reorganization-system.md](structure-reorganization-system.md) | ✅ Implemented | **Claude Code alignment**, move prompts to `.claude/commands/`, extract validate agents to `.claude/agents/`, **work mode** (automated build→validate cycles), frontmatter support, backward compatibility, interactive command support |
 
 ---
 
@@ -33,7 +33,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 - ⏳ **In Progress** - Under active development
 - 📋 **Planned** - Specification complete, not yet implemented
 
-**Current Status:** 7 implemented, 1 in progress.
+**Current Status:** 8 implemented, 0 in progress.
 
 ---
 
