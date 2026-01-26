@@ -195,6 +195,9 @@ case "$MODE" in
     validate)
         MODEL="sonnet"      # Straightforward checklist + orchestration
         ;;
+    post-mortem)
+        MODEL="sonnet"      # Log analysis is straightforward
+        ;;
     *)
         MODEL="sonnet"      # Build is straightforward
         ;;
@@ -298,6 +301,11 @@ if [ "$MODE" = "work" ]; then
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     fi
 
+    # Post-mortem hook: Analyze session for learning
+    log ""
+    log "Running post-mortem analysis..."
+    ./loop.sh post-mortem 1
+
     log ""
     log "Loop finished after $ITERATION iteration(s)"
     log "Full log saved to: $LOG_FILE"
@@ -383,6 +391,13 @@ while true; do
     log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     log ""
 done
+
+# Post-mortem hook: Analyze session for learning (skip for non-productive modes)
+if [[ "$MODE" != "post-mortem" && "$MODE" != "prime" && "$MODE" != "bug" ]]; then
+    log ""
+    log "Running post-mortem analysis..."
+    ./loop.sh post-mortem 1
+fi
 
 log ""
 log "Loop finished after $ITERATION iteration(s)"
