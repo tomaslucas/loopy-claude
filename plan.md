@@ -20,4 +20,8 @@ Specs analyzed: 3 (reconcile-system, dependency-check-system, done-tracking-syst
 
 ## Validation Corrections
 
-(All validation corrections completed)
+- [ ] Fix: Exclude reconcile mode from post-mortem hook
+      Done when: Reconcile mode excluded from post-mortem hook at loop.sh:650 (following pattern of audit, prime, bug)
+      Verify: grep "post-mortem\|prime\|bug\|audit" loop.sh | grep -q reconcile
+      (cite: specs/reconcile-system.md section 2 - interactive decision-making mode)
+      [Validation correction - attempt 2]

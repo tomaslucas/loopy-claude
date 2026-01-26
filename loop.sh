@@ -377,7 +377,7 @@ filter_frontmatter() {
 # Validate mode (work mode doesn't need its own prompt file)
 if [[ "$MODE" != "work" && ! -f "$PROMPT_FILE" ]]; then
     log "Error: .claude/commands/${MODE}.md not found"
-    log "Available modes: plan, build, reverse, validate, work, prime, bug"
+    log "Available modes: plan, build, reverse, validate, work, audit, prime, bug, post-mortem, reconcile"
     exit 1
 fi
 
