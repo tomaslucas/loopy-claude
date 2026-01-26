@@ -3,26 +3,6 @@
 Generated: 2026-01-26
 Specs analyzed: 1 (cli-agnostic-system.md)
 
-## Phase 1: Core Infrastructure
-
-- [ ] Create loopy.config.json and update loop.sh for multi-agent support
-      Done when:
-        - loopy.config.json exists with claude and copilot agent definitions
-        - loop.sh parses --agent flag
-        - loop.sh resolves agent (flag > env > config default > hardcoded)
-        - loop.sh builds command dynamically from config
-        - loop.sh banner shows "Agent: {name}"
-        - Default behavior unchanged (claude)
-      Verify:
-        - test -f loopy.config.json
-        - grep -q '"default": "claude"' loopy.config.json
-        - grep -q "copilot" loopy.config.json
-        - grep -q "\-\-agent" loop.sh
-        - grep -q "LOOPY_AGENT" loop.sh
-        - grep -q 'log "Agent:' loop.sh
-      (cite: specs/cli-agnostic-system.md sections 3.1-3.4, 4, 6)
-      [Grouped: foundational infrastructure, same subsystem, ~340 lines context]
-
 ## Phase 2: Session Analysis
 
 - [ ] Update analyze-session.sh for graceful degradation with non-JSON agents
