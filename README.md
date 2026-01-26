@@ -6,7 +6,7 @@ Simple loop-based autonomous coding system. Design specs, generate plans, build 
 
 ## What is Loopy-claude?
 
-Loopy is a minimal orchestrator that feeds prompts to Claude Code, managing iterations, stop conditions, and progress commits. It's built on radical simplicity: no abstraction layers, no magic, just transparent bash scripts and well-crafted prompts.
+Loopy is a minimal orchestrator that feeds prompts to AI agents (Claude Code, Copilot, or others), managing iterations, stop conditions, and progress commits. It's built on radical simplicity: no abstraction layers, no magic, just transparent bash scripts and well-crafted prompts.
 
 **Philosophy:** Simple is better than clever. Direct is better than abstracted. Debuggable is better than magical.
 
@@ -158,6 +158,19 @@ ls specs-reverse/
 ./loop.sh build 5 --model opus
 ```
 
+### Example 4: Using Different Agents
+
+```bash
+# Use Claude Code (default)
+./loop.sh plan 5
+
+# Use Copilot
+./loop.sh plan 5 --agent copilot
+
+# Use Copilot with specific model
+./loop.sh build 10 --agent copilot --model sonnet
+```
+
 ---
 
 ## Key Concepts
@@ -296,6 +309,7 @@ loopy-claude/
 │   ├── README.md           # PIN (lookup table)
 │   └── *.md                # Specifications
 ├── plan.md                 # Generated plan (mutable)
+├── loopy.config.json       # Agent configurations (optional)
 ├── logs/                   # Session logs (gitignored)
 └── README.md               # This file
 ```
@@ -309,10 +323,52 @@ loopy-claude/
 - **Mode:** build
 - **Max iterations:** 1 (safe default)
 - **Model:** opus (plan/reverse), sonnet (build)
+- **Agent:** claude (default, configurable)
+
+### Agent Configuration
+
+Agents are configured in `loopy.config.json`:
+
+```json
+{
+  "default": "claude",
+  "agents": {
+    "claude": {
+      "command": "claude",
+      "promptFlag": "-p",
+      "modelFlag": "--model",
+      "models": { "opus": "opus", "sonnet": "sonnet", "haiku": "haiku" },
+      "extraArgs": "--dangerously-skip-permissions --output-format=stream-json --verbose"
+    },
+    "copilot": {
+      "command": "copilot",
+      "promptFlag": "-p",
+      "modelFlag": "--model",
+      "models": { "opus": "claude-opus-4.5", "sonnet": "claude-sonnet-4.5" },
+      "extraArgs": "--allow-all-tools -s"
+    }
+  }
+}
+```
+
+Select agent via flag or environment variable:
+
+```bash
+# Via flag (highest priority)
+./loop.sh plan 5 --agent copilot
+
+# Via environment variable
+LOOPY_AGENT=copilot ./loop.sh plan 5
+
+# Resolution order: --agent flag > LOOPY_AGENT env > config default > "claude"
+```
 
 ### Environment Variables
 
 ```bash
+# Override agent
+LOOPY_AGENT=copilot ./loop.sh build 10
+
 # Override model
 LOOPY_MODEL=haiku ./loop.sh build 10
 ```
@@ -381,11 +437,11 @@ tail -100 logs/log-build-<timestamp>.txt
 - Git automation
 
 **Differences:**
-- ✅ Radical simplicity (no multi-CLI abstraction)
+- ✅ Radical simplicity (config-based multi-agent, not code changes)
 - ✅ Specs without checklists (intelligent plan generator)
 - ✅ DELETE completed tasks (not mark [x])
 - ✅ No AGENTS.md (self-contained prompts)
-- ✅ Single focus (Claude Code only)
+- ✅ Extensible via `loopy.config.json`
 
 ### vs Manual Development
 
@@ -426,7 +482,7 @@ tail -100 logs/log-build-<timestamp>.txt
 
 ### Focus
 
-- Claude Code only (no multi-CLI complexity)
+- Default to Claude Code, extensible to other agents via `loopy.config.json`
 - Task execution only (no IDE integration)
 - Autonomous operation (no interactive prompts)
 
@@ -476,8 +532,8 @@ Loopy is designed to be forkable and hackable:
 
 ## FAQ
 
-**Q: Why Claude Code only?**
-A: Simplicity. Supporting multiple CLIs adds 10x complexity for marginal benefit. Fork and adapt if you need others.
+**Q: Can I use other AI agents besides Claude Code?**
+A: Yes. Use `--agent copilot` flag or set `LOOPY_AGENT=copilot`. Configure agents in `loopy.config.json`. Default is Claude Code for backward compatibility.
 
 **Q: Why delete completed tasks instead of marking [x]?**
 A: Plan shows only what's LEFT to do. History is in git. Cleaner, more focused.
@@ -496,5 +552,5 @@ A: Edit `loop.sh` directly. It's simple bash, easy to customize.
 
 ---
 
-**Version:** 1.0
-**Last Updated:** 2026-01-24
+**Version:** 1.1
+**Last Updated:** 2026-01-26
