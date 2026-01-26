@@ -217,10 +217,15 @@ log() {
 }
 
 # Filter YAML frontmatter from command files
+# Removes everything from line 1 (if ---) through the next --- line
 filter_frontmatter() {
     local file="$1"
-    # Remove lines between first --- and second ---
-    sed '1{/^---$/!q;};1,/^---$/d' "$file"
+    awk '
+        BEGIN { in_frontmatter = 0; found_end = 0 }
+        NR == 1 && /^---$/ { in_frontmatter = 1; next }
+        in_frontmatter && /^---$/ { in_frontmatter = 0; found_end = 1; next }
+        !in_frontmatter { print }
+    ' "$file"
 }
 
 # Validate mode (work mode doesn't need its own prompt file)
@@ -338,13 +343,37 @@ if [ "$MODE" = "work" ]; then
             break
         fi
 
-        # Push changes if any
-        if git diff --quiet && git diff --cached --quiet; then
-            log "No changes to push"
+        # Check for ESCALATE signal (validation hit 3 attempts, needs human)
+        if echo "$OUTPUT" | grep -q '<promise>ESCALATE</promise>'; then
+            log ""
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            log "ESCALATE: Validation requires human intervention"
+            log "A spec has failed validation 3 times."
+            log "Review pending-validations.md for details."
+            log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            break
+        fi
+
+        # Push changes if any (check both dirty working tree AND unpushed commits)
+        NEEDS_PUSH=false
+        if ! git diff --quiet || ! git diff --cached --quiet; then
+            NEEDS_PUSH=true
+        elif git rev-parse --verify "@{u}" >/dev/null 2>&1; then
+            # Has upstream: check if ahead
+            AHEAD=$(git rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
+            [ "$AHEAD" -gt 0 ] && NEEDS_PUSH=true
         else
+            # No upstream: check if there are local commits
+            LOCAL_COMMITS=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+            [ "$LOCAL_COMMITS" -gt 0 ] && NEEDS_PUSH=true
+        fi
+
+        if [ "$NEEDS_PUSH" = true ]; then
             log "Pushing changes..."
             git push origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE" || \
                 git push -u origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE"
+        else
+            log "No changes to push"
         fi
 
         ITERATION=$((ITERATION + 1))
@@ -438,13 +467,26 @@ while true; do
         break
     fi
 
-    # Push changes (if any)
-    if git diff --quiet && git diff --cached --quiet; then
-        log "No changes to push"
+    # Push changes if any (check both dirty working tree AND unpushed commits)
+    NEEDS_PUSH=false
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        NEEDS_PUSH=true
+    elif git rev-parse --verify "@{u}" >/dev/null 2>&1; then
+        # Has upstream: check if ahead
+        AHEAD=$(git rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
+        [ "$AHEAD" -gt 0 ] && NEEDS_PUSH=true
     else
+        # No upstream: check if there are local commits
+        LOCAL_COMMITS=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+        [ "$LOCAL_COMMITS" -gt 0 ] && NEEDS_PUSH=true
+    fi
+
+    if [ "$NEEDS_PUSH" = true ]; then
         log "Pushing changes..."
         git push origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE" || \
             git push -u origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE"
+    else
+        log "No changes to push"
     fi
 
     ITERATION=$((ITERATION + 1))
