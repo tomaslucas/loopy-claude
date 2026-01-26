@@ -190,6 +190,18 @@ ls specs-reverse/
 ./loop.sh build 10 --agent copilot --model sonnet
 ```
 
+### Example 5: Audit Repository
+
+```bash
+# Full repository audit (compares all specs vs implementation)
+./loop.sh audit
+
+# Review generated report
+cat audits/audit-2026-01-26-14-40.md
+
+# Report is auto-committed to git
+```
+
 ---
 
 ## Key Concepts
