@@ -35,7 +35,7 @@ claude
 > crystallize
 
 # 2. Generate plan from specs
-./loop.sh plan 5
+./loop.sh plan
 
 # 3. Review plan
 cat plan.md
@@ -94,10 +94,11 @@ lessons-learned.md (persistent knowledge for future sessions)
 - `build.md` - Task executor with mandatory verification
 - `validate.md` - Post-implementation validator (spec vs code)
 - `reverse.md` - Legacy code analyzer (generates specs from code)
+- `work.md` - Automated build→validate cycles (virtual mode, no prompt file)
+- `audit.md` - Repository audit for spec compliance (READ-ONLY, generates reports)
 - `prime.md` - Repository orientation guide
 - `bug.md` - Bug analysis and corrective task creation
 - `post-mortem.md` - Autonomous learning from session logs (auto-triggered)
-- `audit.md` - Repository audit for spec compliance (generates divergence reports)
 
 **2. Agents** (`.claude/agents/`)
 - `spec-checker.md` - Mechanical checklist verification
@@ -105,11 +106,11 @@ lessons-learned.md (persistent knowledge for future sessions)
 - Used by validate command for parallel verification
 
 **3. Orchestrator** (`loop.sh`)
-- Simple bash loop
+- ~470 lines bash (includes multi-agent support and work mode)
 - 5 stop conditions (max iterations, empty plan, empty pending-validations, rate limit, completion signal)
 - Session logging to `logs/`
 - Model selection (opus for plan/reverse/audit, sonnet for build/validate/post-mortem)
-- Work mode: automated build→validate cycles
+- Work mode: automated build→validate cycles with smart iteration calculation
 - Multi-agent support (Claude Code, Copilot CLI via `loopy.config.json`)
 
 **4. Analyzer** (`analyze-session.sh`)
@@ -123,6 +124,7 @@ lessons-learned.md (persistent knowledge for future sessions)
 - Persists structured lessons (what to avoid, what to use, why)
 - Auto-triggers after productive modes (plan/build/validate/reverse/work)
 - Max 20 lessons per mode, semantic pruning when full
+- `lessons-learned.md` auto-created on first post-mortem run
 
 **6. Specs** (`specs/`)
 - Immutable design documents (WHAT to build)
@@ -143,8 +145,9 @@ claude
 > crystallize as auth-system
 
 # Plan
-./loop.sh plan 3
+./loop.sh plan
 # Generates plan.md with specific, verifiable tasks
+# Plan completes in 1 iteration (signals COMPLETE)
 
 # Build
 ./loop.sh build 10
@@ -161,13 +164,27 @@ claude
 ls specs-reverse/
 
 # Generate plan for improvements
-./loop.sh plan 5
+./loop.sh plan
 
 # Implement
 ./loop.sh build 20
 ```
 
-### Example 3: Model Override
+### Example 3: Work Mode (Automated Build→Validate)
+
+```bash
+# Smart iteration calculation (recommended)
+./loop.sh work
+# Calculates: (pending_tasks + pending_validations) × 2
+
+# Manual iteration limit
+./loop.sh work 50
+
+# The 2× multiplier accounts for corrective tasks that validations may generate
+# Loop exits naturally when no pending work remains
+```
+
+### Example 4: Model Override
 
 ```bash
 # Use haiku for cheaper build
@@ -177,20 +194,20 @@ ls specs-reverse/
 ./loop.sh build 5 --model opus
 ```
 
-### Example 4: Using Different Agents
+### Example 5: Using Different Agents
 
 ```bash
 # Use Claude Code (default)
-./loop.sh plan 5
+./loop.sh plan
 
 # Use Copilot
-./loop.sh plan 5 --agent copilot
+./loop.sh plan --agent copilot
 
 # Use Copilot with specific model
 ./loop.sh build 10 --agent copilot --model sonnet
 ```
 
-### Example 5: Audit Repository
+### Example 6: Audit Repository
 
 ```bash
 # Full repository audit (compares all specs vs implementation)
@@ -200,6 +217,16 @@ ls specs-reverse/
 cat audits/audit-2026-01-26-14-40.md
 
 # Report is auto-committed to git
+
+# When to use:
+# - Periodic maintenance (monthly/quarterly)
+# - Before major releases
+# - After significant refactoring
+# - To detect spec drift or systemic issues
+
+# Audit vs Validate:
+# - audit: READ-ONLY, holistic analysis of ALL specs
+# - validate: ONE spec at a time, can fix divergences
 ```
 
 ---
@@ -300,11 +327,13 @@ No task marked complete with failing verification.
 ### Model Selection
 
 ```bash
-plan        → opus     # extended_thinking needed
-reverse     → opus     # JTBD inference + grouping
-validate    → opus     # semantic inference pass
+plan        → opus     # extended_thinking needed for strategic planning
+reverse     → opus     # JTBD inference + strategic grouping
+audit       → opus     # deep reasoning, cross-spec analysis, nuanced judgment
+validate    → sonnet   # orchestrates parallel validation agents
 build       → sonnet   # straightforward execution
 post-mortem → sonnet   # log analysis and extraction
+work        → sonnet   # alternates build/validate (both use sonnet)
 ```
 
 Override: `./loop.sh <mode> <max> --model <model>`
@@ -315,14 +344,16 @@ Override: `./loop.sh <mode> <max> --model <model>`
 
 ```
 loopy-claude/
-├── loop.sh                  # Main orchestrator
+├── loop.sh                  # Main orchestrator (~470 lines)
 ├── analyze-session.sh       # Session analyzer
+├── export-loopy.sh          # Component export script
 ├── .claude/
 │   ├── commands/            # Command prompts (main location)
 │   │   ├── plan.md         # 5-phase plan generator
 │   │   ├── build.md        # Verification workflow
 │   │   ├── validate.md     # Post-implementation validator
 │   │   ├── reverse.md      # Legacy analyzer
+│   │   ├── audit.md        # Repository audit (READ-ONLY)
 │   │   ├── prime.md        # Repository orientation
 │   │   ├── bug.md          # Bug analysis and task creation
 │   │   └── post-mortem.md  # Autonomous learning from logs
@@ -336,14 +367,19 @@ loopy-claude/
 │   ├── build.md → ../.claude/commands/build.md
 │   ├── validate.md → ../.claude/commands/validate.md
 │   ├── reverse.md → ../.claude/commands/reverse.md
-│   └── prime.md → ../.claude/commands/prime.md
+│   ├── audit.md → ../.claude/commands/audit.md
+│   ├── prime.md → ../.claude/commands/prime.md
+│   ├── bug.md → ../.claude/commands/bug.md
+│   └── post-mortem.md → ../.claude/commands/post-mortem.md
 ├── pending-validations.md  # Queue of specs awaiting validation
-├── lessons-learned.md      # Persistent knowledge from session analysis
+├── lessons-learned.md      # Persistent knowledge (auto-created on first use)
 ├── specs/
 │   ├── README.md           # PIN (lookup table)
 │   └── *.md                # Specifications
+├── audits/                 # Audit reports (auto-committed)
+│   └── audit-*.md          # Timestamped audit reports
 ├── plan.md                 # Generated plan (mutable)
-├── loopy.config.json       # Agent configurations (optional)
+├── loopy.config.json       # Agent configurations
 ├── logs/                   # Session logs (gitignored)
 └── README.md               # This file
 ```
@@ -372,27 +408,40 @@ Agents are configured in `loopy.config.json`:
       "promptFlag": "-p",
       "modelFlag": "--model",
       "models": { "opus": "opus", "sonnet": "sonnet", "haiku": "haiku" },
-      "extraArgs": "--dangerously-skip-permissions --output-format=stream-json --verbose"
+      "extraArgs": "--dangerously-skip-permissions --output-format=stream-json --verbose",
+      "outputFormat": "stream-json",
+      "rateLimitPattern": "rate_limit_error|overloaded_error|quota.*exhausted"
     },
     "copilot": {
       "command": "copilot",
       "promptFlag": "-p",
       "modelFlag": "--model",
-      "models": { "opus": "claude-opus-4.5", "sonnet": "claude-sonnet-4.5" },
-      "extraArgs": "--allow-all-tools -s"
+      "models": { "opus": "claude-opus-4.5", "sonnet": "claude-sonnet-4.5", "haiku": "claude-haiku-4.5" },
+      "extraArgs": "--allow-all-tools -s",
+      "outputFormat": "text",
+      "rateLimitPattern": "rate.?limit|quota|too many requests"
     }
   }
 }
 ```
 
+**Configuration fields:**
+- `command`: CLI executable name
+- `promptFlag`: Flag for prompt input (-p for both)
+- `modelFlag`: Flag for model selection (--model for both)
+- `models`: Logical name → agent-specific model mapping
+- `extraArgs`: Additional flags passed to agent
+- `outputFormat`: "stream-json" (Claude) or "text" (Copilot) - affects rate limit detection
+- `rateLimitPattern`: Regex pattern for detecting rate limit errors in output
+
 Select agent via flag or environment variable:
 
 ```bash
 # Via flag (highest priority)
-./loop.sh plan 5 --agent copilot
+./loop.sh plan --agent copilot
 
 # Via environment variable
-LOOPY_AGENT=copilot ./loop.sh plan 5
+LOOPY_AGENT=copilot ./loop.sh plan
 
 # Resolution order: --agent flag > LOOPY_AGENT env > config default > "claude"
 ```
@@ -429,7 +478,7 @@ specs-reverse/
 grep '- \[ \]' plan.md
 
 # If empty, regenerate plan
-./loop.sh plan 5
+./loop.sh plan
 ```
 
 **Rate limit hit:**
@@ -503,9 +552,9 @@ tail -100 logs/log-build-<timestamp>.txt
 
 > "Simple is better than clever. Direct is better than abstracted. Debuggable is better than magical."
 
-- Loop is ~180 lines bash
-- Prompts are plain markdown
-- No hidden complexity
+- Loop is ~470 lines bash (includes multi-agent support, work mode, configuration system)
+- Prompts are plain markdown with YAML frontmatter
+- No hidden complexity, no magic
 
 ### Transparency
 
@@ -575,6 +624,12 @@ A: Plan shows only what's LEFT to do. History is in git. Cleaner, more focused.
 **Q: Why opus for plan mode?**
 A: Plan generation needs `<extended_thinking>` for strategic analysis, task grouping, context budgeting. Opus handles this better.
 
+**Q: Why opus for audit mode?**
+A: Audit requires deep reasoning, cross-spec analysis, and nuanced judgment about spec compliance. Sonnet excels at execution but opus handles complex comparative analysis better.
+
+**Q: Why opus for reverse mode?**
+A: Reverse engineering requires JTBD (Jobs To Be Done) inference from code behavior and strategic grouping of findings. This needs opus-level reasoning.
+
 **Q: Can I run without feature-designer skill?**
 A: Yes. Skill is optional. Create specs manually using the template in `specs/`.
 
@@ -584,7 +639,16 @@ A: 1) Create `.claude/commands/newmode.md` with frontmatter, 2) Test with `./loo
 **Q: What if I want different stop conditions?**
 A: Edit `loop.sh` directly. It's simple bash, easy to customize.
 
+**Q: How does work mode calculate max iterations?**
+A: If you don't specify max iterations, work mode calculates: `(pending_tasks + pending_validations) × 2`. The 2× multiplier is a safety margin for corrective tasks that validations may generate. The loop exits naturally when no pending work remains.
+
+**Q: What's the difference between audit and validate?**
+A: 
+- **audit**: READ-ONLY holistic analysis of ALL specs vs implementation. Generates report in `audits/`. Use for periodic maintenance.
+- **validate**: Validates ONE spec at a time from `pending-validations.md`. Can generate corrective tasks. Part of build→validate workflow.
+
 ---
 
-**Version:** 1.1
+**Version:** 1.2
 **Last Updated:** 2026-01-26
+**Changes:** Updated documentation to reflect current codebase (audit mode, work mode details, configuration fields, accurate line counts)

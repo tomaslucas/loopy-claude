@@ -33,7 +33,7 @@ Options:
   --log FILE      Use specific log file (for post-mortem)
 
 Examples:
-  ./loop.sh plan 5              # Plan with max 5 iterations
+  ./loop.sh plan                # Generate plan (completes in 1 iteration)
   ./loop.sh build               # Execute one build task
   ./loop.sh work 20             # Run build/validate cycle
   ./loop.sh audit               # Full repository audit
