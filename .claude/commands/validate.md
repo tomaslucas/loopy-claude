@@ -1,11 +1,11 @@
 ---
 name: validate
-description: Validate ONE spec from pending-validations.md using parallel checker and inferencer agents
+description: Validate ALL pending specs from pending-validations.md in a single iteration (batch mode)
 ---
 
 # Validate Mode
 
-Validate ONE spec from pending-validations.md by comparing implementation against specification, create corrective tasks when divergence is detected, and signal completion.
+Validate ALL pending specs from pending-validations.md in a single iteration. Process each spec sequentially within this session, creating corrective tasks when divergence is detected.
 
 ---
 
@@ -14,12 +14,13 @@ Validate ONE spec from pending-validations.md by comparing implementation agains
 Study the validation context:
 
 1. Read `pending-validations.md` completely (understand validation queue)
-2. Pick the first pending spec (marked `- [ ]`)
-3. Read the FULL spec to understand requirements
-4. Note current attempt count (if shown)
-5. Read `lessons-learned.md` section for Validate mode (if file exists)
+2. Count ALL pending specs (marked `- [ ]`) — you will validate ALL of them this session
+3. Read `lessons-learned.md` section for Validate mode (if file exists)
+4. Note attempt counts for each spec (determines validation depth)
 
 **CRITICAL:** Specs are source of truth. NEVER modify specs during validation.
+
+**BATCH MODE:** Process ALL specs in one iteration. Do NOT output completion until all are processed.
 
 ---
 
@@ -41,12 +42,21 @@ Study the validation context:
   - Map implementation landscape
   - Then read specific files directly
 
-### For parallel verification:
+### For verification (smart depth based on attempt count):
 
-- **Always launch TWO Tasks in parallel** for verification (mandatory):
+- **First validation (attempt 1):** Launch TWO Tasks in parallel
   - Task 1: Checklist verification (model: sonnet)
   - Task 2: Semantic inference (model: opus)
-  - These run simultaneously for speed
+  - Full depth for comprehensive coverage
+
+- **Re-validation (attempt 2+):** Checklist ONLY (single Task, sonnet)
+  - Corrections are usually small/targeted
+  - Opus inference is overkill for trivial fixes
+  - Saves ~$0.10+ per re-validation
+
+- **Preflight passes 100%:** Skip subagents entirely
+  - Direct validation without Task overhead
+  - Fastest path for clean implementations
 
 ### General guidance:
 
@@ -64,15 +74,15 @@ Study the validation context:
 
 ## Validation Workflow
 
-Validate ONE spec completely following this mandatory workflow:
+**FOR EACH pending spec in pending-validations.md**, execute this workflow:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CRITICAL VALIDATION WORKFLOW (MANDATORY)
+BATCH VALIDATION WORKFLOW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ### Step 1: Read Spec Completely
 
-Pick first `- [ ]` entry from pending-validations.md.
+For current spec being validated:
 
 Read the FULL spec to understand:
 - **Purpose/Goals**: What the system should accomplish
@@ -176,12 +186,15 @@ In addition to preflight, perform standard discovery:
    - Identify test coverage
    - Include preflight results in EVIDENCE
 
-### Step 3: Parallel Verification (MANDATORY)
+### Step 3: Verification (Depth Based on Attempt Count)
 
-**CRITICAL:** Launch BOTH tasks in parallel. Do NOT run sequentially.
+**Choose verification strategy based on attempt count:**
+
+#### If FIRST VALIDATION (attempt 1): Full Two-Pass
+
+Launch BOTH tasks in parallel:
 
 **Task 1: Mechanical Checklist**
-
 1. Read `.claude/agents/spec-checker.md` completely
 2. Use its instructions as the Task prompt
 3. Append context block:
@@ -194,20 +207,34 @@ In addition to preflight, perform standard discovery:
      FILE_EXCERPTS: {key code sections with file:line}
      GREP_RESULTS: {pattern search results}
    ```
-4. Task description: "Run subagent spec-checker (explicit). Verify acceptance criteria mechanically."
+4. Task description: "Run subagent spec-checker. Verify acceptance criteria mechanically."
 5. Model: sonnet
 
 **Task 2: Semantic Inference**
-
 1. Read `.claude/agents/spec-inferencer.md` completely
 2. Use its instructions as the Task prompt
 3. Append same context block as Task 1
-4. Task description: "Run subagent spec-inferencer (explicit). Summarize behavior and compare to intent."
+4. Task description: "Run subagent spec-inferencer. Summarize behavior and compare to intent."
 5. Model: opus
 
-**Execute Tasks:**
+Launch both tasks simultaneously. Wait for both to complete.
 
-Launch both tasks simultaneously using the Task tool. Wait for both to complete before proceeding.
+#### If RE-VALIDATION (attempt 2+): Checklist Only
+
+Launch SINGLE task (saves opus cost):
+
+**Task: Checklist Verification Only**
+1. Read `.claude/agents/spec-checker.md`
+2. Focus on the SPECIFIC items that failed in previous attempt
+3. Model: sonnet
+4. Skip opus inference (corrections are usually targeted)
+
+#### If PREFLIGHT PASSED 100%: Direct Validation
+
+Skip Task tool entirely:
+1. You already verified all enumerated sets and literal patterns
+2. Document the preflight results as evidence
+3. Mark spec as validated directly
 
 **Alternative: Bash-based Parallel Execution**
 
@@ -494,25 +521,22 @@ or (if pending-validations.md is now empty):
 
 ## Completion Signals
 
-**Spec validated successfully:**
-```
-<promise>SPEC_VALIDATED</promise>
-```
+**BATCH MODE:** Only output ONE signal after processing ALL specs.
 
-**Corrective tasks created:**
-```
-<promise>CORRECTIONS_NEEDED</promise>
-```
+Choose the HIGHEST priority signal that applies:
 
-**Escalation required (3 attempts reached):**
-```
-<promise>ESCALATE</promise>
-```
+| Priority | Condition | Signal |
+|----------|-----------|--------|
+| 1 (highest) | Any spec reached attempt 3/3 | `<promise>ESCALATE</promise>` |
+| 2 | Any spec needed corrections | `<promise>CORRECTIONS_NEEDED</promise>` |
+| 3 | All specs validated, queue empty | `<promise>COMPLETE</promise>` |
+| 4 | All specs in batch validated | `<promise>SPEC_VALIDATED</promise>` |
 
-**All specs validated (pending-validations.md empty):**
-```
-<promise>COMPLETE</promise>
-```
+**Examples:**
+
+- 3 specs validated OK → `<promise>COMPLETE</promise>` (if queue now empty)
+- 2 specs OK, 1 needs corrections → `<promise>CORRECTIONS_NEEDED</promise>`
+- 1 spec escalated, 2 OK → `<promise>ESCALATE</promise>`
 
 ---
 

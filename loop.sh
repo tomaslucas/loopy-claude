@@ -646,8 +646,8 @@ while true; do
     log ""
 done
 
-# Post-mortem hook: Analyze session for learning (skip for non-productive modes)
-if [[ "$MODE" != "post-mortem" && "$MODE" != "prime" && "$MODE" != "bug" && "$MODE" != "audit" ]]; then
+# Post-mortem hook: Analyze session for learning (skip for non-productive/interactive modes)
+if [[ "$MODE" != "post-mortem" && "$MODE" != "prime" && "$MODE" != "bug" && "$MODE" != "audit" && "$MODE" != "reconcile" ]]; then
     log ""
     log "Loop finished after $ITERATION iteration(s)"
     log "Full log saved to: $LOG_FILE"
