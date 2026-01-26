@@ -11,6 +11,42 @@ set -euo pipefail
 #   ./loop.sh reverse --model opus 3    # Reverse mode, opus, max 3
 #   ./loop.sh build --agent copilot     # Build with Copilot agent
 
+# Help function
+show_help() {
+    cat << 'EOF'
+Usage: ./loop.sh <mode> [max_iterations] [--model MODEL] [--agent AGENT]
+
+Modes:
+  plan        Generate implementation plan from specs (opus)
+  build       Execute ONE task from plan.md (sonnet)
+  validate    Validate ONE spec from pending-validations.md (sonnet)
+  reverse     Analyze legacy code, generate specs (opus)
+  work        Alternate build/validate until complete (sonnet)
+  audit       Audit repository for spec compliance (opus)
+  prime       Orient and understand the repository
+  bug         Analyze a bug and create corrective tasks
+  post-mortem Analyze session logs for learning
+
+Options:
+  --model MODEL   Override default model (opus/sonnet/haiku)
+  --agent AGENT   Use specific agent (claude/copilot)
+  --log FILE      Use specific log file (for post-mortem)
+
+Examples:
+  ./loop.sh plan 5              # Plan with max 5 iterations
+  ./loop.sh build               # Execute one build task
+  ./loop.sh work 20             # Run build/validate cycle
+  ./loop.sh audit               # Full repository audit
+  ./loop.sh build --agent copilot
+EOF
+    exit 0
+}
+
+# Show help if no arguments
+if [[ $# -eq 0 ]]; then
+    show_help
+fi
+
 # Parse arguments
 MODE=""
 MAX_ITERATIONS=""
@@ -20,6 +56,9 @@ LOG_OVERRIDE=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        -h|--help)
+            show_help
+            ;;
         --model)
             MODEL_OVERRIDE="$2"
             shift 2
