@@ -689,8 +689,8 @@ To use Copilot:
 ### Trade-offs Accepted
 
 **Limitation:** Copilot lacks Task tool (subagents)
-- **Impact:** Validate mode runs sequentially instead of parallel
-- **Mitigation:** Functional but slower; documented behavior
+- **Impact:** Native Task tool unavailable for parallel subagent orchestration
+- **Mitigation:** Use bash-based parallel execution instead - launch multiple agent instances via `&` and `wait`. See validate.md "Alternative: Bash-based Parallel Execution"
 
 **Limitation:** No capability detection
 - **Impact:** User must know agent limitations
