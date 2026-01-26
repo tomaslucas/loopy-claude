@@ -236,16 +236,45 @@ $ARGUMENTS - Description of the bug or problem detected
    - **Spec bug**: Spec is incomplete or incorrect
    - **Missing feature**: Spec exists but feature not implemented
 
-4. **Create corrective action**
+4. **Strategic Analysis** (for code bugs and missing features)
+
+   Before creating tasks, analyze for optimal grouping:
+
+   **4.1 Check existing plan.md:**
+   - Are there pending tasks touching the same files?
+   - Are there related tasks that should be grouped?
+   - If yes → merge fix into existing task or group together
+
+   **4.2 Context budget estimation:**
+   - **Small** (<500 lines): Single task OK
+   - **Medium** (500-1500 lines): Consider grouping related fixes
+   - **Large** (>2000 lines): MUST split into logical sub-tasks
+
+   **4.3 Dependency check:**
+   - Does fix depend on other pending tasks? → Order appropriately
+   - Do other tasks depend on this fix? → Mark as foundational
+
+   **4.4 Grouping rules:**
+   - Same file + <500 lines = MAX 1 task (group everything)
+   - Related files + <1500 lines = Prefer grouping
+   - If splitting, add: `[Split: reason]`
+
+   **Output:** Decision on task structure (single/grouped/split)
+
+5. **Create corrective action**
 
    **If code bug:**
-   Add task to plan.md:
+   Add task to plan.md (applying Phase 4 decisions):
    ```markdown
    - [ ] Fix: {brief description of the fix needed}
          Done when: {concrete criteria}
          Verify: {command or check}
          (cite: specs/{relevant-spec}.md)
+         [Grouped: reason] or [Split: reason] (if applicable)
    ```
+
+   **If missing feature:**
+   Add task to plan.md with implementation steps (apply same grouping rules).
 
    **If spec bug:**
    Output recommendation:
@@ -257,10 +286,7 @@ $ARGUMENTS - Description of the bug or problem detected
    → Run /feature-designer to update the spec
    ```
 
-   **If missing feature:**
-   Add task to plan.md with implementation steps.
-
-5. **Report**
+6. **Report**
    - Summarize what was found
    - Confirm task added to plan.md (or spec update needed)
    - Suggest next step: `./loop.sh build` or `/feature-designer`
@@ -321,7 +347,55 @@ For each criterion:
 3. Check if implementation matches spec requirements
 4. Output: PASS or FAIL with evidence
 
+## Critical Verification Rules
+
+### Rule 1: Enumerated Sets Must Be Complete
+
+When the spec lists an explicit set of items (files, commands, flags, endpoints):
+- You MUST verify EVERY item in the set exists
+- Partial matches are FAIL (5 of 6 = FAIL)
+- Report "Expected vs Found vs Missing" explicitly
+
+**Example:**
+```
+Spec says: "commands/ contains plan.md, build.md, validate.md, reverse.md, prime.md, bug.md"
+Check: ls -la .claude/commands/*.md
+Expected: 6 files
+Found: 5 files (missing bug.md)
+Result: ❌ FAIL
+```
+
+### Rule 2: Literal Strings Must Match Exactly
+
+When the spec provides an exact command, pattern, or code snippet:
+- You MUST verify exact literal match using `grep -F` (fixed string)
+- "Functionally similar" is NOT acceptable unless spec explicitly allows alternatives
+- Run the spec's test snippets if provided
+
+**Example:**
+```
+Spec says: sed '1{/^---$/!q;};1,/^---$/d'
+Check: grep -F "sed '1{/^---$/!q;};1,/^---$/d'" loop.sh
+Found: sed '/^---$/,/^---$/d'
+Result: ❌ FAIL (different pattern)
+```
+
 ## Output Format (STRICT)
+
+SET CHECKS:
+
+- Set: {what is being enumerated}
+  Expected: [{item1}, {item2}, ...]
+  Found: [{items found}]
+  Missing: [{items not found}]
+  Result: ✅ PASS / ❌ FAIL
+
+LITERAL CHECKS:
+
+- Literal: {exact string from spec}
+  Location: {where it should be}
+  Found: {what was actually found}
+  Result: ✅ PASS / ❌ FAIL
 
 CHECKLIST RESULTS:
 
@@ -336,6 +410,8 @@ CHECKLIST RESULTS:
 - Do NOT infer or assume - only verify observable facts
 - Do NOT spawn subagents (orchestrator handles parallelism)
 - Evidence required for every finding
+- Partial set matches are FAIL
+- Approximate literal matches are FAIL
 ```
 
 **spec-inferencer.md:**

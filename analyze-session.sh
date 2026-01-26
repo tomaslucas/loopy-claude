@@ -51,28 +51,49 @@ MODE=$(grep "^Mode:" "$TARGET" | head -1 | awk '{print $2}' || echo "unknown")
 MODEL=$(grep "^Model:" "$TARGET" | head -1 | awk '{print $2}' || echo "unknown")
 BRANCH=$(grep "^Branch:" "$TARGET" | head -1 | awk '{print $2}' || echo "unknown")
 MAX_ITER=$(grep "^Max:" "$TARGET" | head -1 | awk '{print $2}' || echo "unknown")
+AGENT=$(grep "^Agent:" "$TARGET" | head -1 | awk '{print $2}' || echo "claude")
+
+# Determine output format from config (for graceful degradation)
+CONFIG_FILE="loopy.config.json"
+if [ -f "$CONFIG_FILE" ]; then
+    OUTPUT_FORMAT=$(jq -r ".agents.${AGENT}.outputFormat // \"stream-json\"" "$CONFIG_FILE" 2>/dev/null || echo "stream-json")
+else
+    # Assume stream-json if no config (backward compat with claude default)
+    OUTPUT_FORMAT="stream-json"
+fi
 
 # Count iterations from text logs
 ITERATIONS_STARTED=$(grep -c "^Starting iteration" "$TARGET" || echo "0")
 ITERATIONS_COMPLETED=$(grep -c "^Iteration .* complete" "$TARGET" || echo "0")
 
-# Extract JSON result entry
-RESULT_JSON=$(grep '"type":"result"' "$TARGET" | tail -1)
+# Initialize defaults for non-JSON agents
+IS_ERROR="false"
+TOTAL_COST="0"
+DURATION_MS="0"
+DURATION_SEC="0"
+NUM_TURNS="0"
+RESULT_JSON=""
 
-if [ -z "$RESULT_JSON" ]; then
-    echo -e "${YELLOW}Warning: No result entry found in log${NC}"
-    echo "This may be an incomplete or malformed log file"
-    echo ""
+# JSON parsing only for stream-json output format
+if [ "$OUTPUT_FORMAT" = "stream-json" ]; then
+    # Extract JSON result entry
+    RESULT_JSON=$(grep '"type":"result"' "$TARGET" | tail -1)
+
+    if [ -z "$RESULT_JSON" ]; then
+        echo -e "${YELLOW}Warning: No result entry found in log${NC}"
+        echo "This may be an incomplete or malformed log file"
+        echo ""
+    fi
+
+    # Parse result data
+    IS_ERROR=$(echo "$RESULT_JSON" | jq -r '.is_error // false' 2>/dev/null || echo "false")
+    TOTAL_COST=$(echo "$RESULT_JSON" | jq -r '.total_cost_usd // 0' 2>/dev/null || echo "0")
+    DURATION_MS=$(echo "$RESULT_JSON" | jq -r '.duration_ms // 0' 2>/dev/null || echo "0")
+    NUM_TURNS=$(echo "$RESULT_JSON" | jq -r '.num_turns // 0' 2>/dev/null || echo "0")
+
+    # Convert duration to human readable
+    DURATION_SEC=$(echo "scale=1; $DURATION_MS / 1000" | bc 2>/dev/null || echo "0")
 fi
-
-# Parse result data
-IS_ERROR=$(echo "$RESULT_JSON" | jq -r '.is_error // false' 2>/dev/null || echo "false")
-TOTAL_COST=$(echo "$RESULT_JSON" | jq -r '.total_cost_usd // 0' 2>/dev/null || echo "0")
-DURATION_MS=$(echo "$RESULT_JSON" | jq -r '.duration_ms // 0' 2>/dev/null || echo "0")
-NUM_TURNS=$(echo "$RESULT_JSON" | jq -r '.num_turns // 0' 2>/dev/null || echo "0")
-
-# Convert duration to human readable
-DURATION_SEC=$(echo "scale=1; $DURATION_MS / 1000" | bc 2>/dev/null || echo "0")
 
 # Detect stop condition
 STOP_CONDITION="unknown"
@@ -80,6 +101,8 @@ if grep -q "Max iterations reached" "$TARGET"; then
     STOP_CONDITION="max_iterations"
 elif grep -q "No pending tasks in plan.md" "$TARGET"; then
     STOP_CONDITION="plan_empty"
+elif grep -q "No pending validations in pending-validations.md" "$TARGET"; then
+    STOP_CONDITION="pending_validations_empty"
 elif grep -q "^Rate limit detected" "$TARGET"; then
     STOP_CONDITION="rate_limit"
 elif grep -q "Agent signaled completion" "$TARGET"; then
@@ -98,6 +121,7 @@ echo ""
 echo "Configuration:"
 echo "  Mode:        $MODE"
 echo "  Model:       $MODEL"
+echo "  Agent:       $AGENT"
 echo "  Branch:      $BRANCH"
 echo "  Max iter:    $MAX_ITER"
 echo ""
@@ -111,8 +135,13 @@ echo "  Turns:                $NUM_TURNS"
 echo "  Stop condition:       $STOP_CONDITION"
 echo ""
 
-# Cost Analysis
-if [ -n "$RESULT_JSON" ] && [ "$TOTAL_COST" != "0" ]; then
+# Cost Analysis - only available for stream-json output
+if [ "$OUTPUT_FORMAT" != "stream-json" ]; then
+    echo "Cost Analysis:"
+    echo "  Cost/Token analysis not available for agent: $AGENT"
+    echo "  (agent uses $OUTPUT_FORMAT output format, not stream-json)"
+    echo ""
+elif [ -n "$RESULT_JSON" ] && [ "$TOTAL_COST" != "0" ]; then
     echo "Cost Analysis:"
     # Use LC_NUMERIC=C to ensure consistent decimal formatting
     LC_NUMERIC=C printf "  Total Cost: \$%.4f\n" "$TOTAL_COST"

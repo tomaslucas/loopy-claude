@@ -17,6 +17,7 @@ Study the validation context:
 2. Pick the first pending spec (marked `- [ ]`)
 3. Read the FULL spec to understand requirements
 4. Note current attempt count (if shown)
+5. Read `lessons-learned.md` section for Validate mode (if file exists)
 
 **CRITICAL:** Specs are source of truth. NEVER modify specs during validation.
 
@@ -207,6 +208,41 @@ In addition to preflight, perform standard discovery:
 **Execute Tasks:**
 
 Launch both tasks simultaneously using the Task tool. Wait for both to complete before proceeding.
+
+**Alternative: Bash-based Parallel Execution**
+
+If your agent lacks native Task tool (e.g., Copilot), use bash to launch parallel subagents:
+
+```bash
+TEMP_DIR=$(mktemp -d)
+
+# Build prompts with context
+CHECKER_PROMPT="$(cat .claude/agents/spec-checker.md)
+
+--- CONTEXT ---
+SPEC_PATH: {spec_path}
+SPEC_TEXT: {spec content}
+EVIDENCE: {discovered files and excerpts}"
+
+INFERENCER_PROMPT="$(cat .claude/agents/spec-inferencer.md)
+
+--- CONTEXT ---
+SPEC_PATH: {spec_path}
+SPEC_TEXT: {spec content}
+EVIDENCE: {discovered files and excerpts}"
+
+# Launch both in parallel
+(copilot -p "$CHECKER_PROMPT" --model claude-sonnet-4.5 -s > "$TEMP_DIR/checker.txt" 2>&1) &
+(copilot -p "$INFERENCER_PROMPT" --model claude-opus-4.5 -s > "$TEMP_DIR/inferencer.txt" 2>&1) &
+wait
+
+# Read results
+echo "=== CHECKER OUTPUT ===" && cat "$TEMP_DIR/checker.txt"
+echo "=== INFERENCER OUTPUT ===" && cat "$TEMP_DIR/inferencer.txt"
+rm -rf "$TEMP_DIR"
+```
+
+This achieves true parallelism without the Task tool overhead.
 
 ### Step 4: Result Processing
 

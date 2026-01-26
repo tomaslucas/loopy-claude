@@ -16,6 +16,7 @@ Study the project context:
 1. Study `specs/README.md` (understand project scope)
 2. Study `plan.md` (understand task queue)
 3. Scan existing codebase structure (identify patterns)
+4. Read `lessons-learned.md` section for Build mode (if file exists)
 
 ---
 

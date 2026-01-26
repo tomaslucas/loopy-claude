@@ -1,0 +1,31 @@
+{
+  "default": "claude",
+  "agents": {
+    "claude": {
+      "command": "claude",
+      "promptFlag": "-p",
+      "modelFlag": "--model",
+      "models": {
+        "opus": "opus",
+        "sonnet": "sonnet",
+        "haiku": "haiku"
+      },
+      "extraArgs": "--dangerously-skip-permissions --output-format=stream-json --verbose",
+      "outputFormat": "stream-json",
+      "rateLimitPattern": "rate_limit_error|overloaded_error|quota.*exhausted"
+    },
+    "copilot": {
+      "command": "copilot",
+      "promptFlag": "-p",
+      "modelFlag": "--model",
+      "models": {
+        "opus": "claude-opus-4.5",
+        "sonnet": "claude-sonnet-4.5",
+        "haiku": "claude-haiku-4.5"
+      },
+      "extraArgs": "--allow-all-tools -s",
+      "outputFormat": "text",
+      "rateLimitPattern": "rate.?limit|quota|too many requests"
+    }
+  }
+}

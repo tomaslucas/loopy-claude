@@ -15,14 +15,17 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 
 | Spec                                                       | Code                 | Purpose                                                                                                                                                                                                                                                                                                                        |
 | ---------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [loop-orchestrator-system.md](loop-orchestrator-system.md) | ✅ loop.sh            | Simple bash orchestrator, **5 stop conditions** (max iterations, empty plan, empty pending-validations, rate limit, completion signal), session logging, model selection, cross-platform compatibility, git automation, iteration control                                                                                                                 |
-| [prompt-plan-system.md](prompt-plan-system.md)             | ✅ prompts/plan.md    | **5-phase intelligent planning**, multi-source reconciliation (git log > README), gap analysis, **Impact Analysis**, task expansion, **strategic grouping with extended_thinking**, context budget estimation, dependency analysis, plan lifecycle (0%/1-79%/80-100%), DELETE completed tasks, **specs/README.md status update** (📋→⏳)                                  |
-| [prompt-build-system.md](prompt-build-system.md)           | ✅ prompts/build.md   | **Mandatory verification workflow**, 6-step execution, **mandatory spec reading** (Step 2), **quick quality scan** (secrets, injection, paths), self-verify before complete, **in-session fix loop** (up to 3 attempts), delete completed tasks, complete implementation (no TODOs/placeholders), categorized guardrails                                                                  |
-| [prompt-validate-system.md](prompt-validate-system.md)     | ✅ prompts/validate.md | **Post-implementation validation**, **preflight checks** (cost optimization), **two-pass verification** (checklist + semantic inference), **parallel Tasks** (sonnet + opus), **set completeness** (enumerated items), **literal matching** (exact patterns), spec vs code comparison, **pending-validations.md tracking**, attempt limiting (max 3), corrective task generation, escalation workflow, spec as source of truth, **specs/README.md status update** (⏳→✅)                                                                  |
-| [prompt-reverse-system.md](prompt-reverse-system.md)       | ✅ prompts/reverse.md | **Legacy code analysis**, READ-ONLY guarantee, **3-phase workflow** (Discovery → Analysis → Spec Generation), batch processing for context efficiency, JSON intermediates, uncertainty detection, reconstruction checklists, JTBD inference from behavior                                                                      |
+| [loop-orchestrator-system.md](loop-orchestrator-system.md) | ✅ loop.sh            | Simple bash orchestrator, **5 stop conditions** (max iterations, empty plan, empty pending-validations, rate limit, completion signal), session logging, model selection, cross-platform compatibility, git automation, iteration control, **multi-agent support** (see cli-agnostic-system)                                                                                                                 |
+| [cli-agnostic-system.md](cli-agnostic-system.md) | ✅ Implemented | **Multi-agent support**, external configuration (`loopy.config.json`), `--agent` flag, model name mapping, Claude Code + Copilot support, extensible design, backward compatible defaults |
+| [prompt-plan-system.md](prompt-plan-system.md)             | ✅ .claude/commands/plan.md    | **5-phase intelligent planning**, multi-source reconciliation (git log > README), gap analysis, **Impact Analysis**, task expansion, **strategic grouping with extended_thinking**, context budget estimation, dependency analysis, plan lifecycle (0%/1-79%/80-100%), DELETE completed tasks, **specs/README.md status update** (📋→⏳)                                  |
+| [prompt-build-system.md](prompt-build-system.md)           | ✅ .claude/commands/build.md   | **Mandatory verification workflow**, 6-step execution, **mandatory spec reading** (Step 2), **quick quality scan** (secrets, injection, paths), self-verify before complete, **in-session fix loop** (up to 3 attempts), delete completed tasks, complete implementation (no TODOs/placeholders), categorized guardrails                                                                  |
+| [prompt-validate-system.md](prompt-validate-system.md)     | ✅ .claude/commands/validate.md | **Post-implementation validation**, **preflight checks** (cost optimization), **two-pass verification** (checklist + semantic inference), **parallel Tasks** (sonnet + opus), **set completeness** (enumerated items), **literal matching** (exact patterns), spec vs code comparison, **pending-validations.md tracking**, attempt limiting (max 3), corrective task generation, escalation workflow, spec as source of truth, **specs/README.md status update** (⏳→✅)                                                                  |
+| [prompt-reverse-system.md](prompt-reverse-system.md)       | ✅ .claude/commands/reverse.md | **Legacy code analysis**, READ-ONLY guarantee, **3-phase workflow** (Discovery → Analysis → Spec Generation), batch processing for context efficiency, JSON intermediates, uncertainty detection, reconstruction checklists, JTBD inference from behavior                                                                      |
 | [feature-designer-skill.md](feature-designer-skill.md)     | ✅ .claude/skills     | **Interactive spec creation**, **continuous AskUserQuestion loop**, critical thinking framework, 4-phase workflow (Research → Iteration → Coherence → Crystallization), **specs without checklists**, tool restrictions (Read/Write/Grep/Glob/AskUserQuestion), YAGNI and simplicity emphasis, cross-spec coherence validation |
 | [export-loopy-system.md](export-loopy-system.md)           | ✅ export-loopy.sh    | **Component export script**, **preset configurations** (full/minimal/design/devtools), interactive destination selection, conflict resolution (ask per file), dependency verification (claude CLI), template generation (specs/README.md, plan.md), .gitignore merging, dry-run mode, flexible source location, permissions preservation |
 | [structure-reorganization-system.md](structure-reorganization-system.md) | ✅ Implemented | **Claude Code alignment**, move prompts to `.claude/commands/`, extract validate agents to `.claude/agents/`, **work mode** (automated build→validate cycles), frontmatter support, backward compatibility, interactive command support |
+| [post-mortem-system.md](post-mortem-system.md) | ✅ .claude/commands/post-mortem.md | **Autonomous learning**, session log analysis, `lessons-learned.md` persistence, structured lessons (Evitar/Usar/Razón), 20 items per section limit, semantic pruning, auto-trigger after productive modes, prompt integration (Phase 0 reads lessons) |
+| [audit-system.md](audit-system.md) | ✅ .claude/commands/audit.md | **Repository audit**, spec compliance verification, READ-ONLY analysis, holistic cross-spec view, divergence detection, structured report generation, periodic maintenance tool, opus model |
 
 ---
 
@@ -33,7 +36,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 - ⏳ **In Progress** - Under active development
 - 📋 **Planned** - Specification complete, not yet implemented
 
-**Current Status:** 8 implemented, 0 in progress.
+**Current Status:** 11 implemented, 0 in progress, 0 planned.
 
 ---
 
@@ -128,7 +131,13 @@ These are documented in specs but highlighted here for agent awareness:
 - component sharing, project initialization
 - dependency verification, quick start
 
+**Learning & Analysis:**
+- post-mortem, lessons learned, autonomous learning
+- session analysis, log analysis, error detection
+- inefficiency detection, pruning, knowledge persistence
+- structured lessons, semantic analysis
+
 ---
 
-**Last Updated:** 2026-01-24 (specs/README.md status updates now automated via plan/validate)
+**Last Updated:** 2026-01-26 (added post-mortem-system.md)
 **Project:** loopy-claude

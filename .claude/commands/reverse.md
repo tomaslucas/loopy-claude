@@ -20,6 +20,7 @@ Understand scope:
 3. Prepare output directories:
    - `reverse-analysis/` (intermediate artifacts)
    - `specs-reverse/` (final specifications)
+4. Read `lessons-learned.md` section for Reverse mode (if file exists)
 
 ---
 
