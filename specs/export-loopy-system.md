@@ -2,7 +2,7 @@
 
 > Bash script to export loopy-claude components to new or existing projects with preset configurations and conflict management
 
-## Status: Draft
+## Status: Implemented
 
 ---
 
@@ -132,6 +132,7 @@ PRESET_FULL=(
   "loop.sh"
   "analyze-session.sh"
   "export-loopy.sh"
+  "loopy.config.json"
   ".claude/"
   ".gitignore"
 )

@@ -215,6 +215,9 @@ case "$MODE" in
     post-mortem)
         MODEL="sonnet"      # Log analysis is straightforward
         ;;
+    audit)
+        MODEL="opus"        # Deep analysis requires reasoning
+        ;;
     *)
         MODEL="sonnet"      # Build is straightforward
         ;;
@@ -414,7 +417,7 @@ while true; do
 done
 
 # Post-mortem hook: Analyze session for learning (skip for non-productive modes)
-if [[ "$MODE" != "post-mortem" && "$MODE" != "prime" && "$MODE" != "bug" ]]; then
+if [[ "$MODE" != "post-mortem" && "$MODE" != "prime" && "$MODE" != "bug" && "$MODE" != "audit" ]]; then
     log ""
     log "Loop finished after $ITERATION iteration(s)"
     log "Full log saved to: $LOG_FILE"

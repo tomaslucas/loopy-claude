@@ -25,6 +25,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 | [export-loopy-system.md](export-loopy-system.md)           | ✅ export-loopy.sh    | **Component export script**, **preset configurations** (full/minimal/design/devtools), interactive destination selection, conflict resolution (ask per file), dependency verification (claude CLI), template generation (specs/README.md, plan.md), .gitignore merging, dry-run mode, flexible source location, permissions preservation |
 | [structure-reorganization-system.md](structure-reorganization-system.md) | ✅ Implemented | **Claude Code alignment**, move prompts to `.claude/commands/`, extract validate agents to `.claude/agents/`, **work mode** (automated build→validate cycles), frontmatter support, backward compatibility, interactive command support |
 | [post-mortem-system.md](post-mortem-system.md) | ✅ Implemented | **Autonomous learning**, session log analysis, `lessons-learned.md` persistence, structured lessons (Evitar/Usar/Razón), 20 items per section limit, semantic pruning, auto-trigger after productive modes, prompt integration (Phase 0 reads lessons) |
+| [audit-system.md](audit-system.md) | ⏳ In Progress | **Repository audit**, spec compliance verification, READ-ONLY analysis, holistic cross-spec view, divergence detection, structured report generation, periodic maintenance tool, opus model |
 
 ---
 
@@ -35,7 +36,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 - ⏳ **In Progress** - Under active development
 - 📋 **Planned** - Specification complete, not yet implemented
 
-**Current Status:** 10 implemented, 0 in progress, 0 planned.
+**Current Status:** 10 implemented, 1 in progress, 0 planned.
 
 ---
 

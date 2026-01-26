@@ -127,8 +127,8 @@ validate_source() {
         exit 2
     fi
 
-    if [[ ! -d "$src/prompts" ]]; then
-        echo "Error: Not a loopy-claude directory (prompts/ not found)"
+    if [[ ! -d "$src/.claude/commands" ]]; then
+        echo "Error: Not a loopy-claude directory (.claude/commands/ not found)"
         echo "Source: $src"
         exit 2
     fi

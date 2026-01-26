@@ -101,6 +101,8 @@ if grep -q "Max iterations reached" "$TARGET"; then
     STOP_CONDITION="max_iterations"
 elif grep -q "No pending tasks in plan.md" "$TARGET"; then
     STOP_CONDITION="plan_empty"
+elif grep -q "No pending validations in pending-validations.md" "$TARGET"; then
+    STOP_CONDITION="pending_validations_empty"
 elif grep -q "^Rate limit detected" "$TARGET"; then
     STOP_CONDITION="rate_limit"
 elif grep -q "Agent signaled completion" "$TARGET"; then
