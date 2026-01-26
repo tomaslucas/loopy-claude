@@ -32,9 +32,9 @@ Perform a comprehensive audit of the repository, comparing all implementations a
 - Task (no subagents needed)
 
 **Prohibited bash operations:**
-- Any write operations (>, >>, tee)
+- Any write operations except audit report (>, >>, tee)
 - File modifications (sed -i, mv, rm, cp)
-- Git commits
+- Git commits (EXCEPTION: audit report file only, see Step 6)
 
 ---
 
@@ -197,6 +197,24 @@ mkdir -p audits
 
 Output the report location and summary.
 
+### Step 6: Commit Audit Report
+
+**EXCEPTION to READ-ONLY rule:** You are authorized to commit ONLY the audit report file generated.
+
+```bash
+# Add ONLY the audit report file (not the entire audits/ directory)
+git add audits/audit-{YYYY-MM-DD-HH-MM}.md
+
+# Commit with descriptive message
+git commit -m "audit: add audit report {YYYY-MM-DD-HH-MM}"
+```
+
+**Critical restrictions:**
+- Only commit the audit report file you just created
+- Do NOT commit any other files
+- Do NOT fix divergences found
+- Do NOT stage untracked files from other operations
+
 ---
 
 ## Guardrails
@@ -231,6 +249,7 @@ Output summary and signal:
 ```
 Audit complete: {compliant}/{total} specs compliant
 Report saved to: audits/audit-{timestamp}.md
+Report committed: {commit-hash}
 
 <promise>COMPLETE</promise>
 ```
