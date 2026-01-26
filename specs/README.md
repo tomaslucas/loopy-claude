@@ -24,6 +24,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 | [feature-designer-skill.md](feature-designer-skill.md)     | ✅ .claude/skills     | **Interactive spec creation**, **continuous AskUserQuestion loop**, critical thinking framework, 4-phase workflow (Research → Iteration → Coherence → Crystallization), **specs without checklists**, tool restrictions (Read/Write/Grep/Glob/AskUserQuestion), YAGNI and simplicity emphasis, cross-spec coherence validation |
 | [export-loopy-system.md](export-loopy-system.md)           | ✅ export-loopy.sh    | **Component export script**, **preset configurations** (full/minimal/design/devtools), interactive destination selection, conflict resolution (ask per file), dependency verification (claude CLI), template generation (specs/README.md, plan.md), .gitignore merging, dry-run mode, flexible source location, permissions preservation |
 | [structure-reorganization-system.md](structure-reorganization-system.md) | ✅ Implemented | **Claude Code alignment**, move prompts to `.claude/commands/`, extract validate agents to `.claude/agents/`, **work mode** (automated build→validate cycles), frontmatter support, backward compatibility, interactive command support |
+| [post-mortem-system.md](post-mortem-system.md) | 📋 Planned | **Autonomous learning**, session log analysis, `lessons-learned.md` persistence, structured lessons (Evitar/Usar/Razón), 20 items per section limit, semantic pruning, auto-trigger after productive modes, prompt integration (Phase 0 reads lessons) |
 
 ---
 
@@ -34,7 +35,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 - ⏳ **In Progress** - Under active development
 - 📋 **Planned** - Specification complete, not yet implemented
 
-**Current Status:** 9 implemented, 0 in progress, 0 planned.
+**Current Status:** 9 implemented, 0 in progress, 1 planned.
 
 ---
 
@@ -129,7 +130,13 @@ These are documented in specs but highlighted here for agent awareness:
 - component sharing, project initialization
 - dependency verification, quick start
 
+**Learning & Analysis:**
+- post-mortem, lessons learned, autonomous learning
+- session analysis, log analysis, error detection
+- inefficiency detection, pruning, knowledge persistence
+- structured lessons, semantic analysis
+
 ---
 
-**Last Updated:** 2026-01-26 (added cli-agnostic-system.md)
+**Last Updated:** 2026-01-26 (added post-mortem-system.md)
 **Project:** loopy-claude
