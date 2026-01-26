@@ -17,6 +17,7 @@ Study the validation context:
 2. Pick the first pending spec (marked `- [ ]`)
 3. Read the FULL spec to understand requirements
 4. Note current attempt count (if shown)
+5. Read `lessons-learned.md` section for Validate mode (if file exists)
 
 **CRITICAL:** Specs are source of truth. NEVER modify specs during validation.
 

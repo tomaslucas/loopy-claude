@@ -25,6 +25,7 @@ Study the project to understand scope and state:
 1. Study `specs/README.md` completely (PIN lookup table)
 2. Scan existing codebase structure (identify main directories)
 3. Note project patterns and conventions
+4. Read `lessons-learned.md` section for Plan mode (if file exists)
 
 ---
 
