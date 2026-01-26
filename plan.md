@@ -8,24 +8,6 @@ Specs analyzed: 1 (post-mortem-system.md)
 
 ## Phase 1: Core Implementation
 
-- [ ] Create post-mortem.md prompt and add loop.sh support
-      Done when:
-        - `.claude/commands/post-mortem.md` exists with analysis workflow
-        - Prompt reads most recent log, analyzes for errors/inefficiencies
-        - Prompt updates lessons-learned.md with structured lessons (Evitar/Usar/Razón + date)
-        - Prompt handles pruning when section exceeds 20 items
-        - Prompt handles empty analysis (no changes, just completes)
-        - `loop.sh` has `post-mortem)` case in model selection returning `sonnet`
-        - `loop.sh` has hook after main loop that triggers post-mortem for productive modes
-        - Hook does NOT trigger for post-mortem/prime/bug modes (prevents recursion)
-      Verify:
-        - test -f .claude/commands/post-mortem.md && echo "post-mortem.md exists"
-        - grep -q "post-mortem)" loop.sh && echo "model case exists"
-        - grep -q 'MODE.*!=.*post-mortem' loop.sh && echo "hook conditional exists"
-        - grep -q "lessons-learned" .claude/commands/post-mortem.md && echo "prompt references lessons file"
-      (cite: specs/post-mortem-system.md sections 2, 3, 4)
-      [Grouped: Same subsystem - post-mortem mode creation, ~150 lines new + ~10 lines loop.sh changes]
-
 ## Phase 2: Prompt Integration
 
 - [ ] Add lessons-learned.md reading to all productive mode prompts
