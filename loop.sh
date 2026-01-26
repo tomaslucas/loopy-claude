@@ -47,7 +47,19 @@ done
 
 # Apply defaults
 MODE="${MODE:-build}"
-MAX_ITERATIONS="${MAX_ITERATIONS:-1}"
+# Work mode: calculate iterations from pending tasks + validations
+# Uses 2x multiplier as safety margin (validations may generate corrective tasks)
+# The loop exits naturally when no pending work remains; MAX_ITERATIONS is a safety cap
+if [ -z "$MAX_ITERATIONS" ]; then
+    if [ "$MODE" = "work" ]; then
+        PENDING_TASKS=$(grep -c -- '- \[ \]' plan.md 2>/dev/null || echo 0)
+        PENDING_VALIDATIONS=$(grep -c -- '- \[ \]' pending-validations.md 2>/dev/null || echo 0)
+        MAX_ITERATIONS=$(( (PENDING_TASKS + PENDING_VALIDATIONS) * 2 ))
+        [ "$MAX_ITERATIONS" -lt 1 ] && MAX_ITERATIONS=1
+    else
+        MAX_ITERATIONS=1
+    fi
+fi
 PROMPT_FILE=".claude/commands/${MODE}.md"
 
 # Resolve agent (flag > env > config default > hardcoded)
@@ -216,7 +228,9 @@ log "Agent:  $AGENT_NAME"
 log "Mode:   $MODE"
 log "Model:  $MODEL"
 log "Branch: $CURRENT_BRANCH"
-log "Prompt: $PROMPT_FILE"
+if [ "$MODE" != "work" ]; then
+    log "Prompt: $PROMPT_FILE"
+fi
 log "Max:    $MAX_ITERATIONS iteration(s)"
 log "Log:    $LOG_FILE"
 log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -304,7 +318,7 @@ if [ "$MODE" = "work" ]; then
     # Post-mortem hook: Analyze session for learning
     log ""
     log "Running post-mortem analysis..."
-    ./loop.sh post-mortem 1
+    ./loop.sh post-mortem 1 || log "Post-mortem analysis failed (non-fatal)"
 
     log ""
     log "Loop finished after $ITERATION iteration(s)"
@@ -396,7 +410,7 @@ done
 if [[ "$MODE" != "post-mortem" && "$MODE" != "prime" && "$MODE" != "bug" ]]; then
     log ""
     log "Running post-mortem analysis..."
-    ./loop.sh post-mortem 1
+    ./loop.sh post-mortem 1 || log "Post-mortem analysis failed (non-fatal)"
 fi
 
 log ""
