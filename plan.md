@@ -5,33 +5,6 @@ Specs analyzed: 3 (reconcile-system, dependency-check-system, done-tracking-syst
 
 ---
 
-## Phase 1: Reconcile Prompt
-
-- [ ] Create .claude/commands/reconcile.md with complete reconciliation workflow
-      Done when:
-        - File exists at .claude/commands/reconcile.md
-        - Has frontmatter with name: reconcile and description
-        - Detects escalated entries via pattern: (attempt: 3/3.*ESCALATE)
-        - Graceful exit if no escalations found
-        - Generates structured divergence report for each escalated spec
-        - Presents A/B/C/D options via AskUserQuestion
-        - Option A: generates corrective tasks, resets validation entry
-        - Option B: shows diff preview, requires confirmation, adds migration note
-        - Option C: skips without changes
-        - Option D: shows detailed divergence report
-        - Multiple escalations processed sequentially with continue prompt
-        - All changes committed with clear message
-        - Outputs <promise>COMPLETE</promise> when done
-      Verify:
-        - test -f .claude/commands/reconcile.md
-        - grep -q "ESCALATE" .claude/commands/reconcile.md
-        - grep -q "AskUserQuestion" .claude/commands/reconcile.md
-        - grep -q "divergence" .claude/commands/reconcile.md
-        - grep -q '<promise>COMPLETE</promise>' .claude/commands/reconcile.md
-      (cite: specs/reconcile-system.md sections 3.1-3.7, 6)
-
----
-
 ## Phase 2: Done Tracking
 
 - [ ] Add done.md tracking to build.md Step 6
