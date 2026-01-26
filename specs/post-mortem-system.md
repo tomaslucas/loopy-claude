@@ -273,6 +273,7 @@ Files to modify:
 - `.claude/commands/validate.md` (~2 lines: read lessons in Phase 0)
 - `.claude/commands/reverse.md` (~2 lines: read lessons in Phase 0)
 - `specs/README.md` (add entry for this spec)
+- `README.md` (document learning system in Core Components section)
 
 ### Implementation Hints
 
