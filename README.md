@@ -97,6 +97,7 @@ lessons-learned.md (persistent knowledge for future sessions)
 - `prime.md` - Repository orientation guide
 - `bug.md` - Bug analysis and corrective task creation
 - `post-mortem.md` - Autonomous learning from session logs (auto-triggered)
+- `audit.md` - Repository audit for spec compliance (generates divergence reports)
 
 **2. Agents** (`.claude/agents/`)
 - `spec-checker.md` - Mechanical checklist verification
@@ -107,8 +108,9 @@ lessons-learned.md (persistent knowledge for future sessions)
 - Simple bash loop
 - 5 stop conditions (max iterations, empty plan, empty pending-validations, rate limit, completion signal)
 - Session logging to `logs/`
-- Model selection (opus for plan/reverse, sonnet for build/validate)
+- Model selection (opus for plan/reverse/audit, sonnet for build/validate/post-mortem)
 - Work mode: automated build→validate cycles
+- Multi-agent support (Claude Code, Copilot CLI via `loopy.config.json`)
 
 **4. Analyzer** (`analyze-session.sh`)
 - Post-mortem analysis of sessions
@@ -186,6 +188,18 @@ ls specs-reverse/
 
 # Use Copilot with specific model
 ./loop.sh build 10 --agent copilot --model sonnet
+```
+
+### Example 5: Audit Repository
+
+```bash
+# Full repository audit (compares all specs vs implementation)
+./loop.sh audit
+
+# Review generated report
+cat audits/audit-2026-01-26-14-40.md
+
+# Report is auto-committed to git
 ```
 
 ---
