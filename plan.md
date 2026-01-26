@@ -5,24 +5,6 @@ Specs analyzed: 3 (reconcile-system, dependency-check-system, done-tracking-syst
 
 ---
 
-## Phase 2: Done Tracking
-
-- [ ] Add done.md tracking to build.md Step 6
-      Done when:
-        - Step 6 includes logic to create done.md if missing (with header)
-        - Step 6 appends one-line entry per completed task
-        - Entry format: | {YYYY-MM-DD HH:MM} | {task-title} | - | {spec-path} |
-        - done.md included in task commit
-        - Table format with columns: Date, Task, Commit, Spec
-        - Append-only semantics documented (never truncate)
-      Verify:
-        - grep -q "done.md" .claude/commands/build.md
-        - grep -q "Completed Tasks" .claude/commands/build.md
-        - grep -q "append" .claude/commands/build.md
-      (cite: specs/done-tracking-system.md sections 3.1-3.2, 6)
-
----
-
 ## Phase 3: README Updates
 
 - [ ] Update specs/README.md status for implemented specs
