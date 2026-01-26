@@ -153,22 +153,34 @@ When a section reaches 20 items and a new one must be added:
 ### 3.5 Hook in loop.sh
 
 ```bash
-# After main loop completes, before final summary
+# After main loop completes, after final summary
 if [[ "$MODE" != "post-mortem" && "$MODE" != "prime" && "$MODE" != "bug" ]]; then
+    log "Loop finished after $ITERATION iteration(s)"
+    log "Full log saved to: $LOG_FILE"
+    
     log "Running post-mortem analysis..."
-    ./loop.sh post-mortem 1
+    POST_MORTEM_ARGS="--agent $AGENT_NAME"
+    [ -n "$MODEL_OVERRIDE" ] && POST_MORTEM_ARGS="$POST_MORTEM_ARGS --model $MODEL_OVERRIDE"
+    LOOPY_LOG_FILE="$LOG_FILE" ./loop.sh post-mortem 1 $POST_MORTEM_ARGS
 fi
 ```
 
+Post-mortem runs AFTER the log is complete (message written) and inherits agent and model configuration.
+
 ### 3.6 Log Detection
 
-Post-mortem finds the log to analyze:
+Post-mortem identifies the log to analyze:
+
+**If `LOOPY_LOG_FILE` environment variable is set:**
+Use that file directly (passed by loop.sh when post-mortem runs as pipeline step).
+
+**Otherwise, find the most recent productive session log:**
 
 ```bash
-LAST_LOG=$(ls -t logs/log-*.txt | head -1)
+LAST_LOG=$(ls -t logs/log-*.txt | grep -v 'log-post-mortem' | head -1)
 ```
 
-Simple, reliable: the most recent log is always the session that just completed.
+The exclusion of `log-post-mortem-*` prevents post-mortem from analyzing its own logs when run manually.
 
 ### 3.7 Empty Analysis Handling
 
@@ -184,12 +196,14 @@ If post-mortem finds no errors or inefficiencies:
 ### 4.1 New Mode
 
 ```bash
-./loop.sh post-mortem [max_iterations]
+./loop.sh post-mortem [max_iterations] [--agent AGENT] [--model MODEL]
 ```
 
-- **Model:** sonnet (hardcoded, not configurable)
+- **Model:** sonnet by default, overridable via `--model`
 - **Default iterations:** 1
 - **Prompt:** `.claude/commands/post-mortem.md`
+- **Agent:** Inherited from caller or specified via `--agent`
+- **Log file:** Passed via `LOOPY_LOG_FILE` env var (optional, falls back to most recent)
 
 ### 4.2 Integration Points
 

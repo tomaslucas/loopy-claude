@@ -11,12 +11,15 @@ Analyze the most recent session log for errors and inefficiencies, extract actio
 
 ## Workflow
 
-### Step 1: Read the Most Recent Log
+### Step 1: Identify the Log to Analyze
 
-Find and read the most recent session log:
+**If `LOOPY_LOG_FILE` environment variable is set:**
+Use that file directly (passed by loop.sh when post-mortem runs as pipeline step).
+
+**Otherwise, find the most recent productive session log:**
 
 ```bash
-ls -t logs/log-*.txt | head -1
+ls -t logs/log-*.txt | grep -v 'log-post-mortem' | head -1
 ```
 
 Read the entire log to understand what happened in the session.

@@ -16,6 +16,7 @@ MODE=""
 MAX_ITERATIONS=""
 MODEL_OVERRIDE=""
 AGENT_OVERRIDE=""
+LOG_OVERRIDE=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -25,6 +26,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --agent)
             AGENT_OVERRIDE="$2"
+            shift 2
+            ;;
+        --log)
+            LOG_OVERRIDE="$2"
             shift 2
             ;;
         --*)
@@ -315,14 +320,16 @@ if [ "$MODE" = "work" ]; then
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     fi
 
-    # Post-mortem hook: Analyze session for learning
-    log ""
-    log "Running post-mortem analysis..."
-    ./loop.sh post-mortem 1 || log "Post-mortem analysis failed (non-fatal)"
-
     log ""
     log "Loop finished after $ITERATION iteration(s)"
     log "Full log saved to: $LOG_FILE"
+
+    # Post-mortem hook: runs AFTER log is complete
+    log ""
+    log "Running post-mortem analysis..."
+    POST_MORTEM_ARGS="--agent $AGENT_NAME"
+    [ -n "$MODEL_OVERRIDE" ] && POST_MORTEM_ARGS="$POST_MORTEM_ARGS --model $MODEL_OVERRIDE"
+    LOOPY_LOG_FILE="$LOG_FILE" ./loop.sh post-mortem 1 $POST_MORTEM_ARGS || log "Post-mortem analysis failed (non-fatal)"
     exit 0
 fi
 
@@ -409,10 +416,16 @@ done
 # Post-mortem hook: Analyze session for learning (skip for non-productive modes)
 if [[ "$MODE" != "post-mortem" && "$MODE" != "prime" && "$MODE" != "bug" ]]; then
     log ""
-    log "Running post-mortem analysis..."
-    ./loop.sh post-mortem 1 || log "Post-mortem analysis failed (non-fatal)"
-fi
+    log "Loop finished after $ITERATION iteration(s)"
+    log "Full log saved to: $LOG_FILE"
 
-log ""
-log "Loop finished after $ITERATION iteration(s)"
-log "Full log saved to: $LOG_FILE"
+    log ""
+    log "Running post-mortem analysis..."
+    POST_MORTEM_ARGS="--agent $AGENT_NAME"
+    [ -n "$MODEL_OVERRIDE" ] && POST_MORTEM_ARGS="$POST_MORTEM_ARGS --model $MODEL_OVERRIDE"
+    LOOPY_LOG_FILE="$LOG_FILE" ./loop.sh post-mortem 1 $POST_MORTEM_ARGS || log "Post-mortem analysis failed (non-fatal)"
+else
+    log ""
+    log "Loop finished after $ITERATION iteration(s)"
+    log "Full log saved to: $LOG_FILE"
+fi
