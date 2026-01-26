@@ -225,9 +225,35 @@ You have full context. Fix it now:
    - If tests fail: debug and fix until passing
    - Don't mark complete with failing tests
 
-2. **Commit changes**:
+2. **Record completion in done.md**:
+
+   Extract task title (first line of task description from plan.md).
+
+   If done.md doesn't exist, create it with header:
+   ```markdown
+   # Completed Tasks
+
+   > Append-only log of completed tasks. See git log for details.
+
+   | Date | Task | Commit | Spec |
+   |------|------|--------|------|
+   ```
+
+   Append entry to done.md:
+   ```markdown
+   | {YYYY-MM-DD HH:MM} | {task-title} | - | {spec-path} |
+   ```
+
+   Notes:
+   - Use current timestamp in YYYY-MM-DD HH:MM format
+   - Extract task title from first line of task description
+   - Use `-` for commit column (means "see git log at this timestamp")
+   - Extract spec path from task citations
+   - This is append-only: never edit or truncate existing entries
+
+3. **Commit changes**:
    ```bash
-   git add {affected files}
+   git add plan.md done.md {affected files}
    git commit -m "Task: {brief description}
 
    {what was done}
@@ -236,12 +262,12 @@ You have full context. Fix it now:
    git push
    ```
 
-3. **DELETE completed task from plan.md**:
+4. **DELETE completed task from plan.md**:
    - Remove the entire task block (description, Done when, Verify, citations)
    - This keeps plan.md clean (only pending work visible)
    - History preserved in git
 
-4. **Output completion signal**:
+5. **Output completion signal**:
    ```
    <promise>TASK_COMPLETE</promise>
    ```
