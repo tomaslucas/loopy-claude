@@ -167,8 +167,8 @@ filter_frontmatter() {
     sed '1{/^---$/!q;};1,/^---$/d' "$file"
 }
 
-# Validate mode
-if [[ ! -f "$PROMPT_FILE" ]]; then
+# Validate mode (work mode doesn't need its own prompt file)
+if [[ "$MODE" != "work" && ! -f "$PROMPT_FILE" ]]; then
     log "Error: .claude/commands/${MODE}.md not found"
     log "Available modes: plan, build, reverse, validate, work, prime, bug"
     exit 1
