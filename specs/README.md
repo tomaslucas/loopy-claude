@@ -15,7 +15,8 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 
 | Spec                                                       | Code                 | Purpose                                                                                                                                                                                                                                                                                                                        |
 | ---------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [loop-orchestrator-system.md](loop-orchestrator-system.md) | ✅ loop.sh            | Simple bash orchestrator, **5 stop conditions** (max iterations, empty plan, empty pending-validations, rate limit, completion signal), session logging, model selection, cross-platform compatibility, git automation, iteration control                                                                                                                 |
+| [loop-orchestrator-system.md](loop-orchestrator-system.md) | ✅ loop.sh            | Simple bash orchestrator, **5 stop conditions** (max iterations, empty plan, empty pending-validations, rate limit, completion signal), session logging, model selection, cross-platform compatibility, git automation, iteration control, **multi-agent support** (see cli-agnostic-system)                                                                                                                 |
+| [cli-agnostic-system.md](cli-agnostic-system.md) | 📋 Planned | **Multi-agent support**, external configuration (`loopy.config.json`), `--agent` flag, model name mapping, Claude Code + Copilot support, extensible design, backward compatible defaults |
 | [prompt-plan-system.md](prompt-plan-system.md)             | ✅ prompts/plan.md    | **5-phase intelligent planning**, multi-source reconciliation (git log > README), gap analysis, **Impact Analysis**, task expansion, **strategic grouping with extended_thinking**, context budget estimation, dependency analysis, plan lifecycle (0%/1-79%/80-100%), DELETE completed tasks, **specs/README.md status update** (📋→⏳)                                  |
 | [prompt-build-system.md](prompt-build-system.md)           | ✅ prompts/build.md   | **Mandatory verification workflow**, 6-step execution, **mandatory spec reading** (Step 2), **quick quality scan** (secrets, injection, paths), self-verify before complete, **in-session fix loop** (up to 3 attempts), delete completed tasks, complete implementation (no TODOs/placeholders), categorized guardrails                                                                  |
 | [prompt-validate-system.md](prompt-validate-system.md)     | ✅ prompts/validate.md | **Post-implementation validation**, **preflight checks** (cost optimization), **two-pass verification** (checklist + semantic inference), **parallel Tasks** (sonnet + opus), **set completeness** (enumerated items), **literal matching** (exact patterns), spec vs code comparison, **pending-validations.md tracking**, attempt limiting (max 3), corrective task generation, escalation workflow, spec as source of truth, **specs/README.md status update** (⏳→✅)                                                                  |
@@ -33,7 +34,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 - ⏳ **In Progress** - Under active development
 - 📋 **Planned** - Specification complete, not yet implemented
 
-**Current Status:** 8 implemented, 0 in progress.
+**Current Status:** 8 implemented, 0 in progress, 1 planned.
 
 ---
 
@@ -130,5 +131,5 @@ These are documented in specs but highlighted here for agent awareness:
 
 ---
 
-**Last Updated:** 2026-01-24 (specs/README.md status updates now automated via plan/validate)
+**Last Updated:** 2026-01-26 (added cli-agnostic-system.md)
 **Project:** loopy-claude

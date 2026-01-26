@@ -21,10 +21,10 @@ Provide a minimal, transparent loop that feeds prompts to Claude Code, manages i
 - Cross-platform compatibility (macOS + Linux, bash + zsh)
 - Model selection based on mode
 - No magic, no abstraction layers
+- Multi-agent support via external configuration (see `cli-agnostic-system.md`)
 
 ### Non-Goals
 
-- Multi-CLI support (Claude Code only)
 - Metadata processing from prompts
 - Complex configuration systems
 - Real-time progress bars or UI
