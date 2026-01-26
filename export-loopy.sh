@@ -106,6 +106,7 @@ PRESET_FULL=(
     "loop.sh"
     "analyze-session.sh"
     "export-loopy.sh"
+    "loopy.config.json"
     ".claude/"
     ".gitignore"
 )
@@ -137,19 +138,32 @@ validate_source() {
 
 # Check dependencies
 check_dependencies() {
-    if ! command -v claude &>/dev/null; then
+    # Read default agent from config if available
+    local DEFAULT_AGENT="claude"
+    local AGENT_COMMAND="claude"
+    
+    if [[ -f "$SOURCE_PATH/loopy.config.json" ]] && command -v jq &>/dev/null; then
+        DEFAULT_AGENT=$(jq -r '.default // "claude"' "$SOURCE_PATH/loopy.config.json" 2>/dev/null || echo "claude")
+        AGENT_COMMAND=$(jq -r ".agents.${DEFAULT_AGENT}.command // \"claude\"" "$SOURCE_PATH/loopy.config.json" 2>/dev/null || echo "claude")
+    fi
+    
+    if ! command -v "$AGENT_COMMAND" &>/dev/null; then
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "⚠ ERROR: claude CLI not found"
+        echo "⚠ WARNING: Default agent CLI not found: $AGENT_COMMAND"
         echo ""
-        echo "The exported loopy-claude system requires claude CLI to run."
-        echo "Install it from: https://github.com/anthropics/claude-cli"
+        echo "The exported loopy-claude system requires an AI CLI agent to run."
+        echo "Default agent: $DEFAULT_AGENT (command: $AGENT_COMMAND)"
         echo ""
-        echo "Export aborted."
+        echo "Install options:"
+        echo "  - Claude CLI: https://github.com/anthropics/claude-cli"
+        echo "  - Copilot CLI: https://docs.github.com/copilot/using-github-copilot-in-the-command-line"
+        echo ""
+        echo "You can change the default agent in loopy.config.json or use --agent flag."
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo ""
-        exit 3
+        # Warning only, don't block export
     else
-        echo "✓ Dependency check passed: claude CLI found"
+        echo "✓ Dependency check passed: $AGENT_COMMAND CLI found (agent: $DEFAULT_AGENT)"
     fi
 }
 
@@ -485,6 +499,48 @@ generate_templates() {
         echo "✓ Created logs/ directory"
     fi
 
+    # Create loopy.config.json if not already copied from source
+    if [[ ! -f "$dest/loopy.config.json" ]]; then
+        if [[ "$DRY_RUN" == true ]]; then
+            echo "[DRY RUN] Would create loopy.config.json"
+        else
+            cat > "$dest/loopy.config.json" <<'EOF'
+{
+  "default": "claude",
+  "agents": {
+    "claude": {
+      "command": "claude",
+      "promptFlag": "-p",
+      "modelFlag": "--model",
+      "models": {
+        "opus": "opus",
+        "sonnet": "sonnet",
+        "haiku": "haiku"
+      },
+      "extraArgs": "--dangerously-skip-permissions --output-format=stream-json --verbose",
+      "outputFormat": "stream-json",
+      "rateLimitPattern": "rate_limit_error|overloaded_error|quota.*exhausted"
+    },
+    "copilot": {
+      "command": "copilot",
+      "promptFlag": "-p",
+      "modelFlag": "--model",
+      "models": {
+        "opus": "claude-opus-4.5",
+        "sonnet": "claude-sonnet-4.5",
+        "haiku": "claude-haiku-4.5"
+      },
+      "extraArgs": "--allow-all-tools -s",
+      "outputFormat": "text",
+      "rateLimitPattern": "rate.?limit|quota|too many requests"
+    }
+  }
+}
+EOF
+            echo "✓ Created loopy.config.json"
+        fi
+    fi
+
     # Create specs/README.md
     if [[ "$DRY_RUN" == true ]]; then
         echo "[DRY RUN] Would create specs/README.md"
@@ -544,13 +600,23 @@ Export date: $current_date
 
 ## Prerequisites
 
-- Claude CLI installed (\`claude --version\`)
+- Default agent CLI installed (check with \`claude --version\` or \`copilot --version\`)
+- Configuration: \`loopy.config.json\` (generated automatically)
 - Git repository (optional but recommended)
+
+## Using Different Agents
+
+\`\`\`bash
+./loop.sh plan 5                      # Uses default agent (claude)
+./loop.sh plan 5 --agent copilot      # Uses Copilot
+LOOPY_AGENT=copilot ./loop.sh plan 5  # Via environment variable
+\`\`\`
 
 ## First Steps
 
 1. Review exported files:
    - \`loop.sh\` - Main orchestrator
+   - \`loopy.config.json\` - Agent configurations
    - \`.claude/commands/\` - Command prompts (plan, build, validate, reverse, prime, bug)
    - \`.claude/agents/\` - Validation agents (spec-checker, spec-inferencer)
    - \`.claude/skills/\` - Interactive skills (feature-designer)
