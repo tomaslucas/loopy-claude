@@ -76,6 +76,15 @@ Code implemented
     ├─→ PASS: spec validated, removed from pending-validations
     │
     └─→ FAIL: back to plan → build → validate (max 3 attempts)
+
+After plan/build/validate/reverse/work completes:
+    ↓ auto-trigger
+./loop.sh post-mortem 1
+    ↓ analyzes session logs
+    ↓ extracts errors and inefficiencies
+    ↓ updates lessons-learned.md
+    ↓
+lessons-learned.md (persistent knowledge for future sessions)
 ```
 
 ### Core Components
@@ -87,6 +96,7 @@ Code implemented
 - `reverse.md` - Legacy code analyzer (generates specs from code)
 - `prime.md` - Repository orientation guide
 - `bug.md` - Bug analysis and corrective task creation
+- `post-mortem.md` - Autonomous learning from session logs (auto-triggered)
 
 **2. Agents** (`.claude/agents/`)
 - `spec-checker.md` - Mechanical checklist verification
@@ -105,7 +115,14 @@ Code implemented
 - Detects errors, warnings, stop conditions
 - Contextual recommendations
 
-**5. Specs** (`specs/`)
+**5. Learning System** (`post-mortem.md` + `lessons-learned.md`)
+- Autonomous learning from execution logs
+- Extracts errors and inefficiencies after each session
+- Persists structured lessons (what to avoid, what to use, why)
+- Auto-triggers after productive modes (plan/build/validate/reverse/work)
+- Max 20 lessons per mode, semantic pruning when full
+
+**6. Specs** (`specs/`)
 - Immutable design documents (WHAT to build)
 - No implementation checklists (plan generator creates tasks)
 - PIN (`specs/README.md`) for quick lookup
@@ -269,10 +286,11 @@ No task marked complete with failing verification.
 ### Model Selection
 
 ```bash
-plan     → opus     # extended_thinking needed
-reverse  → opus     # JTBD inference + grouping
-validate → opus     # semantic inference pass
-build    → sonnet   # straightforward execution
+plan        → opus     # extended_thinking needed
+reverse     → opus     # JTBD inference + grouping
+validate    → opus     # semantic inference pass
+build       → sonnet   # straightforward execution
+post-mortem → sonnet   # log analysis and extraction
 ```
 
 Override: `./loop.sh <mode> <max> --model <model>`
@@ -292,7 +310,8 @@ loopy-claude/
 │   │   ├── validate.md     # Post-implementation validator
 │   │   ├── reverse.md      # Legacy analyzer
 │   │   ├── prime.md        # Repository orientation
-│   │   └── bug.md          # Bug analysis and task creation
+│   │   ├── bug.md          # Bug analysis and task creation
+│   │   └── post-mortem.md  # Autonomous learning from logs
 │   ├── agents/             # Reusable validation agents
 │   │   ├── spec-checker.md    # Mechanical checklist verification
 │   │   └── spec-inferencer.md # Semantic behavior inference
@@ -305,6 +324,7 @@ loopy-claude/
 │   ├── reverse.md → ../.claude/commands/reverse.md
 │   └── prime.md → ../.claude/commands/prime.md
 ├── pending-validations.md  # Queue of specs awaiting validation
+├── lessons-learned.md      # Persistent knowledge from session analysis
 ├── specs/
 │   ├── README.md           # PIN (lookup table)
 │   └── *.md                # Specifications
