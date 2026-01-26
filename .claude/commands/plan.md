@@ -304,15 +304,16 @@ Apply lifecycle rules:
 
 | Completion Ratio      | Action         | Behavior                            |
 | --------------------- | -------------- | ----------------------------------- |
-| 0% (all pending)      | UPDATE         | Keep existing [ ], add new tasks    |
+| 0% (all pending)      | REVIEW & UPDATE | Re-evaluate existing [ ] with Phase 4, then add new |
 | 1-79% (mixed)         | CLEAN & UPDATE | Remove [x], keep [ ], add new tasks |
 | 80-100% (mostly done) | REGENERATE     | Commit current, create fresh        |
 
-**If UPDATE (0% complete):**
-- Keep all existing [ ] tasks
-- Append new tasks from Phase 4
-- Maintain existing phase structure
-- Add note: "Updated on {DATE} - added N new tasks"
+**If REVIEW & UPDATE (0% complete):**
+- Re-apply Phase 4 (Strategic Analysis) to EXISTING tasks
+- Merge duplicates, improve groupings, fix context estimates
+- Reorder if dependencies were wrong
+- THEN add new tasks from current analysis
+- Add note: "Reviewed on {DATE} - refined N tasks, added M new"
 
 **If CLEAN & UPDATE (1-79% complete):**
 - Remove all [x] completed tasks
