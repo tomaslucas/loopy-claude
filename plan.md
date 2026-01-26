@@ -12,18 +12,6 @@ Specs analyzed: 1 (post-mortem-system.md)
 
 ## Phase 3: Documentation
 
-- [ ] Update README.md to document learning system
-      Done when:
-        - Core Components section includes post-mortem description
-        - Workflow diagram shows post-mortem auto-trigger
-        - File structure shows lessons-learned.md
-        - Model selection table includes post-mortem → sonnet
-      Verify:
-        - grep -q "post-mortem" README.md && echo "post-mortem documented"
-        - grep -q "lessons-learned" README.md && echo "lessons file documented"
-      (cite: specs/post-mortem-system.md section 7 - Implementation Guidance)
-      [Single file, independent of other phases]
-
 ---
 
 ## Context Budget Summary
