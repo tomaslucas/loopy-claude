@@ -57,8 +57,8 @@ MODE="${MODE:-build}"
 # The loop exits naturally when no pending work remains; MAX_ITERATIONS is a safety cap
 if [ -z "$MAX_ITERATIONS" ]; then
     if [ "$MODE" = "work" ]; then
-        PENDING_TASKS=$(grep -c -- '- \[ \]' plan.md 2>/dev/null || echo 0)
-        PENDING_VALIDATIONS=$(grep -c -- '- \[ \]' pending-validations.md 2>/dev/null || echo 0)
+        PENDING_TASKS=$(grep -c -- '- \[ \]' plan.md 2>/dev/null) || PENDING_TASKS=0
+        PENDING_VALIDATIONS=$(grep -c -- '- \[ \]' pending-validations.md 2>/dev/null) || PENDING_VALIDATIONS=0
         MAX_ITERATIONS=$(( (PENDING_TASKS + PENDING_VALIDATIONS) * 2 ))
         [ "$MAX_ITERATIONS" -lt 1 ] && MAX_ITERATIONS=1
     else
