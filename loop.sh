@@ -11,6 +11,108 @@ set -euo pipefail
 #   ./loop.sh reverse --model opus 3    # Reverse mode, opus, max 3
 #   ./loop.sh build --agent copilot     # Build with Copilot agent
 
+# Dependency checking functions
+detect_platform() {
+    case "$(uname -s)" in
+        Linux*)
+            if [ -f /etc/debian_version ]; then
+                echo "debian"
+            elif [ -f /etc/redhat-release ]; then
+                echo "redhat"
+            elif [ -f /etc/arch-release ]; then
+                echo "arch"
+            else
+                echo "linux"
+            fi
+            ;;
+        Darwin*)
+            echo "macos"
+            ;;
+        MINGW*|MSYS*|CYGWIN*)
+            echo "windows"
+            ;;
+        *)
+            echo "unknown"
+            ;;
+    esac
+}
+
+suggest_install() {
+    local cmd="$1"
+    local platform=$(detect_platform)
+
+    case "$cmd" in
+        jq)
+            case "$platform" in
+                debian) echo "    Install: sudo apt install jq" ;;
+                redhat) echo "    Install: sudo dnf install jq" ;;
+                arch)   echo "    Install: sudo pacman -S jq" ;;
+                macos)  echo "    Install: brew install jq" ;;
+                *)      echo "    Install: https://stedolan.github.io/jq/download/" ;;
+            esac
+            ;;
+        git)
+            case "$platform" in
+                debian) echo "    Install: sudo apt install git" ;;
+                redhat) echo "    Install: sudo dnf install git" ;;
+                arch)   echo "    Install: sudo pacman -S git" ;;
+                macos)  echo "    Install: xcode-select --install" ;;
+                *)      echo "    Install: https://git-scm.com/downloads" ;;
+            esac
+            ;;
+        awk)
+            case "$platform" in
+                debian) echo "    Install: sudo apt install gawk" ;;
+                redhat) echo "    Install: sudo dnf install gawk" ;;
+                macos)  echo "    Note: awk is pre-installed on macOS" ;;
+                *)      echo "    Install: Check your package manager for gawk" ;;
+            esac
+            ;;
+        *)
+            echo "    Install: Check your package manager"
+            ;;
+    esac
+}
+
+check_dependencies() {
+    local missing_required=()
+    local missing_optional=()
+
+    # Required dependencies
+    for cmd in git awk tee grep; do
+        if ! command -v "$cmd" &>/dev/null; then
+            missing_required+=("$cmd")
+        fi
+    done
+
+    # Optional dependencies
+    for cmd in jq; do
+        if ! command -v "$cmd" &>/dev/null; then
+            missing_optional+=("$cmd")
+        fi
+    done
+
+    # Report missing required
+    if [ ${#missing_required[@]} -gt 0 ]; then
+        echo "Error: Missing required dependencies:"
+        for cmd in "${missing_required[@]}"; do
+            echo "  - $cmd"
+            suggest_install "$cmd"
+        done
+        exit 3
+    fi
+
+    # Warn about missing optional
+    if [ ${#missing_optional[@]} -gt 0 ]; then
+        echo "Warning: Missing optional dependencies:"
+        for cmd in "${missing_optional[@]}"; do
+            echo "  - $cmd (will use fallback)"
+            suggest_install "$cmd"
+        done
+        echo ""
+    fi
+}
+
 # Help function
 show_help() {
     cat << 'EOF'
@@ -26,6 +128,7 @@ Modes:
   prime       Orient and understand the repository
   bug         Analyze a bug and create corrective tasks
   post-mortem Analyze session logs for learning
+  reconcile   Resolve escalated spec-code divergences (opus)
 
 Options:
   --model MODEL   Override default model (opus/sonnet/haiku)
@@ -89,6 +192,13 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Check dependencies early (before any operations)
+check_dependencies
+
+# Set JQ_AVAILABLE flag for fallback logic
+JQ_AVAILABLE=true
+command -v jq &>/dev/null || JQ_AVAILABLE=false
+
 # Apply defaults
 MODE="${MODE:-build}"
 # Work mode: calculate iterations from pending tasks + validations
@@ -113,7 +223,13 @@ if [ -n "$AGENT_OVERRIDE" ]; then
 elif [ -n "${LOOPY_AGENT:-}" ]; then
     AGENT_NAME="$LOOPY_AGENT"
 elif [ -f "$CONFIG_FILE" ]; then
-    AGENT_NAME=$(jq -r '.default // "claude"' "$CONFIG_FILE")
+    if [ "$JQ_AVAILABLE" = true ]; then
+        AGENT_NAME=$(jq -r '.default // "claude"' "$CONFIG_FILE")
+    else
+        # Fallback: grep + sed for config parsing
+        AGENT_NAME=$(grep '"default"' "$CONFIG_FILE" 2>/dev/null | sed 's/.*: *"\([^"]*\)".*/\1/' || echo "claude")
+        [ -z "$AGENT_NAME" ] && AGENT_NAME="claude"
+    fi
 else
     AGENT_NAME="claude"
 fi
@@ -123,16 +239,30 @@ load_agent_config() {
     local agent="$1"
     local field="$2"
     if [ -f "$CONFIG_FILE" ]; then
-        jq -r ".agents.${agent}.${field} // empty" "$CONFIG_FILE"
+        if [ "$JQ_AVAILABLE" = true ]; then
+            jq -r ".agents.${agent}.${field} // empty" "$CONFIG_FILE"
+        else
+            # Fallback: grep + sed (limited functionality)
+            grep "\"${field}\"" "$CONFIG_FILE" 2>/dev/null | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/' || echo ""
+        fi
     fi
 }
 
 # Validate agent exists in config
 if [ -f "$CONFIG_FILE" ]; then
-    if ! jq -e ".agents.${AGENT_NAME}" "$CONFIG_FILE" >/dev/null 2>&1; then
-        echo "Error: Unknown agent '$AGENT_NAME'"
-        echo "Available agents: $(jq -r '.agents | keys | join(", ")' "$CONFIG_FILE")"
-        exit 1
+    if [ "$JQ_AVAILABLE" = true ]; then
+        if ! jq -e ".agents.${AGENT_NAME}" "$CONFIG_FILE" >/dev/null 2>&1; then
+            echo "Error: Unknown agent '$AGENT_NAME'"
+            echo "Available agents: $(jq -r '.agents | keys | join(", ")' "$CONFIG_FILE")"
+            exit 1
+        fi
+    else
+        # Fallback: basic grep check
+        if ! grep -q "\"${AGENT_NAME}\"" "$CONFIG_FILE" 2>/dev/null; then
+            echo "Error: Unknown agent '$AGENT_NAME'"
+            echo "Check loopy.config.json for available agents"
+            exit 1
+        fi
     fi
 fi
 
@@ -155,10 +285,19 @@ map_model_name() {
     local agent="$1"
     local logical_model="$2"
     if [ -f "$CONFIG_FILE" ]; then
-        local mapped=$(jq -r ".agents.${agent}.models.${logical_model} // empty" "$CONFIG_FILE")
-        if [ -n "$mapped" ]; then
-            echo "$mapped"
-            return
+        if [ "$JQ_AVAILABLE" = true ]; then
+            local mapped=$(jq -r ".agents.${agent}.models.${logical_model} // empty" "$CONFIG_FILE")
+            if [ -n "$mapped" ]; then
+                echo "$mapped"
+                return
+            fi
+        else
+            # Fallback: grep for model mapping (limited)
+            local mapped=$(grep "\"${logical_model}\"" "$CONFIG_FILE" 2>/dev/null | head -1 | sed 's/.*: *"\([^"]*\)".*/\1/' || echo "")
+            if [ -n "$mapped" ]; then
+                echo "$mapped"
+                return
+            fi
         fi
     fi
     echo "$logical_model"
@@ -193,8 +332,15 @@ check_rate_limit() {
     local output="$1"
     if [[ "$AGENT_OUTPUT_FORMAT" == "stream-json" ]]; then
         # JSON-based rate limit check
-        if echo "$output" | jq -e 'select(.error.type == "rate_limit_error" or .error.type == "overloaded_error" or (.error.message // "" | test("rate.?limit|quota.*exhausted"; "i")))' >/dev/null 2>&1; then
-            return 0
+        if [ "$JQ_AVAILABLE" = true ]; then
+            if echo "$output" | jq -e 'select(.error.type == "rate_limit_error" or .error.type == "overloaded_error" or (.error.message // "" | test("rate.?limit|quota.*exhausted"; "i")))' >/dev/null 2>&1; then
+                return 0
+            fi
+        else
+            # Fallback: grep-based rate limit detection
+            if echo "$output" | grep -qiE 'rate_limit_error|overloaded_error|quota.*exhausted'; then
+                return 0
+            fi
         fi
     else
         # Text-based rate limit check using pattern from config
@@ -261,6 +407,9 @@ case "$MODE" in
         ;;
     audit)
         MODEL="opus"        # Deep analysis requires reasoning
+        ;;
+    reconcile)
+        MODEL="opus"        # Divergence analysis requires reasoning
         ;;
     *)
         MODEL="sonnet"      # Build is straightforward
