@@ -117,6 +117,7 @@ Analysis of [mode] session identified [N] lessons:
 - [brief summary of what was learned]
 
 (cite: specs/post-mortem-system.md)"
+git push
 ```
 
 **If no lessons found (clean session):**
