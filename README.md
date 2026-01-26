@@ -6,7 +6,7 @@ Simple loop-based autonomous coding system. Design specs, generate plans, build 
 
 ## What is Loopy-claude?
 
-Loopy is a minimal orchestrator that feeds prompts to Claude Code, managing iterations, stop conditions, and progress commits. It's built on radical simplicity: no abstraction layers, no magic, just transparent bash scripts and well-crafted prompts.
+Loopy is a minimal orchestrator that feeds prompts to AI agents (Claude Code, Copilot, or others), managing iterations, stop conditions, and progress commits. It's built on radical simplicity: no abstraction layers, no magic, just transparent bash scripts and well-crafted prompts.
 
 **Philosophy:** Simple is better than clever. Direct is better than abstracted. Debuggable is better than magical.
 
@@ -76,28 +76,55 @@ Code implemented
     ├─→ PASS: spec validated, removed from pending-validations
     │
     └─→ FAIL: back to plan → build → validate (max 3 attempts)
+
+After plan/build/validate/reverse/work completes:
+    ↓ auto-trigger
+./loop.sh post-mortem 1
+    ↓ analyzes session logs
+    ↓ extracts errors and inefficiencies
+    ↓ updates lessons-learned.md
+    ↓
+lessons-learned.md (persistent knowledge for future sessions)
 ```
 
 ### Core Components
 
-**1. Prompts** (`prompts/`)
+**1. Commands** (`.claude/commands/`)
 - `plan.md` - Intelligent plan generator (5 phases, extended thinking)
 - `build.md` - Task executor with mandatory verification
 - `validate.md` - Post-implementation validator (spec vs code)
 - `reverse.md` - Legacy code analyzer (generates specs from code)
+- `prime.md` - Repository orientation guide
+- `bug.md` - Bug analysis and corrective task creation
+- `post-mortem.md` - Autonomous learning from session logs (auto-triggered)
+- `audit.md` - Repository audit for spec compliance (generates divergence reports)
 
-**2. Orchestrator** (`loop.sh`)
+**2. Agents** (`.claude/agents/`)
+- `spec-checker.md` - Mechanical checklist verification
+- `spec-inferencer.md` - Semantic behavior inference
+- Used by validate command for parallel verification
+
+**3. Orchestrator** (`loop.sh`)
 - Simple bash loop
 - 5 stop conditions (max iterations, empty plan, empty pending-validations, rate limit, completion signal)
 - Session logging to `logs/`
-- Model selection (opus for plan/reverse/validate, sonnet for build)
+- Model selection (opus for plan/reverse/audit, sonnet for build/validate/post-mortem)
+- Work mode: automated build→validate cycles
+- Multi-agent support (Claude Code, Copilot CLI via `loopy.config.json`)
 
-**3. Analyzer** (`analyze-session.sh`)
+**4. Analyzer** (`analyze-session.sh`)
 - Post-mortem analysis of sessions
 - Detects errors, warnings, stop conditions
 - Contextual recommendations
 
-**4. Specs** (`specs/`)
+**5. Learning System** (`post-mortem.md` + `lessons-learned.md`)
+- Autonomous learning from execution logs
+- Extracts errors and inefficiencies after each session
+- Persists structured lessons (what to avoid, what to use, why)
+- Auto-triggers after productive modes (plan/build/validate/reverse/work)
+- Max 20 lessons per mode, semantic pruning when full
+
+**6. Specs** (`specs/`)
 - Immutable design documents (WHAT to build)
 - No implementation checklists (plan generator creates tasks)
 - PIN (`specs/README.md`) for quick lookup
@@ -148,6 +175,31 @@ ls specs-reverse/
 
 # Force opus for complex task
 ./loop.sh build 5 --model opus
+```
+
+### Example 4: Using Different Agents
+
+```bash
+# Use Claude Code (default)
+./loop.sh plan 5
+
+# Use Copilot
+./loop.sh plan 5 --agent copilot
+
+# Use Copilot with specific model
+./loop.sh build 10 --agent copilot --model sonnet
+```
+
+### Example 5: Audit Repository
+
+```bash
+# Full repository audit (compares all specs vs implementation)
+./loop.sh audit
+
+# Review generated report
+cat audits/audit-2026-01-26-14-40.md
+
+# Report is auto-committed to git
 ```
 
 ---
@@ -221,9 +273,9 @@ No task marked complete with failing verification.
 - History in git (where it belongs)
 - Stop condition trivial
 
-**3. Loop without metadata**
-- Prompts are plain markdown
-- No YAML parsing
+**3. Simple YAML frontmatter**
+- Commands have minimal frontmatter (name, description)
+- Filtered by loop.sh before execution
 - Easy to debug
 
 **4. No AGENTS.md dependency**
@@ -248,10 +300,11 @@ No task marked complete with failing verification.
 ### Model Selection
 
 ```bash
-plan     → opus     # extended_thinking needed
-reverse  → opus     # JTBD inference + grouping
-validate → opus     # semantic inference pass
-build    → sonnet   # straightforward execution
+plan        → opus     # extended_thinking needed
+reverse     → opus     # JTBD inference + grouping
+validate    → opus     # semantic inference pass
+build       → sonnet   # straightforward execution
+post-mortem → sonnet   # log analysis and extraction
 ```
 
 Override: `./loop.sh <mode> <max> --model <model>`
@@ -264,20 +317,34 @@ Override: `./loop.sh <mode> <max> --model <model>`
 loopy-claude/
 ├── loop.sh                  # Main orchestrator
 ├── analyze-session.sh       # Session analyzer
-├── prompts/
-│   ├── plan.md             # 5-phase plan generator
-│   ├── build.md            # Verification workflow
-│   ├── validate.md         # Post-implementation validator
-│   └── reverse.md          # Legacy analyzer
+├── .claude/
+│   ├── commands/            # Command prompts (main location)
+│   │   ├── plan.md         # 5-phase plan generator
+│   │   ├── build.md        # Verification workflow
+│   │   ├── validate.md     # Post-implementation validator
+│   │   ├── reverse.md      # Legacy analyzer
+│   │   ├── prime.md        # Repository orientation
+│   │   ├── bug.md          # Bug analysis and task creation
+│   │   └── post-mortem.md  # Autonomous learning from logs
+│   ├── agents/             # Reusable validation agents
+│   │   ├── spec-checker.md    # Mechanical checklist verification
+│   │   └── spec-inferencer.md # Semantic behavior inference
+│   └── skills/
+│       └── feature-designer/  # Interactive spec creator
+├── prompts/                 # Backward compatibility symlinks to .claude/commands/
+│   ├── plan.md → ../.claude/commands/plan.md
+│   ├── build.md → ../.claude/commands/build.md
+│   ├── validate.md → ../.claude/commands/validate.md
+│   ├── reverse.md → ../.claude/commands/reverse.md
+│   └── prime.md → ../.claude/commands/prime.md
 ├── pending-validations.md  # Queue of specs awaiting validation
+├── lessons-learned.md      # Persistent knowledge from session analysis
 ├── specs/
 │   ├── README.md           # PIN (lookup table)
 │   └── *.md                # Specifications
 ├── plan.md                 # Generated plan (mutable)
+├── loopy.config.json       # Agent configurations (optional)
 ├── logs/                   # Session logs (gitignored)
-├── .claude/
-│   └── skills/
-│       └── feature-designer/  # Interactive spec creator
 └── README.md               # This file
 ```
 
@@ -290,10 +357,52 @@ loopy-claude/
 - **Mode:** build
 - **Max iterations:** 1 (safe default)
 - **Model:** opus (plan/reverse), sonnet (build)
+- **Agent:** claude (default, configurable)
+
+### Agent Configuration
+
+Agents are configured in `loopy.config.json`:
+
+```json
+{
+  "default": "claude",
+  "agents": {
+    "claude": {
+      "command": "claude",
+      "promptFlag": "-p",
+      "modelFlag": "--model",
+      "models": { "opus": "opus", "sonnet": "sonnet", "haiku": "haiku" },
+      "extraArgs": "--dangerously-skip-permissions --output-format=stream-json --verbose"
+    },
+    "copilot": {
+      "command": "copilot",
+      "promptFlag": "-p",
+      "modelFlag": "--model",
+      "models": { "opus": "claude-opus-4.5", "sonnet": "claude-sonnet-4.5" },
+      "extraArgs": "--allow-all-tools -s"
+    }
+  }
+}
+```
+
+Select agent via flag or environment variable:
+
+```bash
+# Via flag (highest priority)
+./loop.sh plan 5 --agent copilot
+
+# Via environment variable
+LOOPY_AGENT=copilot ./loop.sh plan 5
+
+# Resolution order: --agent flag > LOOPY_AGENT env > config default > "claude"
+```
 
 ### Environment Variables
 
 ```bash
+# Override agent
+LOOPY_AGENT=copilot ./loop.sh build 10
+
 # Override model
 LOOPY_MODEL=haiku ./loop.sh build 10
 ```
@@ -362,11 +471,11 @@ tail -100 logs/log-build-<timestamp>.txt
 - Git automation
 
 **Differences:**
-- ✅ Radical simplicity (no multi-CLI abstraction)
+- ✅ Radical simplicity (config-based multi-agent, not code changes)
 - ✅ Specs without checklists (intelligent plan generator)
 - ✅ DELETE completed tasks (not mark [x])
 - ✅ No AGENTS.md (self-contained prompts)
-- ✅ Single focus (Claude Code only)
+- ✅ Extensible via `loopy.config.json`
 
 ### vs Manual Development
 
@@ -401,13 +510,13 @@ tail -100 logs/log-build-<timestamp>.txt
 ### Transparency
 
 - All logs saved (`logs/`)
-- All prompts readable (`prompts/`)
+- All commands readable (`.claude/commands/`)
 - All specs version-controlled (`specs/`)
 - Nothing hidden
 
 ### Focus
 
-- Claude Code only (no multi-CLI complexity)
+- Default to Claude Code, extensible to other agents via `loopy.config.json`
 - Task execution only (no IDE integration)
 - Autonomous operation (no interactive prompts)
 
@@ -437,7 +546,7 @@ tail -100 logs/log-build-<timestamp>.txt
 Loopy is designed to be forkable and hackable:
 
 1. **Fork the repo**
-2. **Modify prompts** (`prompts/*.md`) - they're just markdown
+2. **Modify commands** (`.claude/commands/*.md`) - they're just markdown with frontmatter
 3. **Test your changes** - run loop.sh locally
 4. **Share improvements** - PRs welcome
 
@@ -457,8 +566,8 @@ Loopy is designed to be forkable and hackable:
 
 ## FAQ
 
-**Q: Why Claude Code only?**
-A: Simplicity. Supporting multiple CLIs adds 10x complexity for marginal benefit. Fork and adapt if you need others.
+**Q: Can I use other AI agents besides Claude Code?**
+A: Yes. Use `--agent copilot` flag or set `LOOPY_AGENT=copilot`. Configure agents in `loopy.config.json`. Default is Claude Code for backward compatibility.
 
 **Q: Why delete completed tasks instead of marking [x]?**
 A: Plan shows only what's LEFT to do. History is in git. Cleaner, more focused.
@@ -470,12 +579,12 @@ A: Plan generation needs `<extended_thinking>` for strategic analysis, task grou
 A: Yes. Skill is optional. Create specs manually using the template in `specs/`.
 
 **Q: How do I add a new mode?**
-A: 1) Create `prompts/newmode.md`, 2) Test with `./loop.sh newmode 1`, 3) Done. Loop is mode-agnostic.
+A: 1) Create `.claude/commands/newmode.md` with frontmatter, 2) Test with `./loop.sh newmode 1`, 3) Done. Loop is mode-agnostic.
 
 **Q: What if I want different stop conditions?**
 A: Edit `loop.sh` directly. It's simple bash, easy to customize.
 
 ---
 
-**Version:** 1.0
-**Last Updated:** 2026-01-24
+**Version:** 1.1
+**Last Updated:** 2026-01-26

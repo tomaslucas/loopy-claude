@@ -2,7 +2,7 @@
 
 > Bash script to export loopy-claude components to new or existing projects with preset configurations and conflict management
 
-## Status: Draft
+## Status: Implemented
 
 ---
 
@@ -126,13 +126,14 @@ Print summary (exported files + next steps)
 
 ```bash
 # full: Complete loopy-claude system
+# Rule: Everything in .claude/ is automatically included
+# (commands, agents, skills, future hooks, etc.)
 PRESET_FULL=(
   "loop.sh"
   "analyze-session.sh"
-  "prompts/plan.md"
-  "prompts/build.md"
-  "prompts/reverse.md"
-  ".claude/skills/feature-designer/"
+  "export-loopy.sh"
+  "loopy.config.json"
+  ".claude/"
   ".gitignore"
 )
 # + Generated templates:
@@ -141,6 +142,12 @@ PRESET_FULL=(
 # - logs/ (directory)
 # - README-LOOPY.md (quick start)
 ```
+
+**Rationale for directory-level inclusion:**
+- **Simple**: 5 entries instead of listing individual files
+- **Maintainable**: No manual updates when adding commands, agents, or skills
+- **Future-proof**: Automatically includes hooks and other future additions to .claude/
+- **Zero maintenance**: `.claude/` captures everything loopy-claude needs
 
 **Future Presets (not in v1):**
 

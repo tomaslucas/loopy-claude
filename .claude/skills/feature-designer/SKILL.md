@@ -372,7 +372,10 @@ Trigger phrases:
    - Use lowercase-with-hyphens
    - **NO implementation checklists** (Section 7 is Implementation Guidance only)
 3. Update PIN (`specs/README.md`)
-4. Confirm completion to user
+4. Evaluate project documentation updates:
+   - Review documentation that may be affected by the new feature
+   - If updates needed → add to spec's "Files to modify" section
+5. Confirm completion to user
 
 **Important:** Create all specs at once (batch), not one at a time.
 
