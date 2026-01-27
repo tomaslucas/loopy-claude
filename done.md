@@ -9,3 +9,4 @@
 | 2026-01-26 22:51 | Fix: Create missing symlink prompts/reconcile.md | - | specs/reconcile-system.md |
 | 2026-01-26 22:57 | Fix: Update error message in loop.sh to include all available modes | - | specs/reconcile-system.md |
 | 2026-01-27 07:57 | Fix: post-mortem accepts log file via --log flag and $ARGUMENTS | - | specs/post-mortem-system.md |
+| 2026-01-27 08:32 | Fix: Support log file as positional argument in post-mortem | 65fea5f | specs/loop-orchestrator-system.md |
