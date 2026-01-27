@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security Vulnerability
+    url: https://github.com/tomaslucas/loopy-claude/security/advisories/new
+    about: Report a security vulnerability privately
+  - name: Project Philosophy
+    url: https://github.com/tomaslucas/loopy-claude/blob/main/PHILOSOPHY.md
+    about: Read about loopy-claude's design philosophy and principles
+  - name: Contributing Guidelines
+    url: https://github.com/tomaslucas/loopy-claude/blob/main/CONTRIBUTING.md
+    about: Learn about the contribution policy (no external contributions accepted)

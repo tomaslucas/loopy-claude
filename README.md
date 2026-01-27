@@ -2,6 +2,13 @@
 
 Simple loop-based autonomous coding system. Design specs, generate plans, build code.
 
+> **Note:**
+> This is a personal research project exploring how minimal an autonomous coding orchestrator can be.
+> **Use at your own risk. Provided "AS IS" without warranties of any kind** (see [LICENSE](LICENSE)).
+>
+> The name "loopy-claude" is inspired by Geoffrey Huntley's "Ralph Wiggum" project and Anthropic's "Claude Code."
+> **This is an independent, unofficial project with no affiliation or endorsement from Anthropic or any other entity.**
+
 ---
 
 ## What is Loopy-claude?
@@ -592,24 +599,55 @@ tail -100 logs/log-build-<timestamp>.txt
 
 ## Contributing
 
-Loopy is designed to be forkable and hackable:
-
-1. **Fork the repo**
-2. **Modify commands** (`.claude/commands/*.md`) - they're just markdown with frontmatter
-3. **Test your changes** - run loop.sh locally
-4. **Share improvements** - PRs welcome
-
-**Areas for contribution:**
-- Prompt improvements (better verification strategies)
-- Additional skills (beyond feature-designer)
-- Documentation (more examples)
-- Bug fixes
+Loopy is my onw personal project. Feel free to fork and modify as you see fit.
+I don't currently accept external contributions.
 
 ---
 
 ## License
 
-[Specify your license]
+MIT License. See `LICENSE` file for details.
+
+---
+
+## Security
+
+### Security Posture
+
+Loopy-claude follows a "simple and transparent" security model:
+
+- **No Secret Management**: API keys provided via environment variables only (never stored)
+- **Limited Blast Radius**: Each mode operates with focused permissions
+- **Human in the Loop**: Destructive operations require explicit approval
+- **Auditable Execution**: All actions logged to `.claude/sessions/` for review
+- **No Auto-Update**: No telemetry, no automatic updates, no hidden behavior
+
+### Reporting Security Vulnerabilities
+
+Found a security issue? Please report it via [GitHub Issues](https://github.com/tomaslucas/loopy-claude/issues). See [SECURITY.md](SECURITY.md) for full details on scope, out-of-scope items, and reporting guidelines.
+
+### Safe Usage
+
+To use loopy-claude safely:
+
+1. **Protect API Keys**: Never commit `ANTHROPIC_API_KEY` to version control
+2. **Review Generated Code**: Always review before committing or deploying
+3. **Test in Isolation**: Use development environments first
+4. **Keep Dependencies Updated**: Regularly update Anthropic SDK
+5. **Review Session Logs**: Check logs in `.claude/sessions/` for unexpected behavior
+
+### What We Don't Do
+
+Intentionally absent for simplicity:
+- Automatic dependency updates
+- Complex CI/CD pipelines
+- Binary distribution or auto-update mechanisms
+- Telemetry or analytics
+- Built-in credential storage
+
+### Before Making Public
+
+If you fork this repository and plan to make it public, see [.github/SECURITY_CHECKLIST.md](.github/SECURITY_CHECKLIST.md) for a comprehensive security verification checklist.
 
 ---
 
@@ -643,7 +681,7 @@ A: Edit `loop.sh` directly. It's simple bash, easy to customize.
 A: If you don't specify max iterations, work mode calculates: `(pending_tasks + pending_validations) × 2`. The 2× multiplier is a safety margin for corrective tasks that validations may generate. The loop exits naturally when no pending work remains.
 
 **Q: What's the difference between audit and validate?**
-A: 
+A:
 - **audit**: READ-ONLY holistic analysis of ALL specs vs implementation. Generates report in `audits/`. Use for periodic maintenance.
 - **validate**: Validates ONE spec at a time from `pending-validations.md`. Can generate corrective tasks. Part of build→validate workflow.
 
