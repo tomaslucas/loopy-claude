@@ -182,7 +182,15 @@ while [[ $# -gt 0 ]]; do
             if [ -z "$MODE" ]; then
                 MODE="$1"
             elif [ -z "$MAX_ITERATIONS" ]; then
-                MAX_ITERATIONS="$1"
+                # Check if this looks like a file path (for post-mortem mode)
+                if [[ "$1" == *"/"* || "$1" == *.txt || "$1" == *.log ]]; then
+                    LOG_OVERRIDE="$1"
+                else
+                    MAX_ITERATIONS="$1"
+                fi
+            elif [ -z "$LOG_OVERRIDE" ]; then
+                # Third positional argument: log file (for post-mortem mode)
+                LOG_OVERRIDE="$1"
             else
                 echo "Error: Unexpected argument $1"
                 exit 1
