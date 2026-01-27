@@ -6,6 +6,7 @@
 ## Build
 <!-- Max 20 items. Managed by post-mortem. -->
 
+- **Evitar:** Re-leer archivos de orientación en cada iteración de work | **Usar:** En work mode multi-iteración, confiar en context ya cargado | **Razón:** En sesión work con 10 iteraciones, specs/README.md fue leído 16 veces, plan.md 22 veces cuando no cambiaron entre iteraciones (2026-01-27)
 - **Evitar:** Testear solo variante con flags explícitos (--log) | **Usar:** Testear TODOS los patrones de uso documentados (positional args, mixed, flags) | **Razón:** Parser puede funcionar con flags pero fallar con argumentos posicionales (2026-01-27)
 - **Evitar:** Commitear directorios vacíos | **Usar:** Agregar .gitkeep o esperar al archivo real | **Razón:** Git no rastrea directorios vacíos, falla con "nothing to commit" (2026-01-26)
 - **Evitar:** Re-leer plan.md después de errores | **Usar:** Cachear contenido leído o verificar antes de actuar | **Razón:** Re-leer duplica tokens innecesariamente (2026-01-26)
