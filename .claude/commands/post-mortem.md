@@ -13,10 +13,13 @@ Analyze the most recent session log for errors and inefficiencies, extract actio
 
 ### Step 1: Identify the Log to Analyze
 
-**If `LOOPY_LOG_FILE` environment variable is set:**
+**Priority 1: If `$ARGUMENTS` is provided:**
+Use the file path from `$ARGUMENTS` (CLI usage: `/post-mortem logs/file.txt` or `./loop.sh post-mortem --log logs/file.txt`).
+
+**Priority 2: If `LOOPY_LOG_FILE` environment variable is set:**
 Use that file directly (passed by loop.sh when post-mortem runs as pipeline step).
 
-**Otherwise, find the most recent productive session log:**
+**Priority 3: Otherwise, find the most recent productive session log:**
 
 ```bash
 ls -t logs/log-*.txt | grep -v 'log-post-mortem' | head -1

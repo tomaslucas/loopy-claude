@@ -8,3 +8,4 @@
 | 2026-01-26 22:37 | Update specs/README.md status for implemented specs | - | specs/README.md |
 | 2026-01-26 22:51 | Fix: Create missing symlink prompts/reconcile.md | - | specs/reconcile-system.md |
 | 2026-01-26 22:57 | Fix: Update error message in loop.sh to include all available modes | - | specs/reconcile-system.md |
+| 2026-01-27 07:57 | Fix: post-mortem accepts log file via --log flag and $ARGUMENTS | - | specs/post-mortem-system.md |
