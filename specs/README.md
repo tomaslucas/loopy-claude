@@ -26,9 +26,9 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 | [structure-reorganization-system.md](structure-reorganization-system.md) | ✅ Implemented | **Claude Code alignment**, move prompts to `.claude/commands/`, extract validate agents to `.claude/agents/`, **work mode** (automated build→validate cycles), frontmatter support, backward compatibility, interactive command support |
 | [post-mortem-system.md](post-mortem-system.md) | ✅ .claude/commands/post-mortem.md | **Autonomous learning**, session log analysis, `lessons-learned.md` persistence, structured lessons (Evitar/Usar/Razón), 20 items per section limit, semantic pruning, auto-trigger after productive modes, prompt integration (Phase 0 reads lessons) |
 | [audit-system.md](audit-system.md) | ✅ .claude/commands/audit.md | **Repository audit**, spec compliance verification, READ-ONLY analysis, holistic cross-spec view, divergence detection, structured report generation, periodic maintenance tool, opus model |
-| [reconcile-system.md](reconcile-system.md) | ⏳ reconcile.md | **Post-escalation workflow**, structured divergence reports, human decision gate (fix code vs update spec), AskUserQuestion options, migration notes in specs, audit trail of reconciliation decisions |
-| [dependency-check-system.md](dependency-check-system.md) | ⏳ loop.sh | **Pre-flight validation**, required vs optional dependencies, graceful jq fallback, platform-specific install suggestions, exit code 3 on missing required, cross-platform (Linux/macOS/WSL) |
-| [done-tracking-system.md](done-tracking-system.md) | ⏳ build.md | **Completion history**, append-only done.md, one-line per task, machine-parseable table format, human progress visibility, zero plan.md impact, metrics extraction |
+| [reconcile-system.md](reconcile-system.md) | ✅ reconcile.md | **Post-escalation workflow**, structured divergence reports, human decision gate (fix code vs update spec), AskUserQuestion options, migration notes in specs, audit trail of reconciliation decisions |
+| [dependency-check-system.md](dependency-check-system.md) | ✅ loop.sh | **Pre-flight validation**, required vs optional dependencies, graceful jq fallback, platform-specific install suggestions, exit code 3 on missing required, cross-platform (Linux/macOS/WSL) |
+| [done-tracking-system.md](done-tracking-system.md) | ✅ done.md, build.md | **Completion history**, append-only done.md, one-line per task, machine-parseable table format, human progress visibility, zero plan.md impact, metrics extraction |
 
 ---
 
@@ -39,7 +39,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 - ⏳ **In Progress** - Under active development
 - 📋 **Planned** - Specification complete, not yet implemented
 
-**Current Status:** 11 implemented, 3 in progress, 0 planned.
+**Current Status:** 14 implemented, 0 in progress, 0 planned.
 
 ---
 
