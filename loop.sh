@@ -314,16 +314,30 @@ build_agent_command() {
 execute_agent() {
     local prompt_file="$1"
     local model="$2"
+    local arguments="${3:-}"
     local actual_model=$(map_model_name "$AGENT_NAME" "$model")
+    
+    # Build prompt content with optional $ARGUMENTS injection
+    local prompt_content
+    prompt_content=$(filter_frontmatter "$prompt_file")
+    
+    # Inject $ARGUMENTS if provided
+    if [ -n "$arguments" ]; then
+        prompt_content="# Arguments
+
+\$ARGUMENTS=\"$arguments\"
+
+---
+
+$prompt_content"
+    fi
     
     if [[ "$AGENT_NAME" == "copilot" ]]; then
         # Copilot: prompt as argument
-        local prompt_content
-        prompt_content=$(filter_frontmatter "$prompt_file")
         $AGENT_COMMAND $AGENT_PROMPT_FLAG "$prompt_content" $AGENT_MODEL_FLAG "$actual_model" $AGENT_EXTRA_ARGS 2>&1
     else
         # Claude and others: prompt via stdin
-        filter_frontmatter "$prompt_file" | $AGENT_COMMAND $AGENT_PROMPT_FLAG $AGENT_MODEL_FLAG "$actual_model" $AGENT_EXTRA_ARGS 2>&1
+        echo "$prompt_content" | $AGENT_COMMAND $AGENT_PROMPT_FLAG $AGENT_MODEL_FLAG "$actual_model" $AGENT_EXTRA_ARGS 2>&1
     fi
 }
 
@@ -476,7 +490,7 @@ if [ "$MODE" = "work" ]; then
         log ""
 
         CURRENT_PROMPT=".claude/commands/${CURRENT_MODE}.md"
-        OUTPUT=$(execute_agent "$CURRENT_PROMPT" "$CURRENT_MODEL" | tee -a "$LOG_FILE") || {
+        OUTPUT=$(execute_agent "$CURRENT_PROMPT" "$CURRENT_MODEL" "" | tee -a "$LOG_FILE") || {
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             log "Error: $AGENT_NAME execution failed"
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -589,8 +603,14 @@ while true; do
     log "Starting iteration $((ITERATION + 1))/$MAX_ITERATIONS..."
     log ""
 
+    # Build arguments for post-mortem mode if log override provided
+    PROMPT_ARGUMENTS=""
+    if [ "$MODE" = "post-mortem" ] && [ -n "$LOG_OVERRIDE" ]; then
+        PROMPT_ARGUMENTS="$LOG_OVERRIDE"
+    fi
+    
     # Run agent (output to both screen and log, capture for checks)
-    OUTPUT=$(execute_agent "$PROMPT_FILE" "$MODEL" | tee -a "$LOG_FILE") || {
+    OUTPUT=$(execute_agent "$PROMPT_FILE" "$MODEL" "$PROMPT_ARGUMENTS" | tee -a "$LOG_FILE") || {
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         log "Error: $AGENT_NAME execution failed"
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

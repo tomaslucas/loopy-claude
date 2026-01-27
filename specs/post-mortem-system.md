@@ -169,12 +169,15 @@ Post-mortem runs AFTER the log is complete (message written) and inherits agent 
 
 ### 3.6 Log Detection
 
-Post-mortem identifies the log to analyze:
+Post-mortem identifies the log to analyze with this priority:
 
-**If `LOOPY_LOG_FILE` environment variable is set:**
-Use that file directly (passed by loop.sh when post-mortem runs as pipeline step).
+**Priority 1: If `$ARGUMENTS` is provided:**
+Use the file path from `$ARGUMENTS` (passed by loop.sh when using `--log` flag or from Claude Code via `/post-mortem logs/file.txt`).
 
-**Otherwise, find the most recent productive session log:**
+**Priority 2: If `LOOPY_LOG_FILE` environment variable is set:**
+Use that file directly (passed by loop.sh when post-mortem runs as pipeline step after productive modes).
+
+**Priority 3: Otherwise, find the most recent productive session log:**
 
 ```bash
 LAST_LOG=$(ls -t logs/log-*.txt | grep -v 'log-post-mortem' | head -1)
@@ -196,14 +199,17 @@ If post-mortem finds no errors or inefficiencies:
 ### 4.1 New Mode
 
 ```bash
-./loop.sh post-mortem [max_iterations] [--agent AGENT] [--model MODEL]
+./loop.sh post-mortem [max_iterations] [--agent AGENT] [--model MODEL] [--log LOG_FILE]
 ```
 
 - **Model:** sonnet by default, overridable via `--model`
 - **Default iterations:** 1
 - **Prompt:** `.claude/commands/post-mortem.md`
 - **Agent:** Inherited from caller or specified via `--agent`
-- **Log file:** Passed via `LOOPY_LOG_FILE` env var (optional, falls back to most recent)
+- **Log file:** 
+  - Via `--log` flag (passed as `$ARGUMENTS` to prompt)
+  - Via `LOOPY_LOG_FILE` env var (when run as pipeline step)
+  - Auto-detected (most recent non-post-mortem log)
 
 ### 4.2 Integration Points
 
