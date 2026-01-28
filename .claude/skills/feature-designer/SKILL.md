@@ -63,7 +63,57 @@ Use AskUserQuestion to validate topic boundaries.
 4. Ask about testing strategy
 5. Ask about edge cases
 6. Ask about integration points
-7. **Keep asking until topic is solid**
+7. **Strategy Investigation** (see Step 3b below)
+8. **Keep asking until topic is solid**
+
+### Step 3b: Strategy Investigation (Per Topic)
+
+**During deep dive, evaluate implementation approaches:**
+
+1. **Pattern Analysis:**
+   - Search codebase for similar solutions (`grep -r "pattern" .`)
+   - Identify existing conventions and patterns
+   - Note reusable components
+
+2. **Approach Evaluation:**
+   Identify 2-3 implementation approaches and analyze each:
+
+   | Criterion | Questions |
+   |-----------|-----------|
+   | **Complexity** | Lines of code? New dependencies? Learning curve? |
+   | **Performance** | Time/space complexity? Bottlenecks? |
+   | **Security** | Attack surface? Data exposure? Validation needed? |
+   | **Maintainability** | Testable? Debuggable? Future-proof? |
+   | **Consistency** | Matches existing patterns? Creates split-brain? |
+
+3. **Present Options via AskUserQuestion:**
+
+   ```
+   Question: How should we implement {topic}?
+
+   Options:
+   ○ Approach A: {name}
+     Pros: {list}
+     Cons: {list}
+     Complexity: {low/medium/high}
+
+   ○ Approach B: {name}
+     Pros: {list}
+     Cons: {list}
+     Complexity: {low/medium/high}
+
+   ○ Approach C: {name} (if applicable)
+     Pros: {list}
+     Cons: {list}
+     Complexity: {low/medium/high}
+
+   ○ Other (specify custom approach)
+
+   Recommended: Approach {X} because {reasoning}
+   ```
+
+4. **Document Decision:**
+   Record the selected strategy for inclusion in generated spec (Section 8)
 
 **Checkpoint Criteria:**
 
@@ -371,11 +421,43 @@ Trigger phrases:
    - Filename: `specs/{topic-name}-system.md`
    - Use lowercase-with-hyphens
    - **NO implementation checklists** (Section 7 is Implementation Guidance only)
+   - **Include Section 8: Selected Implementation Strategy** with decisions from Step 3b
 3. Update PIN (`specs/README.md`)
 4. Evaluate project documentation updates:
    - Review documentation that may be affected by the new feature
    - If updates needed → add to spec's "Files to modify" section
 5. Confirm completion to user
+
+**Section 8 Format (in generated specs):**
+
+```markdown
+## 8. Selected Implementation Strategy
+
+**Investigation date:** {DATE}
+
+### Pattern Analysis
+- Similar pattern found in: `path/to/file.ext`
+- Project convention: {description}
+
+### Approaches Considered
+
+**Approach A: {name}**
+- Pros: {list}
+- Cons: {list}
+- Complexity: {low/medium/high}
+
+**Approach B: {name}**
+- Pros: {list}
+- Cons: {list}
+- Complexity: {low/medium/high}
+
+### Decision
+**Selected:** Approach {X}
+
+**Justification:** {why this approach is best for our context}
+
+**Accepted trade-offs:** {what we're consciously sacrificing}
+```
 
 **Important:** Create all specs at once (batch), not one at a time.
 

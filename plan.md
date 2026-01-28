@@ -5,22 +5,6 @@ Specs analyzed: 1 (strategy-investigation-system.md)
 
 ---
 
-## Phase 1: Feature Designer Enhancement
-
-- [ ] Add strategy investigation to Feature Designer Phase 1
-      Done when:
-        - SKILL.md has strategy investigation workflow in Phase 1
-        - During topic deep dive, approaches are evaluated
-        - AskUserQuestion presents 2-3 options with trade-offs
-        - Generated specs include Section 8 with strategy decision
-      Verify:
-        - grep -q "Strategy Investigation" .claude/skills/feature-designer/SKILL.md
-        - grep -q "approaches" .claude/skills/feature-designer/SKILL.md
-      (cite: specs/strategy-investigation-system.md section 4.1)
-      [Grouped: Single file ~450 lines, adds ~40 lines, one subsystem]
-
----
-
 ## Phase 2: Command Updates
 
 - [ ] Add Phase 3b strategy investigation to /plan
