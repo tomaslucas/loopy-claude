@@ -29,7 +29,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 | [reconcile-system.md](reconcile-system.md) | ✅ reconcile.md | **Post-escalation workflow**, structured divergence reports, human decision gate (fix code vs update spec), AskUserQuestion options, migration notes in specs, audit trail of reconciliation decisions |
 | [dependency-check-system.md](dependency-check-system.md) | ✅ loop.sh | **Pre-flight validation**, required vs optional dependencies, graceful jq fallback, platform-specific install suggestions, exit code 3 on missing required, cross-platform (Linux/macOS/WSL) |
 | [done-tracking-system.md](done-tracking-system.md) | ✅ done.md, build.md | **Completion history**, append-only done.md, one-line per task, machine-parseable table format, human progress visibility, zero plan.md impact, metrics extraction |
-| [strategy-investigation-system.md](strategy-investigation-system.md) | 📋 Multiple | **Human on the loop model**, strategy investigation before task generation, 3-approach trade-off analysis, permanent documentation in specs, lightweight version for /bug, affects plan/build/validate/audit/reconcile/feature-designer |
+| [strategy-investigation-system.md](strategy-investigation-system.md) | ⏳ Multiple | **Human on the loop model**, strategy investigation before task generation, 3-approach trade-off analysis, permanent documentation in specs, lightweight version for /bug, affects plan/build/validate/audit/reconcile/feature-designer |
 
 ---
 
@@ -40,7 +40,7 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 - ⏳ **In Progress** - Under active development
 - 📋 **Planned** - Specification complete, not yet implemented
 
-**Current Status:** 14 implemented, 0 in progress, 1 planned.
+**Current Status:** 14 implemented, 1 in progress, 0 planned.
 
 ---
 
