@@ -5,19 +5,6 @@ Specs analyzed: 1 (strategy-investigation-system.md)
 
 ---
 
-## Phase 2: Command Updates
-
-- [ ] Add strategy divergence handling to /reconcile
-      Done when:
-        - reconcile.md handles "Strategy says X, code does Y" case
-        - Presents 3 options: update code, update strategy, document divergence
-        - Uses AskUserQuestion for resolution
-      Verify:
-        - grep -q "strategy.*divergence" .claude/commands/reconcile.md
-      (cite: specs/strategy-investigation-system.md section 4.7)
-
-[Grouped: 6 commands, similar changes, ~50 lines each, same subsystem]
-
 ---
 
 ## Phase 3: Specification Updates
