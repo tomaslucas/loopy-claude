@@ -12,3 +12,4 @@
 | 2026-01-27 08:32 | Fix: Support log file as positional argument in post-mortem | 65fea5f | specs/loop-orchestrator-system.md |
 | 2026-01-28 12:00 | Add strategy investigation to Feature Designer Phase 1 | - | specs/strategy-investigation-system.md |
 | 2026-01-28 12:15 | Add Phase 3b strategy investigation to /plan | - | specs/strategy-investigation-system.md |
+| 2026-01-28 12:20 | Add strategy reading to /build Step 2 | - | specs/strategy-investigation-system.md |

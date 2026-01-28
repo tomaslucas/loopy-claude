@@ -7,14 +7,6 @@ Specs analyzed: 1 (strategy-investigation-system.md)
 
 ## Phase 2: Command Updates
 
-- [ ] Add strategy reading to /build Step 2
-      Done when:
-        - build.md Step 2 explicitly mentions reading strategy section
-        - Notes that divergence from strategy should be documented in commit
-      Verify:
-        - grep -q "strategy" .claude/commands/build.md
-      (cite: specs/strategy-investigation-system.md section 4.3)
-
 - [ ] Add strategy compliance check to /validate
       Done when:
         - validate.md includes strategy compliance in verification

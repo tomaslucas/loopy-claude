@@ -94,6 +94,8 @@ Understand all aspects:
    - Understand all requirements related to this task
    - Check non-goals (what NOT to implement)
    - Note architecture constraints and integration points
+   - **Read the "Selected Implementation Strategy" section** if present
+   - Follow the documented approach; if you must diverge, note it in commit message
    - **Do NOT proceed to Step 3 until you understand the spec**
 
 3. **Identify affected files**: Based on task description and search
