@@ -7,15 +7,6 @@ Specs analyzed: 1 (strategy-investigation-system.md)
 
 ## Phase 2: Command Updates
 
-- [ ] Add strategy compliance check to /validate
-      Done when:
-        - validate.md includes strategy compliance in verification
-        - Checks if implementation follows documented strategy
-        - Flags divergence as potential issue (not automatic fail)
-      Verify:
-        - grep -q "strategy compliance" .claude/commands/validate.md
-      (cite: specs/strategy-investigation-system.md section 4.4)
-
 - [ ] Add missing strategy detection to /audit
       Done when:
         - audit.md Step 3 checks for specs without "Selected Implementation Strategy"

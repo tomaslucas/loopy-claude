@@ -306,6 +306,40 @@ DIVERGENCES FOUND:
    ...
 ```
 
+### Step 4b: Strategy Compliance Check
+
+**Check strategy compliance: whether implementation follows documented strategy (if present).**
+
+#### Check for strategy section:
+
+```bash
+grep -q "Selected Implementation Strategy" specs/spec-name.md
+```
+
+#### If strategy section exists:
+
+1. Read the "Selected Implementation Strategy" section
+2. Compare implementation approach to documented decision
+3. Check if code follows the selected approach (not an alternative)
+
+#### Strategy divergence handling:
+
+**If code follows documented strategy:** No action needed.
+
+**If code diverges from documented strategy:**
+
+Add to divergences list with LOW severity:
+
+```markdown
+N. Strategy divergence
+   - Source: Strategy compliance check
+   - Spec section: Selected Implementation Strategy
+   - Description: Strategy says {approach A}, code implements {approach B}
+   - Severity: Low (flag for review, not automatic fail)
+```
+
+**Note:** Strategy divergence is informational, not a hard failure. Implementation may have valid reasons to diverge (discovered during build). Flag for human awareness, don't force correction.
+
 ### Step 5: Decision Logic
 
 **If NO divergences found:**
