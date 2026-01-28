@@ -7,15 +7,6 @@ Specs analyzed: 1 (strategy-investigation-system.md)
 
 ## Phase 2: Command Updates
 
-- [ ] Add missing strategy detection to /audit
-      Done when:
-        - audit.md Step 3 checks for specs without "Selected Implementation Strategy"
-        - Reports as "Incomplete: missing implementation strategy"
-        - Severity marked as Low
-      Verify:
-        - grep -q "missing.*strategy" .claude/commands/audit.md
-      (cite: specs/strategy-investigation-system.md section 4.5)
-
 - [ ] Add lightweight strategy to /bug for non-trivial fixes
       Done when:
         - bug.md has trivial vs non-trivial classification

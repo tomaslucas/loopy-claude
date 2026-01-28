@@ -14,3 +14,4 @@
 | 2026-01-28 12:15 | Add Phase 3b strategy investigation to /plan | - | specs/strategy-investigation-system.md |
 | 2026-01-28 12:20 | Add strategy reading to /build Step 2 | - | specs/strategy-investigation-system.md |
 | 2026-01-28 12:25 | Add strategy compliance check to /validate | - | specs/strategy-investigation-system.md |
+| 2026-01-28 12:30 | Add missing strategy detection to /audit | - | specs/strategy-investigation-system.md |
