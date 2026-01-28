@@ -7,16 +7,6 @@ Specs analyzed: 1 (strategy-investigation-system.md)
 
 ## Phase 2: Command Updates
 
-- [ ] Add lightweight strategy to /bug for non-trivial fixes
-      Done when:
-        - bug.md has trivial vs non-trivial classification
-        - Non-trivial bugs get 2-3 approach analysis
-        - Task format includes Strategy: and Alternatives considered:
-      Verify:
-        - grep -q "trivial" .claude/commands/bug.md
-        - grep -q "Alternatives considered" .claude/commands/bug.md
-      (cite: specs/strategy-investigation-system.md section 4.6)
-
 - [ ] Add strategy divergence handling to /reconcile
       Done when:
         - reconcile.md handles "Strategy says X, code does Y" case

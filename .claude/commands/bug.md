@@ -30,6 +30,25 @@ $ARGUMENTS - Description of the bug or problem detected
 
 4. **Strategic Analysis** (for code bugs and missing features)
 
+   **4.0 Trivial vs Non-Trivial Classification:**
+   
+   First, classify the bug:
+   
+   | Type | Criteria | Strategy Depth |
+   |------|----------|----------------|
+   | **Trivial** | Single file, <50 lines, obvious fix | Skip strategy, create task directly |
+   | **Non-trivial** | Multi-file, architectural, or unclear fix | Lightweight strategy (2-3 approaches) |
+   
+   **For NON-TRIVIAL bugs, include lightweight strategy in task:**
+   ```markdown
+   - [ ] Fix: {description}
+         Strategy: {brief approach selected}
+         Alternatives considered: {list other approaches}
+         Done when: {criteria}
+         Verify: {command}
+         (cite: specs/{spec}.md)
+   ```
+
    Before creating tasks, analyze for optimal grouping:
 
    **4.1 Check existing plan.md:**
