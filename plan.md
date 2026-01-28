@@ -7,17 +7,6 @@ Specs analyzed: 1 (strategy-investigation-system.md)
 
 ## Phase 2: Command Updates
 
-- [ ] Add Phase 3b strategy investigation to /plan
-      Done when:
-        - plan.md has "Phase 3b: Strategy Investigation" between Phase 3 and Phase 4
-        - Checks for "Selected Implementation Strategy" section in specs
-        - For legacy specs (missing section): runs investigation workflow and updates spec
-        - For specs with strategy: reads and uses for task generation
-      Verify:
-        - grep -q "Phase 3b" .claude/commands/plan.md
-        - grep -q "Selected Implementation Strategy" .claude/commands/plan.md
-      (cite: specs/strategy-investigation-system.md section 4.2)
-
 - [ ] Add strategy reading to /build Step 2
       Done when:
         - build.md Step 2 explicitly mentions reading strategy section

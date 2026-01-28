@@ -146,6 +146,88 @@ grep -r "config_key" .
 
 ---
 
+## Phase 3b: Strategy Investigation
+
+For each INCLUDED_SPEC, ensure implementation strategy is documented before task generation.
+
+### Check for existing strategy:
+
+```bash
+grep -q "Selected Implementation Strategy" specs/spec-name.md
+```
+
+### Decision logic:
+
+```
+For each INCLUDED_SPEC:
+  IF spec has "Selected Implementation Strategy" section:
+    → Read strategy section
+    → Use for task generation in Phase 4
+  ELSE (legacy spec without strategy):
+    → Run Strategy Investigation workflow (see below)
+    → Update spec with new section
+    → Then proceed to task generation
+```
+
+### Strategy Investigation Workflow (for legacy specs):
+
+**Step 1: Pattern Analysis**
+```bash
+# Search for similar solutions in codebase
+grep -r "similar_pattern" src/
+grep -r "related_function" .
+```
+- How have we solved similar problems?
+- What patterns does this codebase use?
+
+**Step 2: Library Verification**
+```bash
+# Check existing dependencies
+cat package.json | grep "library"  # or equivalent
+grep -r "import.*library" src/
+```
+- Do our dependencies already solve this?
+
+**Step 3: Approach Evaluation**
+
+Evaluate 2-3 approaches considering:
+- Complexity (lines of code, dependencies, learning curve)
+- Performance (time/space complexity)
+- Maintainability (testable, debuggable, future-proof)
+- Consistency (matches existing patterns)
+
+**Step 4: Document in Spec**
+
+Add section to spec:
+
+```markdown
+## Selected Implementation Strategy
+
+**Investigation date:** {DATE}
+
+### Pattern Analysis
+- Similar pattern found in: `path/to/file.ext`
+- Project convention: {description}
+
+### Approaches Considered
+
+**Approach A: {name}**
+- Pros: {list}
+- Cons: {list}
+
+**Approach B: {name}**
+- Pros: {list}
+- Cons: {list}
+
+### Decision
+**Selected:** Approach {X}
+**Justification:** {why this approach is best}
+```
+
+**Output:** All INCLUDED_SPECS have strategy section; ready for task generation
+
+---
+
 ## Phase 4: Strategic Analysis <extended_thinking>
 
 **Use <extended_thinking> for deep reasoning before generating plan.**
