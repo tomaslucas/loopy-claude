@@ -1,3 +1,3 @@
 # Pending Validations
 
-- [ ] specs/compound-architecture-system.md
+- [ ] specs/compound-architecture-system.md (attempt: 2/3)
