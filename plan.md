@@ -7,18 +7,6 @@ Specs analyzed: 1 (compound-architecture-system.md)
 
 ## Phase 5: Prompt Modifications (Lifecycle & Focus)
 
-- [ ] Refocus post-mortem.md to operational patterns only
-      Done when:
-        - "Operational Patterns ONLY" section exists
-        - IGNORE list (architectural decisions, library choices, API design)
-        - FOCUS ON list (failed commands, syntax errors, tool misuse)
-        - Log format awareness for mixed stream-json/text
-      Verify:
-        - grep -q "Operational Patterns" .claude/commands/post-mortem.md
-        - grep -q "IGNORE" .claude/commands/post-mortem.md || grep -q "Do NOT extract" .claude/commands/post-mortem.md
-        - grep -q "stream-json\|format" .claude/commands/post-mortem.md
-      (cite: specs/compound-architecture-system.md Section 3.4)
-
 - [ ] Add archive awareness to audit.md and reconcile.md
       Done when:
         - audit.md Phase 0 mentions specs/archive/
