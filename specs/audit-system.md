@@ -66,7 +66,7 @@ description: Audit repository for spec compliance - compares implementation agai
 1. **Phase 0: Orient** - Study specs/README.md, identify audit targets
 2. **Step 1: Inventory** - Collect all audit targets (specs marked ✅)
 3. **Step 2: Verification** - Spec-by-spec requirements checking
-4. **Step 3: Cross-cutting** - Systemic issues (consistency, staleness, structure)
+4. **Step 3: Cross-cutting** - Systemic issues (consistency, staleness, structure, missing strategy detection)
 5. **Step 4: Report** - Generate structured audit report
 6. **Step 5: Save** - Persist to `audits/audit-{timestamp}.md`
 

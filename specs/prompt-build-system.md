@@ -40,7 +40,7 @@ Execute ONE task from plan.md completely, verify it works correctly, commit chan
 Step 1: Read Task Completely
     ↓ (understand Done when, Verify, citations)
 Step 2: Pre-Implementation Research (MANDATORY)
-    ↓ (search codebase, read FULL spec - no shortcuts)
+    ↓ (search codebase, read FULL spec + strategy section - no shortcuts)
 Step 3: Implement
     ↓ (complete, no placeholders)
 Step 4: Self-Verify (MANDATORY)

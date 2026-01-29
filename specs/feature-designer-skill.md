@@ -19,7 +19,8 @@ Guide users through feature design via conversation (JTBD → Topics → Specs),
 - Iterative refinement via continuous AskUserQuestion loop
 - Critical thinking on architecture, engineering, trade-offs
 - 4-phase workflow (Research → Iteration → Coherence → Crystallization)
-- Generate specs WITHOUT implementation checklists
+- Strategy generation during Phase 1 (2-3 implementation approaches per topic)
+- Generate specs WITH implementation strategy section, WITHOUT implementation checklists
 - Update specs/README.md (PIN) automatically
 - Optional (can create specs manually with template)
 
