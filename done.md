@@ -27,4 +27,4 @@
 | 2026-01-29 20:36 | Refocus post-mortem.md to operational patterns only | f80d6d6 | specs/compound-architecture-system.md |
 | 2026-01-29 20:38 | Add archive awareness to audit.md and reconcile.md | b162cda | specs/compound-architecture-system.md |
 | 2026-01-29 20:40 | Fix done.md commit hash capture in build.md Step 6 | ebdd0b9 | specs/compound-architecture-system.md |
-| 2026-01-29 20:44 | Add conditional git push to loop.sh | 10aa75b | specs/compound-architecture-system.md |
+| 2026-01-29 20:44 | Add conditional git push to loop.sh | f1c11c8 | specs/compound-architecture-system.md |
