@@ -108,6 +108,8 @@ PRESET_FULL=(
     "export-loopy.sh"
     "loopy.config.json"
     ".claude/"
+    "hooks/"
+    "tests/"
     ".gitignore"
 )
 
@@ -545,25 +547,39 @@ EOF
     if [[ "$DRY_RUN" == true ]]; then
         echo "[DRY RUN] Would create specs/README.md"
     else
-        mkdir -p "$dest/specs"
+        mkdir -p "$dest/specs/archive"
         cat > "$dest/specs/README.md" <<EOF
 # Project Specifications
 
-Lookup table for specifications.
+> Project Intelligence Network (PIN): Decision map for AI agents. Read Active Specs in detail; trust Archived summaries.
 
 ## How to Use
 
 1. **AI agents:** Study \`specs/README.md\` before any spec work
 2. **Search here** to find relevant existing specs by keyword
-3. **When creating new spec:** Add entry here with semantic keywords
+3. **When creating new spec:** Add entry to Active Specs table
+4. **Plan mode:** Reads Active Specs only, trusts Archived summaries
+5. **Do NOT read archived specs** — use the decision summary instead
 
 ---
 
-## Specs
+## Active Specs
 
 | Spec | Code | Purpose |
 |------|------|---------|
-|      |      |         |
+| *(add your specs here)* | | |
+
+---
+
+## Archived Knowledge
+
+Validated and frozen specs. **Do NOT read these files** — use the decision summary below.
+
+| Feature | Decision/Trade-off | Archived |
+|---------|-------------------|----------|
+| *(specs move here after validation passes)* | | |
+
+**To evolve an archived spec:** Move it back to \`specs/\` and update this table.
 
 ---
 
