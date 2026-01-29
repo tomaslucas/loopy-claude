@@ -526,16 +526,26 @@ if [ "$MODE" = "work" ]; then
         log "Starting work iteration $((ITERATION + 1))/$MAX_ITERATIONS (mode: $CURRENT_MODE, model: $CURRENT_MODEL)..."
         log ""
 
+        # Track execution time
+        EXEC_START=$(date +%s)
+
         CURRENT_PROMPT=".claude/commands/${CURRENT_MODE}.md"
         OUTPUT=$(execute_agent "$CURRENT_PROMPT" "$CURRENT_MODEL" "" | tee -a "$LOG_FILE") || {
+            EXEC_END=$(date +%s)
+            DURATION=$((EXEC_END - EXEC_START))
+            ./hooks/core/log-event.sh "$AGENT_NAME" "$CURRENT_MODEL" "$CURRENT_MODE" "$AGENT_OUTPUT_FORMAT" "agent_execution" "error" "$((ITERATION + 1))" "{\"duration\":$DURATION,\"exit_code\":1}" || true
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             log "Error: $AGENT_NAME execution failed"
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             exit 1
         }
+        
+        EXEC_END=$(date +%s)
+        DURATION=$((EXEC_END - EXEC_START))
 
         # Check for rate limit
         if check_rate_limit "$OUTPUT"; then
+            ./hooks/core/log-event.sh "$AGENT_NAME" "$CURRENT_MODEL" "$CURRENT_MODE" "$AGENT_OUTPUT_FORMAT" "agent_execution" "rate_limit" "$((ITERATION + 1))" "{\"duration\":$DURATION}" || true
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             log "Rate limit detected"
             log "API quota exhausted. Try again later."
@@ -545,6 +555,7 @@ if [ "$MODE" = "work" ]; then
 
         # Check for ESCALATE signal (validation hit 3 attempts, needs human)
         if echo "$OUTPUT" | grep -q '<promise>ESCALATE</promise>'; then
+            ./hooks/core/log-event.sh "$AGENT_NAME" "$CURRENT_MODEL" "$CURRENT_MODE" "$AGENT_OUTPUT_FORMAT" "agent_execution" "escalate" "$((ITERATION + 1))" "{\"duration\":$DURATION}" || true
             log ""
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             log "ESCALATE: Validation requires human intervention"
@@ -553,6 +564,9 @@ if [ "$MODE" = "work" ]; then
             log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             break
         fi
+        
+        # Log successful work iteration
+        ./hooks/core/log-event.sh "$AGENT_NAME" "$CURRENT_MODEL" "$CURRENT_MODE" "$AGENT_OUTPUT_FORMAT" "agent_execution" "success" "$((ITERATION + 1))" "{\"duration\":$DURATION}" || true
 
         # Push changes if any
         push_if_possible
@@ -627,16 +641,26 @@ while true; do
         PROMPT_ARGUMENTS="$LOG_OVERRIDE"
     fi
     
+    # Track execution time
+    EXEC_START=$(date +%s)
+    
     # Run agent (output to both screen and log, capture for checks)
     OUTPUT=$(execute_agent "$PROMPT_FILE" "$MODEL" "$PROMPT_ARGUMENTS" | tee -a "$LOG_FILE") || {
+        EXEC_END=$(date +%s)
+        DURATION=$((EXEC_END - EXEC_START))
+        ./hooks/core/log-event.sh "$AGENT_NAME" "$MODEL" "$MODE" "$AGENT_OUTPUT_FORMAT" "agent_execution" "error" "$ITERATION" "{\"duration\":$DURATION,\"exit_code\":1}" || true
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         log "Error: $AGENT_NAME execution failed"
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         exit 1
     }
+    
+    EXEC_END=$(date +%s)
+    DURATION=$((EXEC_END - EXEC_START))
 
     # Stop 3: Rate limit detected
     if check_rate_limit "$OUTPUT"; then
+        ./hooks/core/log-event.sh "$AGENT_NAME" "$MODEL" "$MODE" "$AGENT_OUTPUT_FORMAT" "agent_execution" "rate_limit" "$ITERATION" "{\"duration\":$DURATION}" || true
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         log "Rate limit detected"
         log "API quota exhausted. Try again later."
@@ -646,6 +670,7 @@ while true; do
 
     # Stop 4: Completion signal
     if echo "$OUTPUT" | grep -q '<promise>COMPLETE</promise>'; then
+        ./hooks/core/log-event.sh "$AGENT_NAME" "$MODEL" "$MODE" "$AGENT_OUTPUT_FORMAT" "agent_execution" "complete" "$ITERATION" "{\"duration\":$DURATION}" || true
         log ""
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         log "Agent signaled completion"
@@ -653,6 +678,9 @@ while true; do
         log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         break
     fi
+    
+    # Log successful iteration
+    ./hooks/core/log-event.sh "$AGENT_NAME" "$MODEL" "$MODE" "$AGENT_OUTPUT_FORMAT" "agent_execution" "success" "$ITERATION" "{\"duration\":$DURATION}" || true
 
     # Push changes if any
     push_if_possible
