@@ -3,21 +3,6 @@
 Generated: 2026-01-29
 Specs analyzed: 1 (compound-architecture-system.md)
 
-## Phase 2: PIN Restructure
-
-- [ ] Restructure specs/README.md with Active Specs and Archived Knowledge sections
-      Done when:
-        - "## Active Specs" section exists with table
-        - "## Archived Knowledge" section exists (empty initially)
-        - All current specs moved to Active Specs table
-        - "How to Use" section updated for Plan mode
-      Verify:
-        - grep -q "## Active Specs" specs/README.md
-        - grep -q "## Archived Knowledge" specs/README.md
-        - grep -q "Do NOT read these files" specs/README.md
-      (cite: specs/compound-architecture-system.md Section 3.1)
-      [Grouped: Complete README rewrite, ~200 lines context]
-
 ## Phase 3: Telemetry Infrastructure
 
 - [ ] Create hooks/core/log-event.sh telemetry emitter
