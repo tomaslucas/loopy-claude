@@ -1,17 +1,18 @@
 # Loopy-Claude Specifications
 
-Lookup table for specifications. The "Purpose" column contains semantic keywords to improve search tool hit rate.
+> Project Intelligence Network (PIN): Decision map for AI agents. Read Active Specs in detail; trust Archived summaries.
 
 ## How to Use
 
 1. **AI agents:** Study `specs/README.md` before any spec work
 2. **Search here** to find relevant existing specs by keyword
-3. **When creating new spec:** Add entry here with semantic keywords
-4. **Plan mode:** Uses this to reconcile git log vs spec status
+3. **When creating new spec:** Add entry to Active Specs table
+4. **Plan mode:** Reads Active Specs only, trusts Archived summaries
+5. **Do NOT read archived specs** — use the decision summary instead
 
 ---
 
-## Core Systems
+## Active Specs
 
 | Spec                                                       | Code                 | Purpose                                                                                                                                                                                                                                                                                                                        |
 | ---------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -34,14 +35,16 @@ Lookup table for specifications. The "Purpose" column contains semantic keywords
 
 ---
 
-## Implementation Status
+---
 
-**Legend:**
-- ✅ **Implemented** - Code exists and is functional
-- ⏳ **In Progress** - Under active development
-- 📋 **Planned** - Specification complete, not yet implemented
+## Archived Knowledge
 
-**Current Status:** 15 implemented, 1 in progress, 0 planned.
+Validated and frozen specs. **Do NOT read these files** — use the decision summary below.
+
+| Feature | Decision/Trade-off | Archived |
+|---------|-------------------|----------|
+
+**To evolve an archived spec:** Move it back to `specs/` and update this table.
 
 ---
 
