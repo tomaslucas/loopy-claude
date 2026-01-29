@@ -56,6 +56,8 @@ PARALLEL EXECUTION
     ↓
 Combine results (deduplicate findings)
     ↓
+Check strategy compliance (if spec has strategy section)
+    ↓
 If divergences found:
     ├─ Create corrective tasks in plan.md
     ├─ Increment attempt counter for this spec

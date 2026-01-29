@@ -48,6 +48,7 @@ Present options via AskUserQuestion:
   A) Change code (generate corrective tasks)
   B) Change spec (propose spec edits)
   C) Skip (leave for later)
+  + Strategy divergence options (E/F/G) when applicable
     ↓
 If A: Add tasks to plan.md, remove from pending-validations
 If B: Apply spec edits, remove from pending-validations

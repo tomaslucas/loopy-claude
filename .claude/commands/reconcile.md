@@ -86,6 +86,12 @@ Create a structured report:
 2. **{divergence title}**
    ...
 
+### Strategy Divergence (if applicable)
+If spec has "Selected Implementation Strategy" section:
+- **Strategy says:** {documented approach}
+- **Code implements:** {actual approach used}
+- **Type:** Strategy mismatch (not necessarily a bug)
+
 ### Analysis
 - Likely cause: {hypothesis}
 - Complexity to fix code: {low/medium/high}
@@ -122,6 +128,22 @@ How should we resolve this?
 
 **Option D: View detailed divergence report**
 - Description: "Show full analysis before deciding"
+
+### Additional Options (for Strategy Divergence)
+
+If a strategy divergence is detected ("Strategy says X, code does Y"):
+
+**Option E: Update code to match strategy**
+- Description: "Will generate tasks to refactor code to follow documented strategy."
+- Similar to Option A, but focused on approach alignment
+
+**Option F: Update strategy to match code**
+- Description: "Will update the 'Selected Implementation Strategy' section to reflect actual approach."
+- Include justification for why the actual approach was better
+
+**Option G: Document as intentional divergence**
+- Description: "Keep both as-is, add note explaining why divergence is acceptable."
+- Adds to spec Notes: "Implementation diverged from strategy: {reason}"
 
 ---
 

@@ -107,6 +107,46 @@ How to verify the feature works:
 
 ---
 
-## 8. Notes
+## 8. Selected Implementation Strategy
 
-{Additional context, trade-offs, decisions}
+> Strategy investigation performed during design/planning phase
+
+**Investigation date:** {DATE}
+
+### Pattern Analysis
+- Similar pattern found in: {path/to/file.ext or "none"}
+- Project convention: {description}
+
+### Libraries Evaluated
+- {library}: {use/don't use/already in use} - {reason}
+
+### Approaches Considered
+
+**Approach A: {name}**
+- Pros: {list}
+- Cons: {list}
+- Complexity: {low/medium/high}
+
+**Approach B: {name}**
+- Pros: {list}
+- Cons: {list}
+- Complexity: {low/medium/high}
+
+**Approach C: {name}** *(optional)*
+- Pros: {list}
+- Cons: {list}
+- Complexity: {low/medium/high}
+
+### Decision
+
+**Selected:** Approach {X}
+
+**Justification:** {why this approach is best for our context}
+
+**Accepted trade-offs:** {what we're consciously sacrificing}
+
+---
+
+## 9. Notes
+
+{Additional context, historical decisions}

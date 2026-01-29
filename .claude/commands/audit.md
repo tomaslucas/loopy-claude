@@ -115,6 +115,17 @@ Check for systemic issues:
    - Are symlinks valid (if used)?
    - Are permissions correct on scripts?
 
+4. **Missing strategy detection:**
+   - Check each ✅ spec for "Selected Implementation Strategy" section
+   ```bash
+   # For each implemented spec
+   for spec in $(grep -E "^\|.*\| ✅" specs/README.md | sed 's/.*\[\([^]]*\)\].*/\1/'); do
+     grep -q "Selected Implementation Strategy" "specs/$spec" || echo "Missing strategy: $spec"
+   done
+   ```
+   - Report as "Incomplete: missing implementation strategy"
+   - Severity: Low (documentation gap, not functional issue)
+
 ### Step 4: Generate Audit Report
 
 Create comprehensive report with this structure:

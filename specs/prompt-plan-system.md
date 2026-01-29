@@ -44,6 +44,8 @@ Phase 2: Read Selected Specs
     ↓ (only truly pending specs)
 Phase 3: Task Expansion
     ↓ (impact analysis via grep/search)
+Phase 3b: Strategy Investigation
+    ↓ (check/generate implementation strategies in specs)
 Phase 4: Strategic Analysis
     ↓ (<extended_thinking> with grouping)
 Phase 5: Generate Plan
