@@ -15,6 +15,8 @@ Understand reconciliation context:
 
 1. Read `pending-validations.md` completely (find escalations)
 2. Read `specs/README.md` (understand project scope)
+   - Note: Escalated specs are always in `specs/` (Active), never in `specs/archive/`
+   - Archived specs passed validation; escalations only occur for failed validations
 3. Check if escalations exist (exit early if none)
 
 ---
