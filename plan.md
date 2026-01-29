@@ -3,18 +3,6 @@
 Generated: 2026-01-29
 Specs analyzed: 1 (compound-architecture-system.md)
 
-## Phase 3: Telemetry Infrastructure
-
-- [ ] Update .gitignore for telemetry files
-      Done when:
-        - logs/session-events.jsonl is ignored
-        - hooks/ directory is NOT ignored (tracked code)
-      Verify:
-        - grep -q "session-events.jsonl" .gitignore
-        - ! grep -q "^hooks/" .gitignore
-      (cite: specs/compound-architecture-system.md Section 9 .gitignore Updates)
-      [Grouped: Related to telemetry, same context]
-
 ## Phase 4: VDD Rules in Plan Mode
 
 - [ ] Add VDD (Verification Driven Development) rules to plan.md
