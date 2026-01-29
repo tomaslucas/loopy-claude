@@ -25,4 +25,4 @@
 | 2026-01-29 20:32 | Add VDD (Verification Driven Development) rules to plan.md | 366a9cc | specs/compound-architecture-system.md |
 | 2026-01-29 20:34 | Add archival lifecycle to validate.md on PASS | 5bc9c8b | specs/compound-architecture-system.md |
 | 2026-01-29 20:36 | Refocus post-mortem.md to operational patterns only | f80d6d6 | specs/compound-architecture-system.md |
-| 2026-01-29 20:38 | Add archive awareness to audit.md and reconcile.md | eba2d0d | specs/compound-architecture-system.md |
+| 2026-01-29 20:38 | Add archive awareness to audit.md and reconcile.md | b162cda | specs/compound-architecture-system.md |
