@@ -3,21 +3,6 @@
 Generated: 2026-01-29
 Specs analyzed: 1 (compound-architecture-system.md)
 
-## Phase 4: VDD Rules in Plan Mode
-
-## Phase 6: Build Mode Commit Hash Fix
-
-- [ ] Fix done.md commit hash capture in build.md Step 6
-      Done when:
-        - Commit happens BEFORE done.md entry
-        - Commit hash captured via git rev-parse --short HEAD
-        - done.md entry uses actual hash (not "-")
-        - git commit --amend includes done.md
-      Verify:
-        - grep -q "rev-parse" .claude/commands/build.md
-        - grep -q "amend" .claude/commands/build.md
-      (cite: specs/compound-architecture-system.md Section 9 done.md Commit Hash Fix)
-
 ## Phase 7: Loop.sh Modifications (CAUTION)
 
 - [ ] Add conditional git push to loop.sh (Issue #13 fix)
