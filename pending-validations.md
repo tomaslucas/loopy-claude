@@ -1,3 +1,3 @@
 # Pending Validations
 
-<!-- Queue empty -->
+- [ ] specs/compound-architecture-system.md
