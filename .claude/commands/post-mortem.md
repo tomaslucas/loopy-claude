@@ -29,21 +29,34 @@ Read the entire log to understand what happened in the session.
 
 ### Step 2: Analyze for Errors and Inefficiencies
 
-Look for:
+**Scope: Operational Patterns ONLY**
 
-**Errors:**
-- Command execution failures
-- Rate limit hits
-- Permission issues
-- Syntax errors
-- Failed verifications
+**IGNORE** (handled by PIN/Archive):
+- Architectural decisions
+- Library choices
+- API design
+- Business logic
+- Feature design trade-offs
 
-**Inefficiencies:**
-- Re-reading the same file multiple times
-- Spawning unnecessary subagents when direct tool use would work
+**FOCUS ON:**
+- Failed bash commands (command not found, wrong syntax)
+- Recurring code syntax errors (agent-generated)
+- Tool misuse (grep on binary, wrong file paths)
+- VDD verification failures (why plan didn't anticipate)
+- Rate limits and timeouts
+- Subagent inefficiencies
+- Re-reading same files multiple times
 - Repeated failed commands (same command failing multiple times)
 - Excessive token usage patterns
 - Circular logic or repeated work
+
+**Log Format Awareness:**
+
+Session events may have mixed formats:
+- `format: "stream-json"` (Claude Code): Parse as JSON
+- `format: "text"` (Copilot): Analyze semantically
+
+When analyzing logs, be aware that different agents produce different output formats.
 
 ### Step 3: Extract Lessons
 
@@ -146,12 +159,18 @@ Not everything is a lesson. Skip:
 - One-off typos that won't repeat
 - External issues (API downtime, network problems)
 - Expected behavior (e.g., "verification failed" when code was wrong is normal)
+- Architectural decisions (documented in specs/archive/)
+- Library selection rationale (belongs in specs)
+- Product features or design choices (not operational)
 
 Extract lessons from:
 - Repeated mistakes (same error multiple times)
 - Systemic inefficiencies (tool misuse, workflow issues)
 - Violations of established guidelines
 - Missed opportunities for optimization
+- Command execution patterns that fail consistently
+
+**Output:** lessons-learned.md = "Execution Best Practices" guide, not product documentation.
 
 ### Semantic Pruning Example
 
