@@ -21,3 +21,4 @@
 | 2026-01-29 20:20 | Create new directories and remove obsolete prompts/ symlinks | 1fa30aa | specs/compound-architecture-system.md |
 | 2026-01-29 20:23 | Restructure specs/README.md with Active Specs and Archived Knowledge sections | a19943c | specs/compound-architecture-system.md |
 | 2026-01-29 20:29 | Create hooks/core/log-event.sh telemetry emitter | 5db1e79 | specs/compound-architecture-system.md |
+| 2026-01-29 20:30 | Update .gitignore for telemetry files | 908bb64 | specs/compound-architecture-system.md |
