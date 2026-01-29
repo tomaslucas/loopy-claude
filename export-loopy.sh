@@ -390,9 +390,16 @@ copy_files() {
 
         # Copy file or directory
         if [[ "$DRY_RUN" == true ]]; then
-            echo "[DRY RUN] Would copy: $file"
+            if [[ -d "$src_path" ]]; then
+                echo "[DRY RUN] Would copy directory: $file ($(find "$src_path" -type f | wc -l) files)"
+            else
+                echo "[DRY RUN] Would copy: $file"
+            fi
         else
             if [[ -d "$src_path" ]]; then
+                # For directories, use cp -rT to copy contents INTO dest (not create subdir)
+                # Or remove dest first if it exists to avoid nesting
+                rm -rf "$dest_path"
                 cp -r "$src_path" "$dest_path"
                 echo "✓ Copied directory: $file"
             else
