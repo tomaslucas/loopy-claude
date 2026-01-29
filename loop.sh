@@ -113,6 +113,35 @@ check_dependencies() {
     fi
 }
 
+# Push changes if any AND remote exists
+push_if_possible() {
+    # Check if remote exists
+    if ! git remote -v | grep -q .; then
+        log "No remote configured, skipping push"
+        return 0
+    fi
+    
+    # Check if there are changes to push
+    NEEDS_PUSH=false
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        NEEDS_PUSH=true
+    elif git rev-parse --verify "@{u}" >/dev/null 2>&1; then
+        AHEAD=$(git rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
+        [ "$AHEAD" -gt 0 ] && NEEDS_PUSH=true
+    else
+        LOCAL_COMMITS=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+        [ "$LOCAL_COMMITS" -gt 0 ] && NEEDS_PUSH=true
+    fi
+    
+    if [ "$NEEDS_PUSH" = true ]; then
+        log "Pushing changes..."
+        git push origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE" || \
+            git push -u origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE"
+    else
+        log "No changes to push"
+    fi
+}
+
 # Help function
 show_help() {
     cat << 'EOF'
@@ -525,27 +554,8 @@ if [ "$MODE" = "work" ]; then
             break
         fi
 
-        # Push changes if any (check both dirty working tree AND unpushed commits)
-        NEEDS_PUSH=false
-        if ! git diff --quiet || ! git diff --cached --quiet; then
-            NEEDS_PUSH=true
-        elif git rev-parse --verify "@{u}" >/dev/null 2>&1; then
-            # Has upstream: check if ahead
-            AHEAD=$(git rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
-            [ "$AHEAD" -gt 0 ] && NEEDS_PUSH=true
-        else
-            # No upstream: check if there are local commits
-            LOCAL_COMMITS=$(git rev-list --count HEAD 2>/dev/null || echo "0")
-            [ "$LOCAL_COMMITS" -gt 0 ] && NEEDS_PUSH=true
-        fi
-
-        if [ "$NEEDS_PUSH" = true ]; then
-            log "Pushing changes..."
-            git push origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE" || \
-                git push -u origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE"
-        else
-            log "No changes to push"
-        fi
+        # Push changes if any
+        push_if_possible
 
         ITERATION=$((ITERATION + 1))
         log ""
@@ -644,27 +654,8 @@ while true; do
         break
     fi
 
-    # Push changes if any (check both dirty working tree AND unpushed commits)
-    NEEDS_PUSH=false
-    if ! git diff --quiet || ! git diff --cached --quiet; then
-        NEEDS_PUSH=true
-    elif git rev-parse --verify "@{u}" >/dev/null 2>&1; then
-        # Has upstream: check if ahead
-        AHEAD=$(git rev-list --count "@{u}..HEAD" 2>/dev/null || echo "0")
-        [ "$AHEAD" -gt 0 ] && NEEDS_PUSH=true
-    else
-        # No upstream: check if there are local commits
-        LOCAL_COMMITS=$(git rev-list --count HEAD 2>/dev/null || echo "0")
-        [ "$LOCAL_COMMITS" -gt 0 ] && NEEDS_PUSH=true
-    fi
-
-    if [ "$NEEDS_PUSH" = true ]; then
-        log "Pushing changes..."
-        git push origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE" || \
-            git push -u origin "$CURRENT_BRANCH" 2>&1 | tee -a "$LOG_FILE"
-    else
-        log "No changes to push"
-    fi
+    # Push changes if any
+    push_if_possible
 
     ITERATION=$((ITERATION + 1))
     log ""
