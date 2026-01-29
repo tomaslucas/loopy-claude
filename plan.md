@@ -5,19 +5,6 @@ Specs analyzed: 1 (compound-architecture-system.md)
 
 ## Phase 4: VDD Rules in Plan Mode
 
-## Phase 5: Prompt Modifications (Lifecycle & Focus)
-
-- [ ] Add archive awareness to audit.md and reconcile.md
-      Done when:
-        - audit.md Phase 0 mentions specs/archive/
-        - audit.md includes archived specs in inventory
-        - reconcile.md notes escalated specs are never in archive
-      Verify:
-        - grep -q "specs/archive" .claude/commands/audit.md
-        - grep -q "archive" .claude/commands/reconcile.md
-      (cite: specs/compound-architecture-system.md Section 9 Audit/Reconcile Mode Interaction)
-      [Grouped: Both are minor archive-awareness updates, ~20 lines each]
-
 ## Phase 6: Build Mode Commit Hash Fix
 
 - [ ] Fix done.md commit hash capture in build.md Step 6
