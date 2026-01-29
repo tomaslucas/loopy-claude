@@ -533,7 +533,7 @@ Decision: {one-line summary}
 (cite: specs/archive/{spec-name}.md)"
 ```
 
-**Note:** This archival step is OPTIONAL but recommended for mature specs. If uncertain whether to archive (e.g., spec might need frequent updates), leave it in `specs/` directory.
+**MANDATORY:** Execute this archival step for ALL validated specs. Specs marked ✅ MUST be archived with their decision summary.
 
 ### Step 9: Git Commit and Push
 
