@@ -481,9 +481,63 @@ Current Status: 5 implemented, 0 in progress, 2 planned
 
 **If divergences found or escalation:** Do NOT update README (status stays as-is).
 
+### Step 8b: Archival Process (On Validation PASS)
+
+**Only when validation PASSED and spec is fully implemented:**
+
+After confirming spec is fully implemented, archive it to reduce context load on future agents.
+
+#### 1. Extract Decision Summary
+
+Read the spec's "Selected Implementation Strategy" section (Section 8) or key architectural decisions.
+
+Formulate a one-line summary:
+```
+{Feature}: {Key trade-off or decision}
+```
+
+**Examples:**
+- `Auth System: JWT Stateless for horizontal scaling`
+- `Loop Orchestrator: Bash simplicity over Python flexibility`
+- `Export System: Preset configurations for predictable UX`
+
+#### 2. Update PIN (specs/README.md)
+
+- Remove entry from "Active Specs" table
+- Add entry to "Archived Knowledge" table with decision summary
+
+**Example addition to Archived Knowledge table:**
+
+```markdown
+| Feature | Decision/Trade-off | Archived |
+|---------|-------------------|----------|
+| Export System | Preset configurations for predictable UX | [specs/archive/export-loopy-system.md](archive/export-loopy-system.md) |
+```
+
+#### 3. Archive Spec File
+
+Move the validated spec to the archive directory:
+
+```bash
+mv specs/{spec-name}.md specs/archive/
+```
+
+#### 4. Commit with Citation
+
+```bash
+git add specs/README.md specs/archive/{spec-name}.md
+git commit -m "Archive: {spec-name} validated
+
+Decision: {one-line summary}
+
+(cite: specs/archive/{spec-name}.md)"
+```
+
+**Note:** This archival step is OPTIONAL but recommended for mature specs. If uncertain whether to archive (e.g., spec might need frequent updates), leave it in `specs/` directory.
+
 ### Step 9: Git Commit and Push
 
-**After updating files (pending-validations.md, specs/README.md):**
+**After updating files (pending-validations.md, specs/README.md, and optionally archiving):**
 
 ```bash
 git add pending-validations.md specs/README.md

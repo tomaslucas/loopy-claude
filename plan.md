@@ -7,18 +7,6 @@ Specs analyzed: 1 (compound-architecture-system.md)
 
 ## Phase 5: Prompt Modifications (Lifecycle & Focus)
 
-- [ ] Add archival lifecycle to validate.md on PASS
-      Done when:
-        - "On Validation PASS" section exists with archival steps
-        - Extract Decision Summary step documented
-        - Update PIN step documented (Active → Archived)
-        - mv specs/{name}.md specs/archive/ command included
-      Verify:
-        - grep -q "Archival Process" .claude/commands/validate.md
-        - grep -q "mv specs/" .claude/commands/validate.md
-        - grep -q "Archived Knowledge" .claude/commands/validate.md
-      (cite: specs/compound-architecture-system.md Section 3.3)
-
 - [ ] Refocus post-mortem.md to operational patterns only
       Done when:
         - "Operational Patterns ONLY" section exists

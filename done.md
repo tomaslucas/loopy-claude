@@ -23,3 +23,4 @@
 | 2026-01-29 20:29 | Create hooks/core/log-event.sh telemetry emitter | 5db1e79 | specs/compound-architecture-system.md |
 | 2026-01-29 20:30 | Update .gitignore for telemetry files | 908bb64 | specs/compound-architecture-system.md |
 | 2026-01-29 20:32 | Add VDD (Verification Driven Development) rules to plan.md | 366a9cc | specs/compound-architecture-system.md |
+| 2026-01-29 20:34 | Add archival lifecycle to validate.md on PASS | 5bc9c8b | specs/compound-architecture-system.md |
