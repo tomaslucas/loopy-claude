@@ -20,3 +20,4 @@
 | 2026-01-28 12:45 | Update related specs to document strategy-investigation integration | - | specs/strategy-investigation-system.md |
 | 2026-01-29 20:20 | Create new directories and remove obsolete prompts/ symlinks | 1fa30aa | specs/compound-architecture-system.md |
 | 2026-01-29 20:23 | Restructure specs/README.md with Active Specs and Archived Knowledge sections | a19943c | specs/compound-architecture-system.md |
+| 2026-01-29 20:29 | Create hooks/core/log-event.sh telemetry emitter | 5db1e79 | specs/compound-architecture-system.md |
