@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "deny": [
+      "bash(git push --force:*)",
+      "bash(git push -f:*)",
+      "bash(rm -rf:*)",
+      "bash(rm -fr:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/hooks/core/pre-tool-use.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/hooks/core/log-event.sh post-tool \"$?\" || true"
+          }
+        ]
+      }
+    ]
+  }
+}
