@@ -1,3 +1,3 @@
 # Pending Validations
 
-- [ ] specs/strategy-investigation-system.md
+<!-- Queue empty -->

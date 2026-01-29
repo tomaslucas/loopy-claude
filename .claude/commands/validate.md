@@ -481,7 +481,24 @@ Current Status: 5 implemented, 0 in progress, 2 planned
 
 **If divergences found or escalation:** Do NOT update README (status stays as-is).
 
-### Step 9: Output Completion Signal
+### Step 9: Git Commit and Push
+
+**After updating files (pending-validations.md, specs/README.md):**
+
+```bash
+git add pending-validations.md specs/README.md
+git commit -m "validate: {spec_name} - {PASS|CORRECTIONS_NEEDED|ESCALATE}"
+git push
+```
+
+**Commit message examples:**
+- `validate: strategy-investigation-system - PASS`
+- `validate: auth-system - CORRECTIONS_NEEDED (2 divergences)`
+- `validate: user-system - ESCALATE (attempt 3/3)`
+
+**If corrections created:** Also add plan.md to the commit.
+
+### Step 10: Output Completion Signal
 
 Output the appropriate signal:
 
