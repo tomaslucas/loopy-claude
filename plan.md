@@ -5,16 +5,6 @@ Specs analyzed: 1 (compound-architecture-system.md)
 
 ## Phase 7: Loop.sh Modifications (CAUTION)
 
-- [ ] Add conditional git push to loop.sh (Issue #13 fix)
-      Done when:
-        - Function checks if remote exists before pushing
-        - Graceful handling when no remote configured
-        - Warning message when push skipped
-      Verify:
-        - grep -q "No remote configured\|remote.*origin" loop.sh
-        - bash -n loop.sh
-      (cite: specs/compound-architecture-system.md Section 3.6)
-
 - [ ] Add telemetry integration to loop.sh
       Done when:
         - Calls hooks/core/log-event.sh at mode start/end
