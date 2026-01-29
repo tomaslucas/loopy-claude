@@ -21,14 +21,4 @@ Specs analyzed: 1 (compound-architecture-system.md)
 
 ## Validation Corrections
 
-- [ ] Fix: Implement security hook hooks/core/pre-tool-use.sh
-      Done when: Script exists, blocks rm -rf, git push --force, and .env access (except .env.example/.env.sample)
-      Verify: test -f hooks/core/pre-tool-use.sh && grep -q "rm.*-rf" hooks/core/pre-tool-use.sh && grep -q "git push.*force" hooks/core/pre-tool-use.sh
-      (cite: specs/compound-architecture-system.md section 3.6)
-      [Validation correction - attempt 1]
-
-- [ ] Fix: Create .claude/settings.json with hooks configuration and deny permissions
-      Done when: File exists with PreToolUse/PostToolUse hooks configured, deny patterns for dangerous commands
-      Verify: test -f .claude/settings.json && jq '.hooks.PreToolUse' .claude/settings.json && jq '.permissions.deny' .claude/settings.json
-      (cite: specs/compound-architecture-system.md section 3.6)
-      [Validation correction - attempt 1]
+All validation corrections completed.
