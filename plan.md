@@ -5,18 +5,6 @@ Specs analyzed: 1 (compound-architecture-system.md)
 
 ## Phase 3: Telemetry Infrastructure
 
-- [ ] Create hooks/core/log-event.sh telemetry emitter
-      Done when:
-        - Script exists and is executable
-        - Accepts parameters: agent, model, mode, format, event, status, attempt, details
-        - Appends JSONL to logs/session-events.jsonl
-        - Works with or without jq (graceful fallback)
-      Verify:
-        - test -x hooks/core/log-event.sh
-        - bash -n hooks/core/log-event.sh
-        - ./hooks/core/log-event.sh claude opus build stream-json test_event 0 1 '{}' && test -f logs/session-events.jsonl
-      (cite: specs/compound-architecture-system.md Section 3.5)
-
 - [ ] Update .gitignore for telemetry files
       Done when:
         - logs/session-events.jsonl is ignored
