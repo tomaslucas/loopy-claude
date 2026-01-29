@@ -3,23 +3,6 @@
 Generated: 2026-01-29
 Specs analyzed: 1 (compound-architecture-system.md)
 
-## Phase 1: Directory Structure & Cleanup
-
-- [ ] Create new directories and remove obsolete prompts/ symlinks
-      Done when:
-        - specs/archive/.gitkeep exists
-        - tests/unit/.gitkeep exists
-        - tests/e2e/.gitkeep exists
-        - hooks/core/.gitkeep exists
-        - hooks/adapters/.gitkeep exists
-        - prompts/ directory is removed (all symlinks deleted)
-      Verify:
-        - test -d specs/archive && test -d tests/unit && test -d tests/e2e
-        - test -d hooks/core && test -d hooks/adapters
-        - test ! -d prompts
-      (cite: specs/compound-architecture-system.md Section 2, Section 7 Phase 1)
-      [Grouped: All directory operations, ~50 lines context]
-
 ## Phase 2: PIN Restructure
 
 - [ ] Restructure specs/README.md with Active Specs and Archived Knowledge sections
