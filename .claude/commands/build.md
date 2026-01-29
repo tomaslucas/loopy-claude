@@ -227,9 +227,24 @@ You have full context. Fix it now:
    - If tests fail: debug and fix until passing
    - Don't mark complete with failing tests
 
-2. **Record completion in done.md**:
+2. **Commit changes (without done.md first)**:
+   ```bash
+   git add plan.md {affected files}
+   git commit -m "Task: {brief description}
+
+   {what was done}
+
+   (cite: specs/{spec-name}.md)"
+   ```
+
+3. **Record completion in done.md with commit hash**:
 
    Extract task title (first line of task description from plan.md).
+
+   Capture commit hash:
+   ```bash
+   HASH=$(git rev-parse --short HEAD)
+   ```
 
    If done.md doesn't exist, create it with header:
    ```markdown
@@ -241,35 +256,31 @@ You have full context. Fix it now:
    |------|------|--------|------|
    ```
 
-   Append entry to done.md:
+   Append entry to done.md with actual hash:
    ```markdown
-   | {YYYY-MM-DD HH:MM} | {task-title} | - | {spec-path} |
+   | {YYYY-MM-DD HH:MM} | {task-title} | $HASH | {spec-path} |
    ```
 
    Notes:
    - Use current timestamp in YYYY-MM-DD HH:MM format
    - Extract task title from first line of task description
-   - Use `-` for commit column (means "see git log at this timestamp")
+   - Use actual commit hash (not `-`)
    - Extract spec path from task citations
    - This is append-only: never edit or truncate existing entries
 
-3. **Commit changes**:
+4. **Amend commit to include done.md**:
    ```bash
-   git add plan.md done.md {affected files}
-   git commit -m "Task: {brief description}
-
-   {what was done}
-
-   (cite: specs/{spec-name}.md)"
+   git add done.md
+   git commit --amend --no-edit
    git push
    ```
 
-4. **DELETE completed task from plan.md**:
+5. **DELETE completed task from plan.md**:
    - Remove the entire task block (description, Done when, Verify, citations)
    - This keeps plan.md clean (only pending work visible)
    - History preserved in git
 
-5. **Output completion signal**:
+6. **Output completion signal**:
    ```
    <promise>TASK_COMPLETE</promise>
    ```
