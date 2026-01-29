@@ -18,3 +18,4 @@
 | 2026-01-28 12:35 | Add lightweight strategy to /bug for non-trivial fixes | - | specs/strategy-investigation-system.md |
 | 2026-01-28 12:40 | Add strategy divergence handling to /reconcile | - | specs/strategy-investigation-system.md |
 | 2026-01-28 12:45 | Update related specs to document strategy-investigation integration | - | specs/strategy-investigation-system.md |
+| 2026-01-29 20:20 | Create new directories and remove obsolete prompts/ symlinks | 1fa30aa | specs/compound-architecture-system.md |
