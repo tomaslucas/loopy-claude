@@ -5,18 +5,6 @@ Specs analyzed: 1 (compound-architecture-system.md)
 
 ## Phase 4: VDD Rules in Plan Mode
 
-- [ ] Add VDD (Verification Driven Development) rules to plan.md
-      Done when:
-        - VDD section exists with trigger conditions
-        - E2E verification script requirement documented
-        - tests/e2e/{feature}-verify.sh pattern specified
-        - specs/archive/ exclusion rule added
-      Verify:
-        - grep -q "VDD" .claude/commands/plan.md
-        - grep -q "tests/e2e" .claude/commands/plan.md
-        - grep -q "specs/archive" .claude/commands/plan.md
-      (cite: specs/compound-architecture-system.md Section 3.2)
-
 ## Phase 5: Prompt Modifications (Lifecycle & Focus)
 
 - [ ] Add archival lifecycle to validate.md on PASS
