@@ -3,21 +3,6 @@
 Generated: 2026-01-29
 Specs analyzed: 1 (compound-architecture-system.md)
 
-## Phase 7: Loop.sh Modifications (CAUTION)
-
-- [ ] Add telemetry integration to loop.sh
-      Done when:
-        - Calls hooks/core/log-event.sh at mode start/end
-        - Passes agent, model, mode, format parameters
-        - Graceful if hook doesn't exist (|| true pattern)
-      Verify:
-        - grep -q "log-event.sh" loop.sh
-        - bash -n loop.sh
-      (cite: specs/compound-architecture-system.md Section 3.5)
-      [Grouped: Both loop.sh changes, should be done together to minimize risk]
-
----
-
 ## Context Budget Summary
 
 | Phase | Estimated Context | Files Touched |
