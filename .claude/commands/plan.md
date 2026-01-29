@@ -228,6 +228,38 @@ Add section to spec:
 
 ---
 
+## Phase 3c: VDD (Verification Driven Development)
+
+**Trigger:** Any task involving infrastructure, CLI tools, containers, databases, or system operations.
+
+### Mandatory First Task
+
+When generating tasks for such specs, the FIRST task MUST be:
+
+```markdown
+- [ ] Create E2E verification script (file: `tests/e2e/{feature}-verify.sh`)
+      Done when: Script exists and FAILS until feature is properly implemented
+      Verify: bash tests/e2e/{feature}-verify.sh returns non-zero
+      (cite: specs/{feature}-system.md)
+```
+
+**Rationale:** The verification script becomes a contract. Code is not complete until the script passes.
+
+**Examples of VDD scripts:**
+- Docker: Script that starts container, runs health check, stops container
+- CLI: Script that runs commands and validates output patterns
+- Database: Script that connects, runs migrations, queries data
+
+### Archive Exclusion
+
+When reading specs, **DO NOT read files in `specs/archive/`**:
+- Archived specs are already validated and frozen
+- They are summarized in the "Archived Knowledge" section of `specs/README.md`
+- Read the decision summary in README instead of the full archived spec
+- Only read files in `specs/*.md` (active specs)
+
+---
+
 ## Phase 4: Strategic Analysis <extended_thinking>
 
 **Use <extended_thinking> for deep reasoning before generating plan.**
