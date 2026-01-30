@@ -550,6 +550,37 @@ EOF
         fi
     fi
 
+    # Create .github/hooks/hooks.json for Copilot
+    if [[ "$DRY_RUN" == true ]]; then
+        echo "[DRY RUN] Would create .github/hooks/hooks.json"
+    else
+        mkdir -p "$dest/.github/hooks"
+        cat > "$dest/.github/hooks/hooks.json" <<'EOF'
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "./hooks/adapters/copilot-adapter.sh preToolUse",
+        "cwd": ".",
+        "timeoutSec": 30
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "bash": "./hooks/adapters/copilot-adapter.sh postToolUse",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}
+EOF
+        echo "✓ Created .github/hooks/hooks.json"
+    fi
+
     # Create specs/README.md
     if [[ "$DRY_RUN" == true ]]; then
         echo "[DRY RUN] Would create specs/README.md"

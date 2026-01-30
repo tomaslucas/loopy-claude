@@ -16,7 +16,6 @@
 
 | Spec | Code | Purpose |
 |------|------|---------|
-| *(none - all specs validated and archived)* | | |
 
 ---
 
@@ -26,6 +25,7 @@ Validated and frozen specs. **Do NOT read these files** — use the decision sum
 
 | Feature | Decision/Trade-off | Archived |
 |---------|-------------------|----------|
+| Copilot Hooks | Universal adapter for format translation; reuses Claude security hooks | [copilot-hooks-system.md](archive/copilot-hooks-system.md) |
 | Loop Orchestrator | Bash simplicity (~150 lines) over Python flexibility; 5 stop conditions | [loop-orchestrator-system.md](archive/loop-orchestrator-system.md) |
 | CLI Agnostic | External JSON config for multi-agent support; no auto-fallback between agents | [cli-agnostic-system.md](archive/cli-agnostic-system.md) |
 | Plan System | 5-phase workflow; specs describe WHAT, plan describes HOW; git log > README for truth | [prompt-plan-system.md](archive/prompt-plan-system.md) |
@@ -158,5 +158,5 @@ These are documented in specs but highlighted here for agent awareness:
 
 ---
 
-**Last Updated:** 2026-01-29 (archived all validated specs)
+**Last Updated:** 2026-01-30 (added copilot-hooks-system spec)
 **Project:** loopy-claude

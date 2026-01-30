@@ -429,7 +429,14 @@ Trigger phrases:
 4. Evaluate project documentation updates:
    - Review documentation that may be affected by the new feature
    - If updates needed → add to spec's "Files to modify" section
-5. Confirm completion to user
+5. Commit specs:
+   ```bash
+   git add specs/{spec-name}.md specs/README.md
+   git commit -m "Spec: {spec-name} - {one-line summary}
+   
+   (cite: specs/{spec-name}.md)"
+   ```
+6. Confirm completion to user
 
 **Section 8 Format (in generated specs):**
 
