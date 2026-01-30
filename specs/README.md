@@ -16,7 +16,7 @@
 
 | Spec | Code | Purpose |
 |------|------|---------|
-| [copilot-hooks-system.md](copilot-hooks-system.md) | | Adapter enabling Copilot to reuse Claude Code security hooks |
+| [copilot-hooks-system.md](copilot-hooks-system.md) | ⏳ | Adapter enabling Copilot to reuse Claude Code security hooks |
 
 ---
 
