@@ -16,7 +16,7 @@
 
 | Spec | Code | Purpose |
 |------|------|---------|
-| *(none - all specs validated and archived)* | | |
+| [copilot-hooks-system.md](copilot-hooks-system.md) | | Adapter enabling Copilot to reuse Claude Code security hooks |
 
 ---
 
@@ -158,5 +158,5 @@ These are documented in specs but highlighted here for agent awareness:
 
 ---
 
-**Last Updated:** 2026-01-29 (archived all validated specs)
+**Last Updated:** 2026-01-30 (added copilot-hooks-system spec)
 **Project:** loopy-claude
