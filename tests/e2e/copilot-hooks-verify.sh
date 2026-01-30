@@ -30,11 +30,11 @@ assert_success() {
     
     if eval "$cmd" >/dev/null 2>&1; then
         echo -e "${GREEN}✓${NC} $description"
-        ((PASS_COUNT++))
+        PASS_COUNT=$((PASS_COUNT + 1))
         return 0
     else
         echo -e "${RED}✗${NC} $description"
-        ((FAIL_COUNT++))
+        FAIL_COUNT=$((FAIL_COUNT + 1))
         return 1
     fi
 }
@@ -45,11 +45,11 @@ assert_fail() {
     
     if eval "$cmd" >/dev/null 2>&1; then
         echo -e "${RED}✗${NC} $description (expected to fail but passed)"
-        ((FAIL_COUNT++))
+        FAIL_COUNT=$((FAIL_COUNT + 1))
         return 1
     else
         echo -e "${GREEN}✓${NC} $description"
-        ((PASS_COUNT++))
+        PASS_COUNT=$((PASS_COUNT + 1))
         return 0
     fi
 }
@@ -64,13 +64,13 @@ assert_output_contains() {
     
     if echo "$output" | grep -q "$pattern"; then
         echo -e "${GREEN}✓${NC} $description"
-        ((PASS_COUNT++))
+        PASS_COUNT=$((PASS_COUNT + 1))
         return 0
     else
         echo -e "${RED}✗${NC} $description"
         echo "  Expected pattern: $pattern"
         echo "  Got: $output"
-        ((FAIL_COUNT++))
+        FAIL_COUNT=$((FAIL_COUNT + 1))
         return 1
     fi
 }
@@ -115,11 +115,11 @@ SAFE_INPUT='{"timestamp":1704614600000,"cwd":"/tmp","toolName":"bash","toolArgs"
 OUTPUT=$(echo "$SAFE_INPUT" | "$ADAPTER" preToolUse 2>&1 || true)
 if [[ -z "$OUTPUT" ]] || ! echo "$OUTPUT" | grep -q '"permissionDecision"\s*:\s*"deny"'; then
     echo -e "${GREEN}✓${NC} Safe command produces no deny output"
-    ((PASS_COUNT++))
+    PASS_COUNT=$((PASS_COUNT + 1))
 else
     echo -e "${RED}✗${NC} Safe command incorrectly blocked"
     echo "  Output: $OUTPUT"
-    ((FAIL_COUNT++))
+    FAIL_COUNT=$((FAIL_COUNT + 1))
 fi
 assert_success "echo '$SAFE_INPUT' | '$ADAPTER' preToolUse >/dev/null 2>&1; [ \$? -eq 0 ]" "Exits with code 0"
 
@@ -155,24 +155,24 @@ if [[ -f "$LOG_FILE" ]]; then
     AFTER_LINES=$(wc -l < "$LOG_FILE" || echo "0")
     if [[ $AFTER_LINES -gt $BEFORE_LINES ]]; then
         echo -e "${GREEN}✓${NC} Log entry was written"
-        ((PASS_COUNT++))
+        PASS_COUNT=$((PASS_COUNT + 1))
         
         # Check log contains copilot agent
         if tail -1 "$LOG_FILE" | grep -q '"agent"\s*:\s*"copilot"'; then
             echo -e "${GREEN}✓${NC} Log contains agent=copilot"
-            ((PASS_COUNT++))
+            PASS_COUNT=$((PASS_COUNT + 1))
         else
             echo -e "${RED}✗${NC} Log missing agent=copilot"
             echo "  Last line: $(tail -1 "$LOG_FILE")"
-            ((FAIL_COUNT++))
+            FAIL_COUNT=$((FAIL_COUNT + 1))
         fi
     else
         echo -e "${RED}✗${NC} No new log entry written"
-        ((FAIL_COUNT++))
+        FAIL_COUNT=$((FAIL_COUNT + 1))
     fi
 else
     echo -e "${RED}✗${NC} Log file not created"
-    ((FAIL_COUNT++))
+    FAIL_COUNT=$((FAIL_COUNT + 1))
 fi
 
 # Test 7: Invalid hook type error

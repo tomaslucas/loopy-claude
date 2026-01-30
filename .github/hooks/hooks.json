@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "./hooks/adapters/copilot-adapter.sh preToolUse",
+        "cwd": ".",
+        "timeoutSec": 30
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "bash": "./hooks/adapters/copilot-adapter.sh postToolUse",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}
