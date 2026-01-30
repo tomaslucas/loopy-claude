@@ -260,6 +260,47 @@ When reading specs, **DO NOT read files in `specs/archive/`**:
 
 ---
 
+## Phase 3d: Documentation Tasks
+
+**MANDATORY:** Check each spec for documentation requirements and generate explicit tasks.
+
+### Detection
+
+For each INCLUDED_SPEC, search for documentation mentions:
+
+```bash
+# Check for documentation sections in spec
+grep -E "Documentation to update|README|docs/" specs/spec-name.md
+```
+
+### Common documentation targets:
+
+| Target | Trigger | Task to Generate |
+|--------|---------|------------------|
+| `README.md` | Spec mentions new features, directory structure, or workflow changes | Update README.md with {specific section} |
+| `export-loopy.sh` | New directories or components added | Update PRESET_FULL and templates |
+| `specs/README.md` | Already handled by PIN updates | (no extra task needed) |
+
+### Task generation rule:
+
+If spec explicitly mentions "Documentation to update" or similar:
+- Generate ONE task per documentation target
+- Task must be specific: "Update README.md section X to document Y"
+- Include verification: `grep -q "expected_content" README.md`
+
+**Example task:**
+
+```markdown
+- [ ] Update README.md with new directory structure
+      Done when: README File Structure section includes hooks/, tests/, specs/archive/
+      Verify: grep -q "hooks/" README.md && grep -q "tests/e2e" README.md
+      (cite: specs/{spec-name}.md - Documentation section)
+```
+
+**Rationale:** Documentation drift is a systematic problem. Explicit tasks ensure docs stay synchronized with implementation.
+
+---
+
 ## Phase 4: Strategic Analysis <extended_thinking>
 
 **Use <extended_thinking> for deep reasoning before generating plan.**

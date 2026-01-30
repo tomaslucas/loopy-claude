@@ -66,28 +66,33 @@ Design (optional)
 specs/*.md created (📋 Planned)
     ↓
 ./loop.sh plan
-    ↓ reads specs, analyzes gaps, creates tasks
+    ↓ reads specs from specs/ (ignores specs/archive/)
+    ↓ analyzes gaps, creates tasks (including VDD scripts for infrastructure)
     ↓ updates specs/README.md (📋→⏳)
 plan.md generated
     ↓
 ./loop.sh build
     ↓ executes tasks, verifies, commits
     ↓ adds completed specs to pending-validations.md
+    ↓ logs telemetry to logs/session-events.jsonl
 Code implemented
     ↓
 ./loop.sh validate
     ↓ compares implementation vs spec
     ↓ if divergences → creates corrective tasks in plan.md
-    ↓ if passes → updates specs/README.md (⏳→✅)
+    ↓ if PASS → archives spec:
+    │   1. Extracts Decision/Trade-off summary
+    │   2. Moves spec to specs/archive/
+    │   3. Updates PIN with Archived Knowledge entry
     ↓
-    ├─→ PASS: spec validated, removed from pending-validations
+    ├─→ PASS: spec archived, decision preserved in PIN
     │
     └─→ FAIL: back to plan → build → validate (max 3 attempts)
 
 After plan/build/validate/reverse/work completes:
     ↓ auto-trigger
 ./loop.sh post-mortem 1
-    ↓ analyzes session logs
+    ↓ analyzes session logs (operational patterns only)
     ↓ extracts errors and inefficiencies
     ↓ updates lessons-learned.md
     ↓
@@ -136,7 +141,17 @@ lessons-learned.md (persistent knowledge for future sessions)
 **6. Specs** (`specs/`)
 - Immutable design documents (WHAT to build)
 - No implementation checklists (plan generator creates tasks)
-- PIN (`specs/README.md`) for quick lookup
+- PIN (`specs/README.md`) as Decision Map with Active/Archived sections
+- `specs/archive/` for validated frozen specs (plan ignores these)
+
+**7. Hooks** (`hooks/`)
+- `hooks/core/log-event.sh` - Structured telemetry emitter (JSON events)
+- `hooks/core/pre-tool-use.sh` - Security hooks (blocks dangerous commands)
+- Agent-agnostic design; adapters in `hooks/adapters/` (future)
+
+**8. Tests** (`tests/`)
+- `tests/unit/` - Pure logic tests
+- `tests/e2e/` - VDD (Verification Driven Development) scripts for infrastructure
 
 ---
 
@@ -291,6 +306,41 @@ Plan generator checks git history first to avoid regenerating already-done work.
 
 No task marked complete with failing verification.
 
+### PIN (Project Intelligence Network)
+
+The `specs/README.md` serves as a **Decision Map** with two sections:
+
+| Section | Location | Purpose |
+|---------|----------|---------|
+| **Active Specs** | `specs/*.md` | Specs in progress; plan reads these in detail |
+| **Archived Knowledge** | `specs/archive/*.md` | Validated frozen specs; plan trusts summaries only |
+
+**Each archived entry includes a Decision/Trade-off summary** (e.g., "JWT Stateless for horizontal scaling"). This allows agents to understand architectural decisions without reading full specs.
+
+**To evolve an archived spec:** Move it back to `specs/` — this explicit action signals intent.
+
+### VDD (Verification Driven Development)
+
+For infrastructure, CLI, containers, or database tasks:
+
+1. **First task is always:** Create E2E verification script in `tests/e2e/`
+2. Script must **FAIL** until feature is properly implemented
+3. Code is not complete until the script **PASSES**
+
+This ensures infrastructure code works in reality, not just in theory.
+
+### Telemetry & Hooks
+
+**Structured telemetry** via `hooks/core/log-event.sh`:
+- JSON events appended to `logs/session-events.jsonl`
+- Captures: agent, model, mode, event, status, attempt, duration
+- Enables empirical analysis of agent behavior
+
+**Security hooks** via `hooks/core/pre-tool-use.sh`:
+- Blocks `rm -rf` and force variations
+- Blocks `git push --force`
+- Blocks direct `.env` file access (except `.env.example`)
+
 ---
 
 ## Architecture
@@ -307,10 +357,10 @@ No task marked complete with failing verification.
 - History in git (where it belongs)
 - Stop condition trivial
 
-**3. Simple YAML frontmatter**
-- Commands have minimal frontmatter (name, description)
-- Filtered by loop.sh before execution
-- Easy to debug
+**3. Archive validated specs**
+- Active specs in `specs/` (always read by plan)
+- Archived specs in `specs/archive/` (never read, trust PIN summary)
+- Decision/Trade-off preserved in PIN for context
 
 **4. No AGENTS.md dependency**
 - Prompts are self-contained
@@ -321,6 +371,16 @@ No task marked complete with failing verification.
 - Git log is technical truth
 - README is human lookup
 - No CHANGELOG in plan mode (simpler)
+
+**6. Human ON the loop (not IN the loop)**
+- Design phase: human actively participates (Feature Designer)
+- Plan phase: human reviews strategy BEFORE build starts
+- Build/Validate: autonomous, no intervention unless escalation
+- Strategy documented in specs for permanent reference
+
+**7. Conditional git push**
+- Repos without remote configured don't fail on push
+- Local-only repos work seamlessly
 
 ### Stop Conditions
 
@@ -351,43 +411,48 @@ Override: `./loop.sh <mode> <max> --model <model>`
 
 ```
 loopy-claude/
-├── loop.sh                  # Main orchestrator (~470 lines)
+├── loop.sh                  # Main orchestrator (~500 lines)
 ├── analyze-session.sh       # Session analyzer
 ├── export-loopy.sh          # Component export script
+├── loopy.config.json        # Agent configurations
 ├── .claude/
-│   ├── commands/            # Command prompts (main location)
-│   │   ├── plan.md         # 5-phase plan generator
+│   ├── commands/            # Command prompts
+│   │   ├── plan.md         # 5-phase plan generator (VDD, archive exclusion)
 │   │   ├── build.md        # Verification workflow
-│   │   ├── validate.md     # Post-implementation validator
+│   │   ├── validate.md     # Post-implementation validator + archival
 │   │   ├── reverse.md      # Legacy analyzer
 │   │   ├── audit.md        # Repository audit (READ-ONLY)
 │   │   ├── prime.md        # Repository orientation
 │   │   ├── bug.md          # Bug analysis and task creation
-│   │   └── post-mortem.md  # Autonomous learning from logs
+│   │   ├── post-mortem.md  # Operational learning from logs
+│   │   └── reconcile.md    # Post-escalation human decision workflow
 │   ├── agents/             # Reusable validation agents
 │   │   ├── spec-checker.md    # Mechanical checklist verification
 │   │   └── spec-inferencer.md # Semantic behavior inference
-│   └── skills/
-│       └── feature-designer/  # Interactive spec creator
-├── prompts/                 # Backward compatibility symlinks to .claude/commands/
-│   ├── plan.md → ../.claude/commands/plan.md
-│   ├── build.md → ../.claude/commands/build.md
-│   ├── validate.md → ../.claude/commands/validate.md
-│   ├── reverse.md → ../.claude/commands/reverse.md
-│   ├── audit.md → ../.claude/commands/audit.md
-│   ├── prime.md → ../.claude/commands/prime.md
-│   ├── bug.md → ../.claude/commands/bug.md
-│   └── post-mortem.md → ../.claude/commands/post-mortem.md
-├── pending-validations.md  # Queue of specs awaiting validation
-├── lessons-learned.md      # Persistent knowledge (auto-created on first use)
+│   ├── skills/
+│   │   └── feature-designer/  # Interactive spec creator
+│   └── settings.json        # Claude Code hooks configuration
+├── hooks/
+│   ├── core/               # Agent-agnostic scripts
+│   │   ├── log-event.sh    # JSON telemetry emitter
+│   │   └── pre-tool-use.sh # Security hooks (blocks rm -rf, force push, .env)
+│   └── adapters/           # Agent-specific wrappers (future)
+├── tests/
+│   ├── unit/               # Pure logic tests
+│   └── e2e/                # VDD verification scripts
 ├── specs/
-│   ├── README.md           # PIN (lookup table)
-│   └── *.md                # Specifications
+│   ├── README.md           # PIN (Decision Map: Active + Archived Knowledge)
+│   ├── *.md                # Active specs (plan reads these)
+│   └── archive/            # Validated frozen specs (plan ignores these)
 ├── audits/                 # Audit reports (auto-committed)
 │   └── audit-*.md          # Timestamped audit reports
-├── plan.md                 # Generated plan (mutable)
-├── loopy.config.json       # Agent configurations
 ├── logs/                   # Session logs (gitignored)
+│   ├── log-*.txt           # Text logs per session
+│   └── session-events.jsonl # Structured telemetry (JSON events)
+├── pending-validations.md  # Queue of specs awaiting validation
+├── lessons-learned.md      # Persistent operational knowledge
+├── done.md                 # Completion history (append-only)
+├── plan.md                 # Generated plan (mutable)
 └── README.md               # This file
 ```
 
@@ -559,7 +624,7 @@ tail -100 logs/log-build-<timestamp>.txt
 
 > "Simple is better than clever. Direct is better than abstracted. Debuggable is better than magical."
 
-- Loop is ~470 lines bash (includes multi-agent support, work mode, configuration system)
+- Loop is ~700 lines bash (includes multi-agent support, work mode, telemetry, conditional push)
 - Prompts are plain markdown with YAML frontmatter
 - No hidden complexity, no magic
 
@@ -634,7 +699,7 @@ To use loopy-claude safely:
 2. **Review Generated Code**: Always review before committing or deploying
 3. **Test in Isolation**: Use development environments first
 4. **Keep Dependencies Updated**: Regularly update Anthropic SDK
-5. **Review Session Logs**: Check logs in `.claude/sessions/` for unexpected behavior
+5. **Review Session Logs**: Check logs in `logs/` for unexpected behavior
 
 ### What We Don't Do
 
@@ -642,7 +707,7 @@ Intentionally absent for simplicity:
 - Automatic dependency updates
 - Complex CI/CD pipelines
 - Binary distribution or auto-update mechanisms
-- Telemetry or analytics
+- External telemetry or analytics (local telemetry is for debugging only)
 - Built-in credential storage
 
 ### Before Making Public
@@ -685,8 +750,20 @@ A:
 - **audit**: READ-ONLY holistic analysis of ALL specs vs implementation. Generates report in `audits/`. Use for periodic maintenance.
 - **validate**: Validates ONE spec at a time from `pending-validations.md`. Can generate corrective tasks. Part of build→validate workflow.
 
+**Q: What happens when a spec passes validation?**
+A: The spec is archived: moved to `specs/archive/`, decision summary added to PIN's Archived Knowledge table. Plan mode will no longer read the full spec, trusting the summary instead.
+
+**Q: How do I evolve an archived spec?**
+A: Move it back to `specs/`: `mv specs/archive/foo.md specs/foo.md`. This explicit action signals intent. Plan will then read it again.
+
+**Q: What is VDD?**
+A: Verification Driven Development. For infrastructure tasks, the first task is always creating an E2E verification script in `tests/e2e/` that fails until the feature works. Code isn't done until the script passes.
+
+**Q: What are the security hooks?**
+A: `hooks/core/pre-tool-use.sh` blocks dangerous commands: `rm -rf`, `git push --force`, and direct `.env` access. Configured via `.claude/settings.json` for Claude Code.
+
 ---
 
-**Version:** 1.2
-**Last Updated:** 2026-01-26
-**Changes:** Updated documentation to reflect current codebase (audit mode, work mode details, configuration fields, accurate line counts)
+**Version:** 1.3
+**Last Updated:** 2026-01-30
+**Changes:** Compound Architecture update (PIN, VDD, telemetry, hooks, archive system, documentation tasks in plan)
