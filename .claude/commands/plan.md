@@ -260,52 +260,85 @@ When reading specs, **DO NOT read files in `specs/archive/`**:
 
 ---
 
-## Phase 3d: Documentation Tasks
+---
 
-**MANDATORY:** Check each spec for documentation requirements and generate explicit tasks.
+## Phase 4: Documentation Tasks
 
-### Detection
+**MANDATORY PHASE.** Documentation is a first-class citizen. Every spec that changes behavior, structure, or workflow MUST have corresponding documentation tasks.
 
-For each INCLUDED_SPEC, search for documentation mentions:
+### Step 1: Scan for Documentation Requirements
+
+For EACH INCLUDED_SPEC, actively search for documentation needs:
 
 ```bash
-# Check for documentation sections in spec
+# Explicit documentation sections
 grep -E "Documentation to update|README|docs/" specs/spec-name.md
+
+# Implicit triggers (new features, directories, workflows)
+grep -E "New.*directory|New.*component|Workflow.*change|Architecture" specs/spec-name.md
 ```
 
-### Common documentation targets:
+### Step 2: Identify Documentation Targets
 
-| Target | Trigger | Task to Generate |
-|--------|---------|------------------|
-| `README.md` | Spec mentions new features, directory structure, or workflow changes | Update README.md with {specific section} |
-| `export-loopy.sh` | New directories or components added | Update PRESET_FULL and templates |
-| `specs/README.md` | Already handled by PIN updates | (no extra task needed) |
+| Trigger in Spec | Documentation Target | Task Required |
+|-----------------|---------------------|---------------|
+| New directory structure | `README.md` File Structure section | YES |
+| New workflow or mode | `README.md` How It Works section | YES |
+| New component type | `README.md` Core Components section | YES |
+| New FAQ-worthy concept | `README.md` FAQ section | YES |
+| New exportable files | `export-loopy.sh` PRESET arrays | YES |
+| New command | `README.md` Usage Examples | YES |
+| `specs/README.md` changes | Already handled by PIN updates | NO (automatic) |
 
-### Task generation rule:
+### Step 3: Generate Documentation Tasks
 
-If spec explicitly mentions "Documentation to update" or similar:
-- Generate ONE task per documentation target
-- Task must be specific: "Update README.md section X to document Y"
-- Include verification: `grep -q "expected_content" README.md`
-
-**Example task:**
+**For EACH documentation target identified:**
 
 ```markdown
-- [ ] Update README.md with new directory structure
-      Done when: README File Structure section includes hooks/, tests/, specs/archive/
-      Verify: grep -q "hooks/" README.md && grep -q "tests/e2e" README.md
-      (cite: specs/{spec-name}.md - Documentation section)
+- [ ] Update {file} with {specific content}
+      Done when: {file} {section} includes {expected content}
+      Verify: grep -q "{pattern}" {file}
+      (cite: specs/{spec-name}.md - Documentation requirements)
+      [Documentation task - Phase 4]
 ```
 
-**Rationale:** Documentation drift is a systematic problem. Explicit tasks ensure docs stay synchronized with implementation.
+**Examples:**
+
+```markdown
+- [ ] Update README.md File Structure section with hooks/ directory
+      Done when: README.md shows hooks/core/log-event.sh and hooks/core/pre-tool-use.sh
+      Verify: grep -q "hooks/core" README.md && grep -q "log-event.sh" README.md
+      (cite: specs/compound-architecture-system.md - Section 2 Directory Structure)
+      [Documentation task - Phase 4]
+
+- [ ] Update README.md Core Components with Hooks section
+      Done when: README.md has "**7. Hooks**" section describing telemetry and security
+      Verify: grep -q "Hooks.*hooks/" README.md
+      (cite: specs/compound-architecture-system.md - Section 3.5 Telemetry)
+      [Documentation task - Phase 4]
+```
+
+### Step 4: No Documentation = Explicit Justification
+
+If a spec has NO documentation tasks, you MUST add a note:
+
+```markdown
+## Documentation Review
+
+Spec: {spec-name}
+Documentation tasks: NONE
+Justification: {reason - e.g., "Internal refactoring only, no user-facing changes"}
+```
+
+**Rationale:** Documentation drift is a systematic problem. This phase ensures docs stay synchronized with implementation. Omission must be conscious, not accidental.
 
 ---
 
-## Phase 4: Strategic Analysis <extended_thinking>
+## Phase 5: Strategic Analysis <extended_thinking>
 
 **Use <extended_thinking> for deep reasoning before generating plan.**
 
-### 4.1 Dependency Analysis
+### 5.1 Dependency Analysis
 
 Map task dependencies:
 - Identify foundational tasks (must happen first)
@@ -313,7 +346,7 @@ Map task dependencies:
 - Identify independent tasks (can be parallelized)
 - Order: foundation → features → polish
 
-### 4.2 Context Budget Estimation
+### 5.2 Context Budget Estimation
 
 Estimate context required per task:
 
@@ -336,7 +369,7 @@ Estimate context required per task:
 - **Context total: 2000+ lines**
 - Budget: ⚠️ LARGE (consider splitting)
 
-### 4.3 Smart Task Grouping (Context-Aware)
+### 5.3 Smart Task Grouping (Context-Aware)
 
 **⚠️ GROUPING IS MANDATORY, NOT OPTIONAL.**
 
@@ -389,7 +422,7 @@ Default behavior: GROUP tasks together. You must justify every SPLIT.
 | Verification   | Same command → ✅ Group | Similar → ✅ Group      | Different → ❌ Separate |
 | File Count     | 1 file → ✅ Group       | 2-3 files → Maybe      | 4+ files → ❌ Separate  |
 
-### 4.4 Task Sizing Guidelines
+### 5.4 Task Sizing Guidelines
 
 - **Small** (preferred): 1 file, < 50 lines changed, simple verify
 - **Medium**: 2-3 files, < 200 lines changed, moderate verify
@@ -397,7 +430,7 @@ Default behavior: GROUP tasks together. You must justify every SPLIT.
 
 **If LARGE → split even if conceptually related**
 
-### 4.5 Preserve Complete Traceability
+### 5.5 Preserve Complete Traceability
 
 When grouping tasks, NEVER lose:
 - ❌ Citations (all spec references preserved)
@@ -418,7 +451,7 @@ When grouping tasks, NEVER lose:
       [Grouped: Sequential dependencies, same file, combined context ~150 lines]
 ```
 
-### 4.6 Phase Structure Optimization
+### 5.6 Phase Structure Optimization
 
 Create LOGICAL phases based on subsystems, NOT spec boundaries:
 
@@ -440,7 +473,7 @@ Phase 3: Documentation & Testing (~600 lines context)
 
 ---
 
-## Phase 5: Generate Plan
+## Phase 6: Generate Plan
 
 ### Step 1: Check if plan.md exists
 
@@ -603,6 +636,8 @@ Where {action} is: "fresh", "updated", "cleaned", or "regenerated"
 
 99999999999999. **Update README status.** Change 📋→⏳ in specs/README.md for specs with new tasks. Never skip this step.
 
+999999999999999. **Documentation tasks are MANDATORY.** Every spec with new features, directories, or workflows MUST have documentation tasks (Phase 4). If no docs needed, add explicit justification. Documentation drift is unacceptable.
+
 ---
 
 ## Completion
@@ -619,13 +654,14 @@ This signals the orchestrator that planning is finished.
 
 ## Notes
 
-### Why 5 Phases?
+### Why 6 Phases?
 
 - **Phase 1**: Prevents working on already-done specs (saves massive time)
 - **Phase 2**: Focused reading (only what's needed)
-- **Phase 3**: Understands real scope (impact analysis)
-- **Phase 4**: Intelligent optimization (grouping, dependencies)
-- **Phase 5**: Generates actionable plan (clear, verifiable tasks)
+- **Phase 3**: Understands real scope (impact analysis + strategy + VDD)
+- **Phase 4**: Documentation tasks (prevents docs drift)
+- **Phase 5**: Intelligent optimization (grouping, dependencies)
+- **Phase 6**: Generates actionable plan (clear, verifiable tasks)
 
 ### Why Precedence: git > README?
 
