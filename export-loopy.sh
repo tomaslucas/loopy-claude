@@ -143,12 +143,12 @@ check_dependencies() {
     # Read default agent from config if available
     local DEFAULT_AGENT="claude"
     local AGENT_COMMAND="claude"
-    
+
     if [[ -f "$SOURCE_PATH/loopy.config.json" ]] && command -v jq &>/dev/null; then
         DEFAULT_AGENT=$(jq -r '.default // "claude"' "$SOURCE_PATH/loopy.config.json" 2>/dev/null || echo "claude")
         AGENT_COMMAND=$(jq -r ".agents.${DEFAULT_AGENT}.command // \"claude\"" "$SOURCE_PATH/loopy.config.json" 2>/dev/null || echo "claude")
     fi
-    
+
     if ! command -v "$AGENT_COMMAND" &>/dev/null; then
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "⚠ WARNING: Default agent CLI not found: $AGENT_COMMAND"
@@ -587,6 +587,42 @@ Validated and frozen specs. **Do NOT read these files** — use the decision sum
 | *(specs move here after validation passes)* | | |
 
 **To evolve an archived spec:** Move it back to \`specs/\` and update this table.
+
+---
+
+## Key Design Decisions (Quick Reference)
+
+*Document cross-cutting architectural decisions here as specs are created.*
+
+<!-- Example format:
+1. **Decision name**
+   - What: Brief description
+   - Why: Rationale
+-->
+
+---
+
+## Naming Conventions
+
+**Format:** \`{domain}-system.md\` or \`{domain}-{type}.md\`
+
+**Rules:**
+- Lowercase with hyphens
+- No numeric prefixes
+- Descriptive and specific
+- Include type suffix when relevant (-system, -skill, -prompt)
+
+---
+
+## Search Keywords by Topic
+
+*Add keywords here as specs are created to enable semantic search.*
+
+<!-- Example format:
+**Topic Name:**
+- keyword1, keyword2, keyword3
+- related concept, another term
+-->
 
 ---
 

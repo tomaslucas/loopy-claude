@@ -78,13 +78,13 @@ Use AskUserQuestion to validate topic boundaries.
 2. **Approach Evaluation:**
    Identify 2-3 implementation approaches and analyze each:
 
-   | Criterion | Questions |
-   |-----------|-----------|
-   | **Complexity** | Lines of code? New dependencies? Learning curve? |
-   | **Performance** | Time/space complexity? Bottlenecks? |
-   | **Security** | Attack surface? Data exposure? Validation needed? |
-   | **Maintainability** | Testable? Debuggable? Future-proof? |
-   | **Consistency** | Matches existing patterns? Creates split-brain? |
+   | Criterion           | Questions                                         |
+   | ------------------- | ------------------------------------------------- |
+   | **Complexity**      | Lines of code? New dependencies? Learning curve?  |
+   | **Performance**     | Time/space complexity? Bottlenecks?               |
+   | **Security**        | Attack surface? Data exposure? Validation needed? |
+   | **Maintainability** | Testable? Debuggable? Future-proof?               |
+   | **Consistency**     | Matches existing patterns? Creates split-brain?   |
 
 3. **Present Options via AskUserQuestion:**
 
@@ -422,7 +422,10 @@ Trigger phrases:
    - Use lowercase-with-hyphens
    - **NO implementation checklists** (Section 7 is Implementation Guidance only)
    - **Include Section 8: Selected Implementation Strategy** with decisions from Step 3b
-3. Update PIN (`specs/README.md`)
+3. Update PIN (`specs/README.md`):
+   - Add entry to **Active Specs** table
+   - Add keywords to **Search Keywords by Topic** section
+   - Add key decisions to **Key Design Decisions** section (if cross-cutting)
 4. Evaluate project documentation updates:
    - Review documentation that may be affected by the new feature
    - If updates needed → add to spec's "Files to modify" section
