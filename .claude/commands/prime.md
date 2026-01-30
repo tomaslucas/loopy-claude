@@ -11,7 +11,8 @@ Execute the `Workflow` and `Report` sections to understand the codebase and the 
 ## Workflow
 
 - Run `git ls-files` to list all files in the repository.
-- Study `specs/README.md` for an overview of the project.
+- Study `specs/README.md` for an overview of the project (PIN with Active/Archived specs).
+- Study `README.md` section "How It Works" for the complete workflow (Design → Plan → Build → Validate → Archive).
 
 ## Human Participation Model
 
