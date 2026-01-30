@@ -509,8 +509,8 @@ Formulate a one-line summary:
 **Example addition to Archived Knowledge table:**
 
 ```markdown
-| Feature | Decision/Trade-off | Archived |
-|---------|-------------------|----------|
+| Feature       | Decision/Trade-off                       | Archived                                                               |
+| ------------- | ---------------------------------------- | ---------------------------------------------------------------------- |
 | Export System | Preset configurations for predictable UX | [specs/archive/export-loopy-system.md](archive/export-loopy-system.md) |
 ```
 
@@ -519,8 +519,10 @@ Formulate a one-line summary:
 Move the validated spec to the archive directory:
 
 ```bash
-mv specs/{spec-name}.md specs/archive/
+git mv specs/{spec-name}.md specs/archive/
 ```
+
+**IMPORTANT:** Always use `git mv` (not `mv` or `cp`) to ensure Git tracks the file movement atomically. This prevents orphaned files and ensures the deletion is staged together with the addition.
 
 #### 4. Commit with Citation
 
@@ -630,12 +632,12 @@ or (if pending-validations.md is now empty):
 
 Choose the HIGHEST priority signal that applies:
 
-| Priority | Condition | Signal |
-|----------|-----------|--------|
-| 1 (highest) | Any spec reached attempt 3/3 | `<promise>ESCALATE</promise>` |
-| 2 | Any spec needed corrections | `<promise>CORRECTIONS_NEEDED</promise>` |
-| 3 | All specs validated, queue empty | `<promise>COMPLETE</promise>` |
-| 4 | All specs in batch validated | `<promise>SPEC_VALIDATED</promise>` |
+| Priority    | Condition                        | Signal                                  |
+| ----------- | -------------------------------- | --------------------------------------- |
+| 1 (highest) | Any spec reached attempt 3/3     | `<promise>ESCALATE</promise>`           |
+| 2           | Any spec needed corrections      | `<promise>CORRECTIONS_NEEDED</promise>` |
+| 3           | All specs validated, queue empty | `<promise>COMPLETE</promise>`           |
+| 4           | All specs in batch validated     | `<promise>SPEC_VALIDATED</promise>`     |
 
 **Examples:**
 
