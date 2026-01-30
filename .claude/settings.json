@@ -1,10 +1,10 @@
 {
   "permissions": {
     "deny": [
-      "bash(git push --force:*)",
-      "bash(git push -f:*)",
-      "bash(rm -rf:*)",
-      "bash(rm -fr:*)"
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(rm -rf:*)",
+      "Bash(rm -fr:*)"
     ]
   },
   "hooks": {
