@@ -30,3 +30,4 @@
 | 2026-01-29 20:44 | Add conditional git push to loop.sh | f1c11c8 | specs/compound-architecture-system.md |
 | 2026-01-29 19:46 | Add telemetry integration to loop.sh | a74bd3f | specs/compound-architecture-system.md |
 | 2026-01-29 20:58 | Implement security hooks for dangerous commands | 78026a5 | specs/compound-architecture-system.md |
+| 2026-01-30 11:52 | Create E2E verification script for Copilot hooks | 01e8cec | specs/copilot-hooks-system.md |

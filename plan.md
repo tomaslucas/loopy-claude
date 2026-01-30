@@ -15,20 +15,6 @@ Specs analyzed: 1 (copilot-hooks-system.md)
 
 ---
 
-## Phase 1: VDD Verification Script
-
-- [ ] Create E2E verification script for Copilot hooks
-      Done when:
-        - File tests/e2e/copilot-hooks-verify.sh exists and is executable
-        - Script tests: dangerous command blocked, safe command allowed, force push blocked, env file blocked, postToolUse logging, invalid hook type error
-        - Script FAILS until adapter is properly implemented (VDD principle)
-      Verify:
-        - [ -x tests/e2e/copilot-hooks-verify.sh ] && echo "✅ Executable"
-        - ./tests/e2e/copilot-hooks-verify.sh && echo "UNEXPECTED PASS" || echo "✅ Expected failure (VDD)"
-      (cite: specs/copilot-hooks-system.md Section 5 Testing Strategy)
-
----
-
 ## Phase 2: Adapter and Configuration
 
 - [ ] Create Copilot adapter and hooks configuration
