@@ -2,6 +2,9 @@
 logs/
 *.log
 
+# Telemetry (structured logs)
+logs/session-events.jsonl
+
 # Generated plans (mutable, regenerated)
 plan.md.completed-*
 

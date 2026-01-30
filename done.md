@@ -18,3 +18,15 @@
 | 2026-01-28 12:35 | Add lightweight strategy to /bug for non-trivial fixes | - | specs/strategy-investigation-system.md |
 | 2026-01-28 12:40 | Add strategy divergence handling to /reconcile | - | specs/strategy-investigation-system.md |
 | 2026-01-28 12:45 | Update related specs to document strategy-investigation integration | - | specs/strategy-investigation-system.md |
+| 2026-01-29 20:20 | Create new directories and remove obsolete prompts/ symlinks | 1fa30aa | specs/compound-architecture-system.md |
+| 2026-01-29 20:23 | Restructure specs/README.md with Active Specs and Archived Knowledge sections | a19943c | specs/compound-architecture-system.md |
+| 2026-01-29 20:29 | Create hooks/core/log-event.sh telemetry emitter | 5db1e79 | specs/compound-architecture-system.md |
+| 2026-01-29 20:30 | Update .gitignore for telemetry files | 908bb64 | specs/compound-architecture-system.md |
+| 2026-01-29 20:32 | Add VDD (Verification Driven Development) rules to plan.md | 366a9cc | specs/compound-architecture-system.md |
+| 2026-01-29 20:34 | Add archival lifecycle to validate.md on PASS | 5bc9c8b | specs/compound-architecture-system.md |
+| 2026-01-29 20:36 | Refocus post-mortem.md to operational patterns only | f80d6d6 | specs/compound-architecture-system.md |
+| 2026-01-29 20:38 | Add archive awareness to audit.md and reconcile.md | b162cda | specs/compound-architecture-system.md |
+| 2026-01-29 20:40 | Fix done.md commit hash capture in build.md Step 6 | ebdd0b9 | specs/compound-architecture-system.md |
+| 2026-01-29 20:44 | Add conditional git push to loop.sh | f1c11c8 | specs/compound-architecture-system.md |
+| 2026-01-29 19:46 | Add telemetry integration to loop.sh | a74bd3f | specs/compound-architecture-system.md |
+| 2026-01-29 20:58 | Implement security hooks for dangerous commands | 78026a5 | specs/compound-architecture-system.md |

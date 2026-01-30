@@ -14,7 +14,12 @@ Perform a comprehensive audit of the repository, comparing all implementations a
 **CRITICAL: This is READ-ONLY analysis. Do NOT fix issues, only document them.**
 
 1. Study `specs/README.md` to understand all specifications
+   - Note which specs are in Active Specs section
+   - Note which specs are in Archived Knowledge section
+   - Understand that `specs/archive/` contains frozen, validated specs
 2. Note which specs are marked ✅ (Implemented) - these are audit targets
+   - Check `specs/` for active specs marked ✅
+   - Check `specs/archive/` for archived (validated) specs - both are audit targets
 3. Identify the scope: full audit or specific component (if $ARGUMENTS provided)
 
 ---
@@ -45,8 +50,11 @@ Perform a comprehensive audit of the repository, comparing all implementations a
 Gather all audit targets:
 
 ```bash
-# List all implemented specs
+# List all implemented specs (active)
 grep -E "^\|.*\| ✅" specs/README.md | sed 's/.*\[\([^]]*\)\].*/\1/'
+
+# List all archived specs (validated)
+ls -1 specs/archive/*.md 2>/dev/null | xargs -n1 basename
 
 # List all shell scripts
 ls -la *.sh

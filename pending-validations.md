@@ -1,3 +1,1 @@
 # Pending Validations
-
-<!-- Queue empty -->

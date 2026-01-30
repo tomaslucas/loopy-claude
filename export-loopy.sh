@@ -108,6 +108,8 @@ PRESET_FULL=(
     "export-loopy.sh"
     "loopy.config.json"
     ".claude/"
+    "hooks/"
+    "tests/"
     ".gitignore"
 )
 
@@ -141,12 +143,12 @@ check_dependencies() {
     # Read default agent from config if available
     local DEFAULT_AGENT="claude"
     local AGENT_COMMAND="claude"
-    
+
     if [[ -f "$SOURCE_PATH/loopy.config.json" ]] && command -v jq &>/dev/null; then
         DEFAULT_AGENT=$(jq -r '.default // "claude"' "$SOURCE_PATH/loopy.config.json" 2>/dev/null || echo "claude")
         AGENT_COMMAND=$(jq -r ".agents.${DEFAULT_AGENT}.command // \"claude\"" "$SOURCE_PATH/loopy.config.json" 2>/dev/null || echo "claude")
     fi
-    
+
     if ! command -v "$AGENT_COMMAND" &>/dev/null; then
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "⚠ WARNING: Default agent CLI not found: $AGENT_COMMAND"
@@ -388,9 +390,16 @@ copy_files() {
 
         # Copy file or directory
         if [[ "$DRY_RUN" == true ]]; then
-            echo "[DRY RUN] Would copy: $file"
+            if [[ -d "$src_path" ]]; then
+                echo "[DRY RUN] Would copy directory: $file ($(find "$src_path" -type f | wc -l) files)"
+            else
+                echo "[DRY RUN] Would copy: $file"
+            fi
         else
             if [[ -d "$src_path" ]]; then
+                # For directories, use cp -rT to copy contents INTO dest (not create subdir)
+                # Or remove dest first if it exists to avoid nesting
+                rm -rf "$dest_path"
                 cp -r "$src_path" "$dest_path"
                 echo "✓ Copied directory: $file"
             else
@@ -545,25 +554,75 @@ EOF
     if [[ "$DRY_RUN" == true ]]; then
         echo "[DRY RUN] Would create specs/README.md"
     else
-        mkdir -p "$dest/specs"
+        mkdir -p "$dest/specs/archive"
         cat > "$dest/specs/README.md" <<EOF
 # Project Specifications
 
-Lookup table for specifications.
+> Project Intelligence Network (PIN): Decision map for AI agents. Read Active Specs in detail; trust Archived summaries.
 
 ## How to Use
 
 1. **AI agents:** Study \`specs/README.md\` before any spec work
 2. **Search here** to find relevant existing specs by keyword
-3. **When creating new spec:** Add entry here with semantic keywords
+3. **When creating new spec:** Add entry to Active Specs table
+4. **Plan mode:** Reads Active Specs only, trusts Archived summaries
+5. **Do NOT read archived specs** — use the decision summary instead
 
 ---
 
-## Specs
+## Active Specs
 
 | Spec | Code | Purpose |
 |------|------|---------|
-|      |      |         |
+| *(add your specs here)* | | |
+
+---
+
+## Archived Knowledge
+
+Validated and frozen specs. **Do NOT read these files** — use the decision summary below.
+
+| Feature | Decision/Trade-off | Archived |
+|---------|-------------------|----------|
+| *(specs move here after validation passes)* | | |
+
+**To evolve an archived spec:** Move it back to \`specs/\` and update this table.
+
+---
+
+## Key Design Decisions (Quick Reference)
+
+*Document cross-cutting architectural decisions here as specs are created.*
+
+<!-- Example format:
+1. **Decision name**
+   - What: Brief description
+   - Why: Rationale
+-->
+
+---
+
+## Naming Conventions
+
+**Format:** \`{domain}-system.md\` or \`{domain}-{type}.md\`
+
+**Rules:**
+- Lowercase with hyphens
+- No numeric prefixes
+- Descriptive and specific
+- Include type suffix when relevant (-system, -skill, -prompt)
+
+---
+
+## Search Keywords by Topic
+
+*Add keywords here as specs are created to enable semantic search.*
+
+<!-- Example format:
+**Topic Name:**
+- keyword1, keyword2, keyword3
+- related concept, another term
+-->
 
 ---
 

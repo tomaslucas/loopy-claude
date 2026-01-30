@@ -1,46 +1,49 @@
 # Loopy-Claude Specifications
 
-Lookup table for specifications. The "Purpose" column contains semantic keywords to improve search tool hit rate.
+> Project Intelligence Network (PIN): Decision map for AI agents. Read Active Specs in detail; trust Archived summaries.
 
 ## How to Use
 
 1. **AI agents:** Study `specs/README.md` before any spec work
 2. **Search here** to find relevant existing specs by keyword
-3. **When creating new spec:** Add entry here with semantic keywords
-4. **Plan mode:** Uses this to reconcile git log vs spec status
+3. **When creating new spec:** Add entry to Active Specs table
+4. **Plan mode:** Reads Active Specs only, trusts Archived summaries
+5. **Do NOT read archived specs** — use the decision summary instead
 
 ---
 
-## Core Systems
+## Active Specs
 
-| Spec                                                       | Code                 | Purpose                                                                                                                                                                                                                                                                                                                        |
-| ---------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [loop-orchestrator-system.md](loop-orchestrator-system.md) | ✅ loop.sh            | Simple bash orchestrator, **5 stop conditions** (max iterations, empty plan, empty pending-validations, rate limit, completion signal), session logging, model selection, cross-platform compatibility, git automation, iteration control, **multi-agent support** (see cli-agnostic-system)                                                                                                                 |
-| [cli-agnostic-system.md](cli-agnostic-system.md) | ✅ Implemented | **Multi-agent support**, external configuration (`loopy.config.json`), `--agent` flag, model name mapping, Claude Code + Copilot support, extensible design, backward compatible defaults |
-| [prompt-plan-system.md](prompt-plan-system.md)             | ✅ .claude/commands/plan.md    | **5-phase intelligent planning**, multi-source reconciliation (git log > README), gap analysis, **Impact Analysis**, task expansion, **strategic grouping with extended_thinking**, context budget estimation, dependency analysis, plan lifecycle (0%/1-79%/80-100%), DELETE completed tasks, **specs/README.md status update** (📋→⏳)                                  |
-| [prompt-build-system.md](prompt-build-system.md)           | ✅ .claude/commands/build.md   | **Mandatory verification workflow**, 6-step execution, **mandatory spec reading** (Step 2), **quick quality scan** (secrets, injection, paths), self-verify before complete, **in-session fix loop** (up to 3 attempts), delete completed tasks, complete implementation (no TODOs/placeholders), categorized guardrails                                                                  |
-| [prompt-validate-system.md](prompt-validate-system.md)     | ✅ .claude/commands/validate.md | **Post-implementation validation**, **preflight checks** (cost optimization), **two-pass verification** (checklist + semantic inference), **parallel Tasks** (sonnet + opus), **set completeness** (enumerated items), **literal matching** (exact patterns), spec vs code comparison, **pending-validations.md tracking**, attempt limiting (max 3), corrective task generation, escalation workflow, spec as source of truth, **specs/README.md status update** (⏳→✅)                                                                  |
-| [prompt-reverse-system.md](prompt-reverse-system.md)       | ✅ .claude/commands/reverse.md | **Legacy code analysis**, READ-ONLY guarantee, **3-phase workflow** (Discovery → Analysis → Spec Generation), batch processing for context efficiency, JSON intermediates, uncertainty detection, reconstruction checklists, JTBD inference from behavior                                                                      |
-| [feature-designer-skill.md](feature-designer-skill.md)     | ✅ .claude/skills     | **Interactive spec creation**, **continuous AskUserQuestion loop**, critical thinking framework, 4-phase workflow (Research → Iteration → Coherence → Crystallization), **specs without checklists**, tool restrictions (Read/Write/Grep/Glob/AskUserQuestion), YAGNI and simplicity emphasis, cross-spec coherence validation |
-| [export-loopy-system.md](export-loopy-system.md)           | ✅ export-loopy.sh    | **Component export script**, **preset configurations** (full/minimal/design/devtools), interactive destination selection, conflict resolution (ask per file), dependency verification (claude CLI), template generation (specs/README.md, plan.md), .gitignore merging, dry-run mode, flexible source location, permissions preservation |
-| [structure-reorganization-system.md](structure-reorganization-system.md) | ✅ Implemented | **Claude Code alignment**, move prompts to `.claude/commands/`, extract validate agents to `.claude/agents/`, **work mode** (automated build→validate cycles), frontmatter support, backward compatibility, interactive command support |
-| [post-mortem-system.md](post-mortem-system.md) | ✅ .claude/commands/post-mortem.md | **Autonomous learning**, session log analysis, `lessons-learned.md` persistence, structured lessons (Evitar/Usar/Razón), 20 items per section limit, semantic pruning, auto-trigger after productive modes, prompt integration (Phase 0 reads lessons) |
-| [audit-system.md](audit-system.md) | ✅ .claude/commands/audit.md | **Repository audit**, spec compliance verification, READ-ONLY analysis, holistic cross-spec view, divergence detection, structured report generation, periodic maintenance tool, opus model |
-| [reconcile-system.md](reconcile-system.md) | ✅ reconcile.md | **Post-escalation workflow**, structured divergence reports, human decision gate (fix code vs update spec), AskUserQuestion options, migration notes in specs, audit trail of reconciliation decisions |
-| [dependency-check-system.md](dependency-check-system.md) | ✅ loop.sh | **Pre-flight validation**, required vs optional dependencies, graceful jq fallback, platform-specific install suggestions, exit code 3 on missing required, cross-platform (Linux/macOS/WSL) |
-| [done-tracking-system.md](done-tracking-system.md) | ✅ done.md, build.md | **Completion history**, append-only done.md, one-line per task, machine-parseable table format, human progress visibility, zero plan.md impact, metrics extraction |
-| [strategy-investigation-system.md](strategy-investigation-system.md) | ✅ Multiple | **Human on the loop model**, strategy investigation before task generation, 3-approach trade-off analysis, permanent documentation in specs, lightweight version for /bug, affects plan/build/validate/audit/reconcile/feature-designer |
+| Spec | Code | Purpose |
+|------|------|---------|
+| *(none - all specs validated and archived)* | | |
 
 ---
 
-## Implementation Status
+## Archived Knowledge
 
-**Legend:**
-- ✅ **Implemented** - Code exists and is functional
-- ⏳ **In Progress** - Under active development
-- 📋 **Planned** - Specification complete, not yet implemented
+Validated and frozen specs. **Do NOT read these files** — use the decision summary below.
 
-**Current Status:** 15 implemented, 0 in progress, 0 planned.
+| Feature | Decision/Trade-off | Archived |
+|---------|-------------------|----------|
+| Loop Orchestrator | Bash simplicity (~150 lines) over Python flexibility; 5 stop conditions | [loop-orchestrator-system.md](archive/loop-orchestrator-system.md) |
+| CLI Agnostic | External JSON config for multi-agent support; no auto-fallback between agents | [cli-agnostic-system.md](archive/cli-agnostic-system.md) |
+| Plan System | 5-phase workflow; specs describe WHAT, plan describes HOW; git log > README for truth | [prompt-plan-system.md](archive/prompt-plan-system.md) |
+| Build System | Mandatory 6-step verification; 3-attempt fix loop; no placeholders allowed | [prompt-build-system.md](archive/prompt-build-system.md) |
+| Validate System | Two-pass verification (checklist + semantic); spec is immutable source of truth | [prompt-validate-system.md](archive/prompt-validate-system.md) |
+| Reverse Engineering | READ-ONLY guarantee; 3-phase batch processing; JSON intermediates for context | [prompt-reverse-system.md](archive/prompt-reverse-system.md) |
+| Feature Designer | Continuous AskUserQuestion loop; specs WITHOUT implementation checklists | [feature-designer-skill.md](archive/feature-designer-skill.md) |
+| Export System | Preset configurations (full/minimal/design/devtools); interactive conflict resolution | [export-loopy-system.md](archive/export-loopy-system.md) |
+| Structure Reorganization | Claude Code alignment (.claude/commands/); work mode for automated cycles | [structure-reorganization-system.md](archive/structure-reorganization-system.md) |
+| Post-Mortem | Operational patterns only (not product); 20 items max per section with semantic pruning | [post-mortem-system.md](archive/post-mortem-system.md) |
+| Audit System | READ-ONLY holistic analysis; cross-spec divergence detection; opus model | [audit-system.md](archive/audit-system.md) |
+| Reconcile System | Human decision gate (fix code vs update spec); post-escalation workflow | [reconcile-system.md](archive/reconcile-system.md) |
+| Dependency Check | Fail fast on missing critical deps; graceful jq fallback; cross-platform | [dependency-check-system.md](archive/dependency-check-system.md) |
+| Done Tracking | Append-only done.md; one-line per task; zero plan.md impact | [done-tracking-system.md](archive/done-tracking-system.md) |
+| Strategy Investigation | Human on the loop model; 3-approach trade-off before autonomous build | [strategy-investigation-system.md](archive/strategy-investigation-system.md) |
+| Compound Architecture | Single mega-spec for coherent evolution; VDD for infrastructure; JSON telemetry | [compound-architecture-system.md](archive/compound-architecture-system.md) |
+
+**To evolve an archived spec:** Move it back to `specs/` and update this table.
 
 ---
 
@@ -155,5 +158,5 @@ These are documented in specs but highlighted here for agent awareness:
 
 ---
 
-**Last Updated:** 2026-01-28 (added strategy-investigation-system spec)
+**Last Updated:** 2026-01-29 (archived all validated specs)
 **Project:** loopy-claude

@@ -5,11 +5,19 @@
 ### The Rule
 - ❌ DO NOT increment VERSION
 - ❌ DO NOT update CHANGELOG.md
-- ✅ DO update specs/README.md (PIN)
+- ✅ DO update specs/README.md (PIN) including:
+  - Active Specs table entry
+  - Search Keywords by Topic (for semantic discovery)
+  - Key Design Decisions (if cross-cutting)
 
 ### Why This Matters (CRITICAL)
 
 Specs are design documents, not code releases. Version and changelog updates signal shipped functionality to users and deployment systems.
+
+**PIN sections serve different purposes:**
+- **Active Specs table**: Quick navigation to spec files
+- **Search Keywords**: Semantic discovery (find specs by concept, not filename)
+- **Key Design Decisions**: Cross-cutting decisions visible without reading each spec
 
 **What happens if you violate this:**
 
@@ -431,16 +439,16 @@ Design phase should not execute code or modify existing implementations.
 
 ## Summary: Cost of Violations
 
-| Guardrail Violated | Immediate Cost | Long-term Cost |
-|-------------------|----------------|----------------|
+| Guardrail Violated            | Immediate Cost               | Long-term Cost                 |
+| ----------------------------- | ---------------------------- | ------------------------------ |
 | Specs ≠ Code (VERSION update) | 30-60 min (false deployment) | Team confusion, broken process |
-| Skip Phase 0 | 1-2 days (rework specs) | Impossible implementations |
-| Premature crystallization | 1-2 hours (redo spec) | Poor design quality |
-| No batch ops | 3x commits, messy history | Maintenance overhead |
-| Multiple topics per spec | 2x reading time | Unclear ownership |
-| No non-goals | Scope creep (weeks) | Project delays |
-| Skip coherence validation | 3-5 days (rework) | Integration failures |
-| Wrong tools | Confusion, errors | Process breakdown |
+| Skip Phase 0                  | 1-2 days (rework specs)      | Impossible implementations     |
+| Premature crystallization     | 1-2 hours (redo spec)        | Poor design quality            |
+| No batch ops                  | 3x commits, messy history    | Maintenance overhead           |
+| Multiple topics per spec      | 2x reading time              | Unclear ownership              |
+| No non-goals                  | Scope creep (weeks)          | Project delays                 |
+| Skip coherence validation     | 3-5 days (rework)            | Integration failures           |
+| Wrong tools                   | Confusion, errors            | Process breakdown              |
 
 **ROI of following guardrails: 10,000%+**
 
